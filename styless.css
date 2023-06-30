@@ -288,6 +288,8 @@ top: 100%;
 {
   width: 30%;
   height: 30vh;
+  display: block;
+  margin: auto;
   position: relative;  
   box-shadow: 0 0 0 10px #cad3d444,
      0 0 10px #c4e2e9; 
