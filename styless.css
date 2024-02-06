@@ -1,44 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap");
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:800);
 
-
-/*Estilos del video background*/
-*
-{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.body
-{
-   width: 100%;
-   height: 100%;
-   
-   
-
-   align-items: center;
-   justify-content: center;
-}
-.backgroundvideo
-{
-  position: fixed;
-  object-fit: cover;
-  z-index: -3;
-  width: 100%;
-  height: 100%;
- 
-
-}
-/*Se termina el video background*/
-.audiosrc
-{
-  width: 50%;
- display: block;
- margin: auto;
-}
 /*Estilos dela animacion del nombre*/
-
+body{
+  background-color: #111112;
+  text-align: center;
+}
 
 .headersvg {
   display: block;
@@ -118,7 +85,7 @@
   position:fixed;
   right:-50%;
   top:0;
-  z-index:-4;
+  z-index:0;
   display: none;
 }
 
@@ -142,67 +109,6 @@
   }
 }
 /*Terminan estilos de la animacion background */
-.acerca
-{
-    
-    text-align: center;
-    position: relative;
-    bottom: 15%;
-    margin: auto;
-    
-    box-shadow: 5px 5px 30px rgb(255, 2, 141)
-}
-
-.card.card-body
-{
-    background-color:  rgba(49, 10, 78, 0.788);
-    color: white;
-    position: relative;    
-    display: block;
-    margin: auto;
-    box-shadow: 5px 5px 30px rgb(255, 2, 141);
-
-}
-
-.btn.btn-primary{
-    background-color:rgba(65, 20, 97, 0.619);
-    border: #1c1c1d;    
-    box-shadow: 5px 5px 30px rgb(255, 2, 141);
-    
-}
-
-.d-block
-{
-  
-    margin: auto;
-    width: 30%;
-    height: auto;
-    box-shadow: 5px 5px 30px rgba(241, 239, 242, 0.711);
-    border-radius: 25px;    
-}
-
-.d-blockg
-{
- 
-    margin: auto;
-    height: auto;
-    width: 30%;
-    box-shadow: 0 0  50px rgba(241, 239, 242, 0.711);
-    border-radius: 25px;
-}
-
-.carousel-indicators
-{
-top: 100%;
-}
-
-.button.accordion-button
-{
-    display: flex;
-    position: relative;
-    width: 10px;
-}
-
  /* animaciones bubbles*/
 
 .containerrbubbles
@@ -260,71 +166,9 @@ top: 100%;
 }
 
 
- 
- /* estilos de texto contenido acerca*/
-.contenidos{
-  position: relative;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  font: size 10%;
-	letter-spacing:0.1em;
-  -webkit-text-fill-color: solid;
-  -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: rgb(233, 215, 233);
-  
-
-   /* text-shadow: 
-						4px 4px #ff1f8f,
-						6px 6px #000000;
-            */
-}
-
-.qr
-{
-    width: 15%;
-}
-
-.cuadrados
-{
-  box-shadow: 0 0 0 10px #cad3d444,
-     0 0 10px #c4e2e9; 
-  border-radius: 10px;
-}
-
-/*Audio Player*/
-
-
-
-/*Se termina audio player*/
-
-
-
-
-
  /*media query tablet*/
- @media (max-width: 1400px) {
-    
-    .d-block
-    {
-        display: block;
-        margin: auto;
-        width: 35%;
-        box-shadow: 0 0 50px rgb(70, 8, 115);
-        border-radius: 25px;
-        
-    }
-    
-    .d-blockg
-    {
-        display: block;
-        margin: auto;
-        width: 30%;
-        box-shadow: 0 0 50px rgb(139, 15, 228);
-        border-radius: 25px;
-        
-    }
-    
-     }
+
+  
      
 /* medias query smarphone*/
 @media (max-width: 450px) {
@@ -339,9 +183,7 @@ top: 100%;
   }
  
   /* animaciones bubbles*/
-
-
- .bubbles span
+.bubbles span
  {
    display: none;
     
@@ -359,86 +201,26 @@ top: 100%;
     transform: translateY(-10vh) scale(1);
  }
  }
-
- 
- .bg {
-  animation:slide 3s ease-in-out infinite alternate;
-  background-image: linear-gradient(-60deg, rgb(94, 14, 110) 50%, rgb(10, 19, 3) 50%);
-  bottom:0;
-  left:-50%;
-  opacity:.5;
-  position:fixed;
-  right:-50%;
-  top:0;
-  z-index:-4;
-  display: flex;
 }
- 
 
-        
-    .d-block
-    {
-        display: block;
-        margin: auto;
-        width: 100%;
-        
-        border-radius: 25px;
-        
-    }
-    
-    .d-blockg
-    {
-        display: block;
-        margin: auto;
-        width: 100%;
-        
-        border-radius: 25px;
-        
-    }
-    
-     .headersvg {
-        display: block;
-        margin: auto;  
-        position: initial;
-        font:  Open Sans, Impact;
-        width: 100%;
-        text-transform: uppercase;
-        background-color: #20201f85;
-       }
-    
-       .spantextos {
-        font-size: 100%;
-        font-weight: bold;
-        position: relative;
-        font-family: "Fredoka One";
-        cursor: pointer;
-        transition: all 300ms ease-in-out;
-      }   
-
-    .qr
-    {
-        width: 50%;
-    }
-    
-   
-
-    .videoyoutube
-{
-  width: 100%;
-  height: 30vh;
-  position: relative;  
+.cuadrodespierto
+{  
+  background-color: #9235c06a;
   box-shadow: 0 0 0 10px #cad3d444,
      0 0 10px #c4e2e9; 
   border-radius: 10px;
+  color: #c4e2e9;
+  text-align: center;
+  align-items: center;
 }
-
-
-.backgroundvideo
-{
- display: none;
- 
+a{
+  color: #c4e2e9;
+}
+.portada{
+width: 10%;
+height: 10%;
+border-radius: 15%;
+padding-right: 2%;
 
 }
-}
-
   
