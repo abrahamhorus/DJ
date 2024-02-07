@@ -166,14 +166,6 @@ body{
     transform: translateY(-10vh) scale(1);
  }
 }
-
-
- /*media query tablet*/
-
-  
-     
-/* medias query smarphone*/
-
 .cuadrodespierto
 {  
   background-color: #9235c06a;
@@ -183,15 +175,31 @@ body{
   color: #c4e2e9;
   text-align: center;
   align-items: center;
+  width: 50%;
+  height: 10%;
+  display: block;
+  margin: auto;
+
 }
 a{
   color: #c4e2e9;
 }
 .portada{
-width: 10%;
-height: 10%;
+width: 50%;
+height: 50%;
 border-radius: 15%;
 padding-right: 2%;
-
+position: relative;
+}
+/*media query smarphone*/
+@media (max-width:450px){
+  .cuadrodespierto{
+    width: 90%;
+    height: 50%;
+  }
+.portada{
+  width: 70%;
+  height: 40%;
+}
 }
   
