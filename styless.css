@@ -166,30 +166,17 @@ body{
     transform: translateY(-10vh) scale(1);
  }
 }
-.cuadrodespierto
-{  
-  background-color: #9235c06a;
-  box-shadow: 0 0 0 10px #cad3d444,
-     0 0 10px #c4e2e9; 
-  border-radius: 10px;
-  color: #c4e2e9;
-  text-align: center;
-  align-items: center;
-  width: 50%;
-  height: 10%;
-  display: block;
-  margin: auto;
 
-}
 a{
   color: #c4e2e9;
 }
 .portada{
-width: 50%;
+width: 30%;
 height: 50%;
 border-radius: 15%;
-padding-right: 2%;
 position: relative;
+box-shadow: 0 0 0 10px #9f0ecf44,
+     0 0 10px #56b9d0;
 }
 /*media query smarphone*/
 @media (max-width:450px){
