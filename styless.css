@@ -175,8 +175,6 @@ width: 30%;
 height: 50%;
 border-radius: 15%;
 position: relative;
-box-shadow: 0 0 0 10px #9f0ecf44,
-     0 0 10px #56b9d0;
 }
 /*media query smarphone*/
 @media (max-width:450px){
