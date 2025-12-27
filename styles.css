@@ -1,5 +1,5 @@
 :root { --accent: #00ff88; --vip: #ff0080; --bg: #000; }
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
 
 body {
     background: var(--bg);
@@ -22,34 +22,24 @@ body {
 }
 
 .logo { color: var(--accent); font-weight: bold; letter-spacing: 1px; }
+.dot.pulse { height: 8px; width: 8px; background: red; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-.app-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-}
-
-.app-page {
-    display: none;
-    width: 100%;
-    height: 100%;
-    flex-direction: column;
-}
-
+.app-container { flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.app-page { display: none; width: 100%; height: 100%; flex-direction: column; }
 .app-page.active { display: flex; }
 
-.video-container { width: 100%; aspect-ratio: 16/9; background: #000; }
+.video-container { width: 100%; aspect-ratio: 16/9; background: #000; flex-shrink: 0; }
 video { width: 100%; height: 100%; object-fit: cover; }
 
-/* CHAT FIX */
+/* CHAT AREA */
 .chat-messages {
     flex: 1;
     background: #050505;
     padding: 15px;
     overflow-y: auto;
-    display: block !important;
+    display: flex;
+    flex-direction: column;
 }
 
 .chat-input-area {
@@ -57,7 +47,7 @@ video { width: 100%; height: 100%; object-fit: cover; }
     padding: 10px;
     background: #080808;
     border-top: 1px solid #222;
-    margin-bottom: 70px; /* Espacio para la nav bar */
+    margin-bottom: 70px;
 }
 
 #user-msg {
@@ -98,13 +88,14 @@ video { width: 100%; height: 100%; object-fit: cover; }
 .nav-item.active { color: var(--accent); }
 .nav-item span { display: block; font-size: 0.6rem; }
 
-/* MODAL */
+/* LOGIN MODAL */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.9);
     display: flex; justify-content: center; align-items: center;
     z-index: 9999;
+    backdrop-filter: blur(5px);
 }
 
 .login-card {
@@ -113,6 +104,8 @@ video { width: 100%; height: 100%; object-fit: cover; }
     border-radius: 20px;
     text-align: center;
     border: 1px solid #333;
+    width: 90%;
+    max-width: 320px;
 }
 
 .btn-google {
@@ -124,19 +117,19 @@ video { width: 100%; height: 100%; object-fit: cover; }
     font-weight: bold;
     margin-top: 15px;
     cursor: pointer;
+    width: 100%;
 }
 
-.btn-cancel { background: none; border: none; color: #555; margin-top: 10px; cursor: pointer; }
+.btn-cancel { background: none; border: none; color: #555; margin-top: 15px; cursor: pointer; }
 
 /* MENSAJES */
-.msg { margin-bottom: 12px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 8px; }
-.msg b { color: var(--accent); font-size: 0.75rem; display: block; }
+.msg { margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 8px; }
+.msg b { color: var(--accent); font-size: 0.7rem; display: block; margin-bottom: 2px; }
 
-/* FIX GRADIENTE POTRA */
 .msg.artista-vip b {
     background: linear-gradient(90deg, #ff0080, #00e1ff);
     -webkit-background-clip: text;
-    background-clip: text; /* El fix que pedía VS Code */
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 900;
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abraham Horus | Plataforma VIP</title>
+    <title>Abraham Horus | VIP</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -22,29 +22,16 @@
                 </video>
             </div>
             <div id="chat-box" class="chat-messages"></div>
+            
             <div class="chat-input-area">
-                <input type="text" id="user-msg" placeholder="Escribe un mensaje...">
+                <input type="text" id="user-msg" placeholder="Escribe un mensaje público...">
                 <button id="send-msg">ENVIAR</button>
             </div>
         </div>
 
-        <div id="p-fotos" class="app-page">
-            <h2 class="section-title">Galería VIP</h2>
-            <div class="photo-grid">
-                <div class="photo-item"><img src="assets/foto1.jpg"></div>
-                <div class="photo-item"><img src="assets/foto2.jpg"></div>
-            </div>
-        </div>
-
-        <div id="p-eventos" class="app-page">
-            <h2 class="section-title">Eventos y Conciertos</h2>
-            <div class="event-card">MÉXICO TOUR 2026 - Auditorio Nacional</div>
-        </div>
-
-        <div id="p-tienda" class="app-page">
-            <h2 class="section-title">Mercancía Oficial</h2>
-            <p>Próximamente productos exclusivos.</p>
-        </div>
+        <div id="p-fotos" class="app-page"><h2 style="padding:20px">Galería VIP</h2></div>
+        <div id="p-eventos" class="app-page"><h2 style="padding:20px">Eventos</h2></div>
+        <div id="p-tienda" class="app-page"><h2 style="padding:20px">Merch</h2></div>
     </main>
 
     <nav class="bottom-nav">
@@ -54,19 +41,8 @@
         <div class="nav-item" onclick="showPage('p-tienda')">👕<span>Merch</span></div>
     </nav>
 
-    <div id="login-modal" class="modal-overlay" style="display:none;">
-        <div class="login-card">
-            <h2>ACCESO VIP</h2>
-            <p>Inicia sesión con Google para desbloquear el contenido.</p>
-            <button onclick="loginConGoogle()" class="btn-google">Entrar con Google</button>
-            <button onclick="closeLogin()" class="btn-cancel">Cerrar</button>
-        </div>
-    </div>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
-    <audio id="ding-sound" src="assets/Gemido de tortuga.mp3" preload="auto"></audio>
 </body>
 </html>
