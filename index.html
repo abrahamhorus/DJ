@@ -22,37 +22,7 @@
         <button id="mobile-chat-toggle" onclick="window.toggleChat()">💬 CHAT</button>
 
         <div id="p-videos" class="app-page active">
-            <div id="p-musica" class="app-page">
-    <div class="music-container">
-        <h2 class="section-title">DISCOGRAFÍA VIP</h2>
-        <div class="music-grid" id="music-list">
-            <div class="music-card">
-                <img src="assets/cover-despierto.jpg" alt="Cover">
-                <div class="music-info">
-                    <h4>DESPIERTO</h4>
-                    <p>Abraham Horus</p>
-                    <button class="play-mini-btn" onclick="window.loadVideo(0)">ESCUCHAR</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="p-eventos" class="app-page">
-    <div class="events-container">
-        <h2 class="section-title">PRÓXIMOS EVENTOS</h2>
-        <div class="event-card">
-            <div class="event-date">15<span>ENE</span></div>
-            <div class="event-details">
-                <h4>Lanzamiento Exclusivo Plataforma</h4>
-                <p>Live Streaming VIP - 20:00 HRS</p>
-            </div>
-            <button class="event-btn">RECORDAR</button>
-        </div>
-    </div>
-</div>
             <div class="video-main-wrapper">
-                
                 <div class="video-carousel">
                     <button class="carousel-btn prev" onclick="window.changeVideo(-1)">❮</button>
                     <div class="video-container">
@@ -68,7 +38,6 @@
                         <div class="likes-btn" onclick="window.darLike()">❤️ <span id="likes-count">0</span></div>
                         <div class="views-display">👁️ <span id="total-views">0</span></div>
                     </div>
-                    
                     <div class="video-description-box">
                         <h1 id="v-title" class="video-title">Cargando...</h1>
                         <p id="v-desc" class="video-text">Cargando descripción...</p>
@@ -86,10 +55,7 @@
             </div>
 
             <div id="chat-sidebar" class="chat-section-wrapper">
-                <div class="chat-header">
-                    LIVE CHAT
-                    <button class="close-chat" onclick="window.toggleChat()">✕</button>
-                </div>
+                <div class="chat-header">LIVE CHAT <button class="close-chat" onclick="window.toggleChat()">✕</button></div>
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-area">
                     <input type="text" id="user-msg" placeholder="Dile algo a la potra...">
@@ -97,17 +63,48 @@
                 </div>
             </div>
         </div>
+
+        <div id="p-musica" class="app-page">
+            <div class="music-container">
+                <h2 class="section-title">Discografía VIP</h2>
+                <div class="music-grid">
+                    <div class="music-card">
+                        <img src="assets/cover-despierto.jpg" alt="Cover">
+                        <div class="music-info">
+                            <h4>DESPIERTO</h4>
+                            <p>Abraham Horus</p>
+                            <button class="play-mini-btn" onclick="window.escucharTema(0)">ESCUCHAR</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="p-eventos" class="app-page">
+            <div class="events-container">
+                <h2 class="section-title">Próximos Eventos</h2>
+                <div class="event-card">
+                    <div class="event-date">15<span>ENE</span></div>
+                    <div class="event-details">
+                        <h4>Lanzamiento VIP</h4>
+                        <p>Live Streaming - 20:00 HRS</p>
+                    </div>
+                    <button class="event-btn">RECORDAR</button>
+                </div>
+            </div>
+        </div>
     </main>
 
-   <nav class="bottom-nav">
-    <div class="nav-item active" onclick="window.showPage('p-videos')">📺<span>Live</span></div>
-    <div class="nav-item" onclick="window.showPage('p-musica')">🎵<span>Música</span></div>
-    <div class="nav-item" onclick="window.showPage('p-fotos')">📸<span>Fotos</span></div>
-    <div class="nav-item" onclick="window.showPage('p-eventos')">🗓️<span>Eventos</span></div>
-</nav>
+    <nav class="bottom-nav">
+        <div id="nav-live" class="nav-item active" onclick="window.showPage('p-videos')">📺<span>Live</span></div>
+        <div id="nav-music" class="nav-item" onclick="window.showPage('p-musica')">🎵<span>Música</span></div>
+        <div id="nav-photos" class="nav-item" onclick="window.showPage('p-fotos')">📸<span>Fotos</span></div>
+        <div id="nav-events" class="nav-item" onclick="window.showPage('p-eventos')">🗓️<span>Eventos</span></div>
+    </nav>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
+    <audio id="ding-sound" src="assets/Gemido de tortuga.mp3" preload="auto"></audio>
 </body>
 </html>

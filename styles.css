@@ -211,3 +211,15 @@ video { width: 100%; height: 100%; object-fit: contain; }
 .event-details h4 { font-size: 0.9rem; }
 .event-details p { font-size: 0.75rem; color: #555; }
 .event-btn { background: var(--accent); border: none; padding: 8px 12px; border-radius: 8px; font-weight: 900; font-size: 0.7rem; cursor: pointer; }
+.music-card, .event-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+.music-card:hover, .event-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+    transform: translateY(-3px);
+}
