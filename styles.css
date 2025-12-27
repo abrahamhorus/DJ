@@ -97,80 +97,62 @@ video { width: 100%; height: 100%; object-fit: cover; }
 }
 
 /* RESPONSIVE DESIGN */
+/* RESPONSIVE DESIGN - FIX POTAXIO */
 @media (max-width: 768px) {
+    body {
+        height: auto; /* Permite que la página crezca hacia abajo */
+        overflow-x: hidden;
+    }
+
     .main-layout {
-        flex-direction: column; /* Apila video y chat uno sobre otro */
+        flex-direction: column;
         height: auto;
-        overflow-y: visible;
+        overflow: visible;
     }
 
     .video-area {
         flex: none;
         width: 100%;
-        padding: 10px;
+        padding: 0; /* Quitamos padding para que el video toque los bordes */
+    }
+
+    .video-container {
+        border-radius: 0; /* Video cuadrado en las esquinas para look pro en móvil */
+        aspect-ratio: 16/9;
+    }
+
+    .subscription-box {
+        margin: 15px; /* Le damos aire a la caja de registro */
+        padding: 20px;
+    }
+
+    #lead-form {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Ajuste de inputs para dedos grandes */
+    input, select {
+        padding: 12px !important;
+        font-size: 16px !important; /* Evita que iOS haga zoom automático */
+        background: #222;
+        border: 1px solid #333;
+        color: white;
+        border-radius: 6px;
     }
 
     .chat-area {
         flex: none;
         width: 100%;
-        height: 400px; /* Le damos una altura fija al chat en móvil */
+        height: 500px; /* Más espacio para leer a los fans */
         border-left: none;
         border-top: 1px solid #222;
     }
 
-    #lead-form {
-        flex-direction: column; /* El formulario de emails también se apila */
-        padding: 0 20px;
-    }
-
-    .btn-vip {
-        width: 100%;
-    }
-
     .top-bar {
         padding: 10px;
-        flex-direction: column;
-        gap: 5px;
         text-align: center;
     }
-}
-.msg {
-    background: rgba(255, 255, 255, 0.05);
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    word-wrap: break-word;
-}
-
-.msg span {
-    color: var(--accent); /* El color verde neón que definimos */
-    font-weight: bold;
-    display: block;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-}
-/* Estilo para la Potra, la Caballota */
-.msg.artista-vip {
-    background: linear-gradient(90deg, rgba(255,215,0,0.1), rgba(255,0,128,0.1));
-    border: 1px solid #ff0080;
-    box-shadow: 0 0 15px rgba(255, 0, 128, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.msg.artista-vip span {
-    color: #ff0080 !important; /* Rosa potente o dorado */
-    font-size: 0.8rem;
-    letter-spacing: 2px;
-}
-
-.msg.artista-vip::after {
-    content: "👑";
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 1.2rem;
 }
 /* Animación de terremoto para el mensaje de la diva */
 @keyframes shake {
