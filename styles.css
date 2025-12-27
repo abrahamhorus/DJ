@@ -1,7 +1,7 @@
 :root {
     --bg: #000;
-    --card: #111;
     --accent: #00ff88;
+    --vip: #ff0080;
     --text: #fff;
 }
 
@@ -11,226 +11,84 @@ body {
     font-family: 'Inter', sans-serif;
     margin: 0;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
+    overflow: hidden;
 }
 
+/* HEADER */
 .top-bar {
     display: flex;
     justify-content: space-between;
-    padding: 15px 30px;
+    padding: 10px 20px;
     border-bottom: 1px solid #222;
-    background: rgba(0,0,0,0.8);
-    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.9);
+    z-index: 100;
 }
 
-.dot.pulse {
-    height: 8px; width: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    display: inline-block;
-    box-shadow: 0 0 10px var(--accent);
-    animation: pulse 2s infinite;
-}
+.logo { font-weight: 700; letter-spacing: 2px; color: var(--accent); }
+.dot.pulse { height: 8px; width: 8px; background: red; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
 
-.main-layout {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-}
+/* NAVEGACIÓN TABS */
+.app-page { display: none; height: calc(100vh - 120px); overflow-y: auto; padding-bottom: 80px; }
+.app-page.active { display: block; }
 
-.video-area {
-    flex: 3;
-    padding: 20px;
-    overflow-y: auto;
-}
-
-.video-container {
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
     width: 100%;
-    aspect-ratio: 16/9;
-    background: #000;
-    border-radius: 12px;
-    overflow: hidden;
+    display: flex;
+    justify-content: space-around;
+    background: #080808;
+    border-top: 1px solid #222;
+    padding: 10px 0;
+    z-index: 1000;
 }
 
+.nav-item { text-align: center; color: #555; font-size: 1.4rem; cursor: pointer; transition: 0.3s; }
+.nav-item.active { color: var(--accent); }
+.nav-item span { display: block; font-size: 0.6rem; text-transform: uppercase; }
+
+/* CHAT Y VIDEO */
+.video-container { width: 100%; aspect-ratio: 16/9; background: #000; }
 video { width: 100%; height: 100%; object-fit: cover; }
 
-.subscription-box {
-    margin-top: 20px;
-    background: var(--card);
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-}
+.chat-messages { height: 300px; overflow-y: auto; padding: 15px; background: #050505; }
+.msg { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.9rem; }
+.msg span { color: var(--accent); font-weight: bold; display: block; font-size: 0.7rem; }
 
-#lead-form {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.btn-vip {
-    background: #fff;
-    color: #000;
-    border: none;
-    padding: 10px 25px;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.chat-area {
-    flex: 1;
-    background: #080808;
-    border-left: 1px solid #222;
-    display: flex;
-    flex-direction: column;
-}
-
-.chat-messages { flex: 1; padding: 15px; overflow-y: auto; }
-
-.msg.artist { color: var(--accent); background: rgba(0,255,136,0.05); padding: 8px; border-radius: 6px; }
-
-@keyframes pulse {
-    0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; }
-}
-
-/* RESPONSIVE DESIGN */
-/* RESPONSIVE DESIGN - FIX POTAXIO */
-@media (max-width: 768px) {
-    body {
-        height: auto; /* Permite que la página crezca hacia abajo */
-        overflow-x: hidden;
-    }
-
-    .main-layout {
-        flex-direction: column;
-        height: auto;
-        overflow: visible;
-    }
-
-    .video-area {
-        flex: none;
-        width: 100%;
-        padding: 0; /* Quitamos padding para que el video toque los bordes */
-    }
-
-    .video-container {
-        border-radius: 0; /* Video cuadrado en las esquinas para look pro en móvil */
-        aspect-ratio: 16/9;
-    }
-
-    .subscription-box {
-        margin: 15px; /* Le damos aire a la caja de registro */
-        padding: 20px;
-    }
-
-    #lead-form {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    /* Ajuste de inputs para dedos grandes */
-    input, select {
-        padding: 12px !important;
-        font-size: 16px !important; /* Evita que iOS haga zoom automático */
-        background: #222;
-        border: 1px solid #333;
-        color: white;
-        border-radius: 6px;
-    }
-
-    .chat-area {
-        flex: none;
-        width: 100%;
-        height: 500px; /* Más espacio para leer a los fans */
-        border-left: none;
-        border-top: 1px solid #222;
-    }
-
-    .top-bar {
-        padding: 10px;
-        text-align: center;
-    }
-}
-/* Animación de terremoto para el mensaje de la diva */
-@keyframes shake {
-  0% { transform: translate(1px, 1px) rotate(0deg); }
-  10% { transform: translate(-1px, -2px) rotate(-1deg); }
-  30% { transform: translate(3px, 2px) rotate(0deg); }
-  50% { transform: translate(-1px, 2px) rotate(1deg); }
-  100% { transform: translate(1px, -2px) rotate(-1deg); }
-}
-
-/* EL EFECTO DIVA SUPREMO */
+/* EFECTO LA POTRA */
 @keyframes brillo-pro {
-    0% { border-color: #ff0080; box-shadow: 0 0 10px #ff0080; }
-    33% { border-color: #00ff88; box-shadow: 0 0 20px #00ff88; }
-    66% { border-color: #00e1ff; box-shadow: 0 0 10px #00e1ff; }
-    100% { border-color: #ff0080; box-shadow: 0 0 20px #ff0080; }
+    0% { border-color: var(--vip); box-shadow: 0 0 10px var(--vip); }
+    50% { border-color: #00e1ff; box-shadow: 0 0 20px #00e1ff; }
+    100% { border-color: var(--vip); box-shadow: 0 0 10px var(--vip); }
 }
 
 .msg.artista-vip {
-    background: rgba(0, 0, 0, 0.8); /* Fondo oscuro para que resalte el brillo */
-    border: 2px solid #ff0080;
-    border-radius: 12px;
-    padding: 12px;
-    position: relative;
-    overflow: hidden;
-    /* Aquí aplicamos la magia: el shake que ya tenías + el nuevo brillo */
-    animation: shake 0.5s, brillo-pro 3s infinite alternate;
+    border: 2px solid var(--vip);
+    animation: brillo-pro 3s infinite alternate;
+    background: rgba(255, 0, 128, 0.05);
 }
+.msg.artista-vip span { color: var(--vip); }
 
-/* El texto de "LA POTRA" también debe brillar */
-.msg.artista-vip span {
-    background: linear-gradient(90deg, #ff0080, #00e1ff);
-    -webkit-background-clip: text; /* Para Chrome/Safari */
-    background-clip: text;         /* LA VERSIÓN ESTÁNDAR que te pide el editor */
-    -webkit-text-fill-color: transparent;
-    font-size: 0.85rem;
-    font-weight: 900;
-    text-shadow: none;
-}
-#send-msg {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-}
-
-#send-msg:hover {
-    box-shadow: 0 0 15px var(--accent);
-    transform: scale(1.05); /* Se hace un poquito más grande al pasar el mouse */
-    filter: brightness(1.2);
-}
-.full-screen {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: radial-gradient(circle, #111 0%, #000 100%);
+/* MODAL LOGIN */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+    display: flex; justify-content: center; align-items: center; z-index: 2000;
 }
 
 .login-card {
-    text-align: center;
-    padding: 40px;
-    border: 1px solid #222;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.02);
-    backdrop-filter: blur(10px);
+    background: #111; padding: 30px; border-radius: 20px; text-align: center;
+    border: 1px solid #333; max-width: 320px;
 }
 
 .btn-google {
-    background: #fff;
-    color: #000;
-    padding: 12px 25px;
-    border-radius: 50px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 12px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    body { overflow-y: auto; }
+    .app-page { height: auto; }
 }
