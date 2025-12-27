@@ -8,58 +8,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <header class="top-bar">
-        <div class="logo">TU MARCA</div>
-        <div class="status-info">
-            <div class="status"><span class="dot pulse"></span> ARTISTA ONLINE</div>
-            <div class="counter"><span id="live-views">124</span> FANS EN VIVO</div>
+    <div id="login-screen" class="full-screen">
+        <div class="login-card">
+            <h1>ABRAHAM HORUS</h1>
+            <p>Acceso exclusivo para la Élite</p>
+            <button onclick="loginConGoogle()" class="btn-google">
+                Entrar con Google
+            </button>
         </div>
-    </header>
+    </div>
 
-    <main class="main-layout">
-        <section class="video-area">
-            <div class="video-container">
-                <video id="main-video" poster="assets/poster.jpg" controls>
-                    <source src="https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4" type="video/mp4">
-                </video>
-            </div>
+    <div id="app-content" style="display:none;">
+        <div id="videos" class="app-page active"> </div>
+        <div id="fotos" class="app-page"> </div>
+        <div id="eventos" class="app-page"> </div>
+        <div id="tienda" class="app-page"> </div>
 
-            <div class="subscription-box">
-                <h2>Únete a la Élite</h2>
-                <p>Deja tus datos para el chat VIP y acceso a preventas.</p>
-                <form id="lead-form">
-                    <input type="email" id="email" placeholder="Tu Email" required>
-                    <select id="country" required>
-                        <option value="" disabled selected>País</option>
-                        <option value="MX">México</option>
-                        <option value="CO">Colombia</option>
-                        <option value="ES">España</option>
-                        <option value="AR">Argentina</option>
-                        <option value="US">USA</option>
-                    </select>
-                    <button type="submit" class="btn-vip" id="submit-btn">ACCESO VIP</button>
-                </form>
-                <a href="https://wa.me/tu_link" class="wa-link">O entra al grupo de WhatsApp</a>
-            </div>
-        </section>
-
-        <aside class="chat-area">
-            <div class="chat-header">CHAT EXCLUSIVO</div>
-            <div id="chat-box" class="chat-messages">
-                <div class="msg artist"><span>ARTISTA:</span> ¡Bienvenidos al cuartel general!</div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="user-msg" placeholder="Escribe un mensaje...">
-                <button id="send-msg">ENVIAR</button>
-            </div>
-        </aside>
-    </main>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="app.js"></script>
-
-    <audio id="ding-sound" src="assets/Gemido de tortuga.mp3" preload="auto"></audio>
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="showPage('videos')">📺</div>
+            <div class="nav-item" onclick="showPage('fotos')">📸</div>
+            <div class="nav-item" onclick="showPage('eventos')">🗓️</div>
+            <div class="nav-item" onclick="showPage('tienda')">👕</div>
+        </nav>
+    </div>
 </body>
 </html>

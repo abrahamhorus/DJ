@@ -19,13 +19,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const ding = document.getElementById('ding-sound');
 
     // 3. SIMULACIÓN DE CONTADOR (La chispa de la página)
-    setInterval(() => {
-        if (viewCountElement) {
-            let count = parseInt(viewCountElement.innerText);
-            let change = Math.floor(Math.random() * 5) - 2; 
-            viewCountElement.innerText = Math.max(50, count + change);
+setInterval(() => {
+    if (viewCountElement) {
+        let count = parseInt(viewCountElement.innerText.replace(',', '')); // Limpiamos comas si las hay
+        
+        // Si el número es menor a 100, lo subimos de golpe para el "arranque"
+        if (count < 100) {
+            count = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
         }
-    }, 4000);
+
+        // Definimos un cambio aleatorio (entre ganar 50 o perder 30 fans)
+        let change = Math.floor(Math.random() * 80) - 30; 
+        let newCount = count + change;
+
+        // Mantenemos el rango entre 100 y 10,000
+        if (newCount < 100) newCount = 100 + Math.floor(Math.random() * 20);
+        if (newCount > 10000) newCount = 9900 - Math.floor(Math.random() * 50);
+
+        // Lo pintamos con formato de miles para que se vea pro (ej. 1,250)
+        viewCountElement.innerText = newCount.toLocaleString();
+    }
+}, 3000); // Cambia cada 3 segundos para que se vea activo
 
     // 4. CAPTURA DE LEADS Y REDIRECCIÓN A WHATSAPP
     if (leadForm) {
@@ -106,3 +120,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     });
 });
+// CONFIGURACIÓN DE PROVEEDOR
+const provider = new firebase.auth.GoogleAuthProvider();
+
+// FUNCIÓN PARA LOGUEARSE
+const loginConGoogle = () => {
+    firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            console.log("Bienvenido:", user.displayName);
+            // Aquí ocultamos el login y mostramos la app
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+        })
+        .catch((error) => {
+            console.error("Error en login:", error);
+        });
+};

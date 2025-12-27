@@ -207,3 +207,30 @@ video { width: 100%; height: 100%; object-fit: cover; }
     transform: scale(1.05); /* Se hace un poquito más grande al pasar el mouse */
     filter: brightness(1.2);
 }
+.full-screen {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, #111 0%, #000 100%);
+}
+
+.login-card {
+    text-align: center;
+    padding: 40px;
+    border: 1px solid #222;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.02);
+    backdrop-filter: blur(10px);
+}
+
+.btn-google {
+    background: #fff;
+    color: #000;
+    padding: 12px 25px;
+    border-radius: 50px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
