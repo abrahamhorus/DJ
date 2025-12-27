@@ -94,7 +94,17 @@ db.ref('messages').limitToLast(15).on('child_added', (snapshot) => {
     const data = snapshot.val();
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('msg');
-    msgDiv.innerHTML = `<span>Fan:</span> ${data.text}`;
+
+    // Si el mensaje empieza con un asterisco, es la DIVA
+    if (data.text.startsWith('*')) {
+        msgDiv.classList.add('artista-vip');
+        // Quitamos el asterisco para que no se vea en el chat
+        const textoLimpio = data.text.substring(1); 
+        msgDiv.innerHTML = `<span>👑 LA POTRA:</span> ${textoLimpio}`;
+    } else {
+        msgDiv.innerHTML = `<span>Fan:</span> ${data.text}`;
+    }
+
     chatBox.appendChild(msgDiv);
     chatBox.scrollTop = chatBox.scrollHeight;
 });
