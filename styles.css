@@ -16,7 +16,6 @@ body {
     overflow: hidden;
 }
 
-/* HEADER */
 .top-bar {
     height: 60px;
     display: flex;
@@ -26,47 +25,22 @@ body {
     border-bottom: 1px solid #222;
     background: #000;
     flex-shrink: 0;
-    z-index: 1001;
 }
 
 .logo { color: var(--accent); font-weight: bold; letter-spacing: 2px; }
+.dot.pulse { height: 8px; width: 8px; background: red; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-/* CONTENEDOR PRINCIPAL */
-.app-container { 
-    flex: 1; 
-    display: flex; 
-    overflow: hidden; 
-    position: relative;
-}
+.app-container { flex: 1; display: flex; overflow: hidden; position: relative; }
+.app-page { display: none; width: 100%; height: 100%; }
+.app-page.active { display: flex; flex-direction: column; }
 
-.app-page { 
-    display: none; 
-    width: 100%; 
-    height: 100%; 
-}
-
-/* ESTADO ACTIVO - Aquí hacemos la magia para PC */
-.app-page.active { 
-    display: flex; 
-    flex-direction: column; /* Por defecto para móvil */
-}
-
-/* VIDEO */
-.video-container { 
-    width: 100%; 
-    background: #000; 
-    flex-shrink: 0;
-}
-
+.video-container { width: 100%; aspect-ratio: 16/9; background: #000; flex-shrink: 0; }
 video { width: 100%; height: 100%; object-fit: cover; }
 
-/* CHAT AREA */
-.chat-messages {
-    flex: 1;
-    background: #050505;
-    padding: 15px;
-    overflow-y: auto;
-}
+.chat-section-wrapper { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+.chat-messages { flex: 1; background: #050505; padding: 15px; overflow-y: auto; }
 
 .chat-input-area {
     display: flex;
@@ -82,6 +56,7 @@ video { width: 100%; height: 100%; object-fit: cover; }
     color: #fff;
     padding: 12px;
     border-radius: 8px;
+    font-size: 16px;
 }
 
 #send-msg {
@@ -95,7 +70,6 @@ video { width: 100%; height: 100%; object-fit: cover; }
     cursor: pointer;
 }
 
-/* MENSAJES */
 .msg { margin-bottom: 12px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-left: 3px solid #333; }
 .msg b { color: var(--accent); font-size: 0.75rem; display: block; margin-bottom: 4px; }
 
@@ -114,68 +88,22 @@ video { width: 100%; height: 100%; object-fit: cover; }
     animation: rainbow-text 3s linear infinite !important;
 }
 
-@keyframes rainbow-border {
-    0% { filter: hue-rotate(0deg); }
-    100% { filter: hue-rotate(360deg); }
-}
-@keyframes rainbow-text {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-}
+@keyframes rainbow-border { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+@keyframes rainbow-text { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
 
-/* NAVBAR */
-.bottom-nav {
-    height: 70px;
-    background: #000;
-    border-top: 1px solid #222;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    flex-shrink: 0;
-}
-
+.bottom-nav { height: 70px; background: #000; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; }
 .nav-item { color: #555; text-align: center; cursor: pointer; }
 .nav-item.active { color: var(--accent); }
 .nav-item span { display: block; font-size: 0.6rem; }
 
-/* ==========================================
-    DISEÑO PARA PANTALLAS GRANDES (PC)
-   ========================================== */
-
+/* PC DESIGN */
 @media (min-width: 1024px) {
-    .app-page.active { 
-        flex-direction: row; /* Video izquierda, Chat derecha */
-    }
-
-    .video-container {
-        flex: 3; /* El video ocupa el 75% */
-        height: 100%;
-        display: flex;
-        align-items: center;
-    }
-
-    /* Columna derecha: Chat + Input */
-    .chat-section-wrapper {
-        flex: 1; /* El chat ocupa el 25% */
-        display: flex;
-        flex-direction: column;
-        border-left: 1px solid #222;
-        background: #050505;
-        height: 100%;
-    }
-
-    .chat-messages {
-        height: auto;
-    }
-
-    .chat-input-area {
-        margin-bottom: 0; /* En PC no hay espacio extra abajo */
-    }
+    .app-page.active { flex-direction: row !important; }
+    .video-container { flex: 3; height: 100%; aspect-ratio: auto; }
+    .chat-section-wrapper { flex: 1; border-left: 1px solid #222; }
+    .chat-input-area { margin-bottom: 0; }
 }
 
-/* MÓVIL AJUSTE */
 @media (max-width: 1023px) {
-    .chat-input-area {
-        margin-bottom: 70px; /* Para no chocar con la nav en móvil */
-    }
+    .chat-input-area { margin-bottom: 70px; }
 }
