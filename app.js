@@ -90,19 +90,24 @@ sendBtn.addEventListener('click', () => {
 });
 
 // ESCUCHAR MENSAJES (Para que aparezcan en tu pantalla)
+const ding = document.getElementById('ding-sound');
+
 db.ref('messages').limitToLast(15).on('child_added', (snapshot) => {
     const data = snapshot.val();
     const msgDiv = document.createElement('div');
-    msgDiv.classList.add('msg');
+    const mensajeOriginal = data.text || "";
 
-    // Si el mensaje empieza con un asterisco, es la DIVA
-    if (data.text.startsWith('*')) {
-        msgDiv.classList.add('artista-vip');
-        // Quitamos el asterisco para que no se vea en el chat
-        const textoLimpio = data.text.substring(1); 
-        msgDiv.innerHTML = `<span>👑 LA POTRA:</span> ${textoLimpio}`;
+    if (mensajeOriginal.startsWith('*')) {
+        msgDiv.className = 'msg artista-vip';
+        const textoSinAsterisco = mensajeOriginal.substring(1);
+        msgDiv.innerHTML = `<span>👑 LA POTRA:</span> ${textoSinAsterisco}`;
+        
+        // ¡SUENA EL DING! (Solo para tus mensajes VIP)
+        ding.play().catch(e => console.log("El navegador bloqueó el audio hasta que el usuario interactúe"));
+        
     } else {
-        msgDiv.innerHTML = `<span>Fan:</span> ${data.text}`;
+        msgDiv.className = 'msg';
+        msgDiv.innerHTML = `<span>Fan:</span> ${mensajeOriginal}`;
     }
 
     chatBox.appendChild(msgDiv);
