@@ -95,3 +95,58 @@ video { width: 100%; height: 100%; object-fit: cover; }
 @keyframes pulse {
     0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; }
 }
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+    .main-layout {
+        flex-direction: column; /* Apila video y chat uno sobre otro */
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .video-area {
+        flex: none;
+        width: 100%;
+        padding: 10px;
+    }
+
+    .chat-area {
+        flex: none;
+        width: 100%;
+        height: 400px; /* Le damos una altura fija al chat en móvil */
+        border-left: none;
+        border-top: 1px solid #222;
+    }
+
+    #lead-form {
+        flex-direction: column; /* El formulario de emails también se apila */
+        padding: 0 20px;
+    }
+
+    .btn-vip {
+        width: 100%;
+    }
+
+    .top-bar {
+        padding: 10px;
+        flex-direction: column;
+        gap: 5px;
+        text-align: center;
+    }
+}
+.msg {
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+}
+
+.msg span {
+    color: var(--accent); /* El color verde neón que definimos */
+    font-weight: bold;
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
