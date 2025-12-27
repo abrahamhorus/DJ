@@ -19,17 +19,37 @@
 
     <main class="app-container">
         <div id="p-videos" class="app-page active">
-           <div class="video-container">
-    <video id="main-video" controls poster="assets/poster.jpg">
-        <source src="https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4" type="video/mp4">
-    </video>
-    <div class="likes-container" onclick="darLike()">
-        <span id="heart-icon">❤️</span>
-        <span id="likes-count">0</span>
-    </div>
-</div>
+            
+            <div class="video-main-wrapper">
+                <div class="video-container">
+                    <video id="main-video" controls poster="assets/poster.jpg">
+                        <source src="https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4" type="video/mp4">
+                    </video>
+                </div>
+                
+                <div class="video-actions">
+                    <div class="likes-btn" onclick="darLike()">
+                        <span id="heart-icon">❤️</span>
+                        <span id="likes-count">0</span>
+                    </div>
+                    <div class="video-info">ESTÁS ESCUCHANDO A LA POTRA 👑</div>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-header">
+                        <h3>Comentarios</h3>
+                    </div>
+                    <div class="comment-input-block">
+                        <input type="text" id="comment-text" placeholder="Añade un comentario público...">
+                        <button onclick="enviarComentario()">PUBLICAR</button>
+                    </div>
+                    <div id="comments-list" class="comments-list">
+                        </div>
+                </div>
+            </div>
 
             <div class="chat-section-wrapper">
+                <div class="chat-header">CHAT EN VIVO</div>
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-area">
                     <input type="text" id="user-msg" placeholder="Escribe un mensaje...">
@@ -38,15 +58,9 @@
             </div>
         </div>
 
-        <div id="p-fotos" class="app-page">
-            <h2 class="section-title">Galería Exclusiva</h2>
-        </div>
-        <div id="p-eventos" class="app-page">
-            <h2 class="section-title">Próximos Shows</h2>
-        </div>
-        <div id="p-tienda" class="app-page">
-            <h2 class="section-title">Merch Oficial</h2>
-        </div>
+        <div id="p-fotos" class="app-page"><h2 class="section-title">Galería</h2></div>
+        <div id="p-eventos" class="app-page"><h2 class="section-title">Shows</h2></div>
+        <div id="p-tienda" class="app-page"><h2 class="section-title">Merch</h2></div>
     </main>
 
     <nav class="bottom-nav">
