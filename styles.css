@@ -1,338 +1,55 @@
-/* ==========================================
-   VARIABLES Y BASES
-   ========================================== */
-:root { 
-    --accent: #00ff88; 
-    --vip: #ff0080; 
-    --bg: #000; 
-    --glass: rgba(255, 255, 255, 0.05);
-}
+:root { --accent: #00ff88; --bg: #000; }
+* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+body { background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-    outline: none; 
-}
-
-body {
-    background: var(--bg);
-    color: #fff;
-    font-family: 'Inter', sans-serif;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-/* ==========================================
-   HEADER (3 COLUMNAS: LOGO - SUBS - FANS)
-   ========================================== */
-.top-bar {
-    height: 60px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    align-items: center;
-    padding: 0 20px;
-    border-bottom: 1px solid #222;
-    background: #000;
-    flex-shrink: 0;
-    z-index: 1000;
-}
-
-.logo { 
-    color: var(--accent); 
-    font-weight: 900; 
-    letter-spacing: 2px; 
-    text-align: left;
-    font-size: 0.9rem;
-}
-
-.subs-counter {
-    text-align: center;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: #555;
-}
-
-#total-subs { color: #fff; margin-left: 5px; }
-
-.status-info {
-    text-align: right;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.dot.pulse {
-    height: 8px;
-    width: 8px;
-    background: red;
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-}
-
+/* HEADER GRID */
+.top-bar { height: 60px; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0 20px; border-bottom: 1px solid #222; }
+.logo { color: var(--accent); font-weight: 900; letter-spacing: 2px; }
+.subs-counter { text-align: center; font-size: 0.8rem; color: #555; }
+.status-info { text-align: right; font-size: 0.8rem; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.dot.pulse { height: 8px; width: 8px; background: red; border-radius: 50%; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-/* ==========================================
-   CONTENEDOR PRINCIPAL Y LAYOUT
-   ========================================== */
-.app-container { 
-    flex: 1; 
-    display: flex; 
-    overflow: hidden; 
-}
+/* CARRUSEL DE VIDEOS */
+.video-carousel { position: relative; width: 100%; display: flex; align-items: center; background: #000; }
+.video-container { flex: 1; aspect-ratio: 16/9; }
+video { width: 100%; height: 100%; object-fit: cover; }
+.carousel-btn { position: absolute; z-index: 10; background: rgba(0,0,0,0.6); color: var(--accent); border: none; padding: 20px 10px; cursor: pointer; font-size: 1.5rem; transition: 0.3s; }
+.carousel-btn:hover { background: var(--accent); color: #000; }
+.carousel-btn.prev { left: 0; border-radius: 0 10px 10px 0; }
+.carousel-btn.next { right: 0; border-radius: 10px 0 0 10px; }
 
-.app-page { 
-    display: none; 
-    width: 100%; 
-    height: 100%; 
-}
+/* DESCRIPCIÓN */
+.video-actions-v2 { padding: 20px; border-bottom: 1px solid #111; display: flex; flex-direction: column; gap: 15px; }
+.action-stats { display: flex; gap: 10px; }
+.likes-btn, .views-display { background: #111; padding: 8px 18px; border-radius: 50px; border: 1px solid #222; font-weight: bold; font-size: 0.85rem; display: flex; gap: 8px; cursor: pointer; }
+.video-description-box { background: #0a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #111; }
+.video-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 8px; color: var(--accent); }
+.video-text { font-size: 0.85rem; color: #bbb; line-height: 1.5; }
 
-.app-page.active { 
-    display: flex; 
-    flex-direction: column; 
-}
+/* LAYOUT DINÁMICO PC/MÓVIL */
+.app-container { flex: 1; display: flex; overflow: hidden; position: relative; }
+.video-main-wrapper { flex: 1; overflow-y: auto; scrollbar-width: thin; }
 
-/* Columna Izquierda: Video y Comentarios */
-.video-main-wrapper {
-    flex: 3;
-    overflow-y: auto;
-    background: #000;
-    scrollbar-width: thin;
-    scrollbar-color: #333 transparent;
-}
-
-/* Columna Derecha: Chat en Vivo */
-.chat-section-wrapper {
-    flex: 1;
-    background: #050505;
-    border-left: 1px solid #222;
-    display: flex;
-    flex-direction: column;
-}
-
-/* ==========================================
-   VIDEO Y ACCIONES (LIKES)
-   ========================================== */
-.video-container { 
-    width: 100%; 
-    aspect-ratio: 16/9; 
-    background: #000;
-}
-
-video { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-}
-
-.video-actions {
-    padding: 15px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #0a0a0a;
-    border-bottom: 1px solid #111;
-}
-
-.likes-btn {
-    background: #111;
-    padding: 8px 20px;
-    border-radius: 50px;
-    cursor: pointer;
-    border: 1px solid #333;
-    transition: 0.2s;
-    font-weight: bold;
-}
-
-.likes-btn:hover { border-color: var(--accent); }
-.video-info { font-size: 0.65rem; color: #14cc1d; font-weight: bold; letter-spacing: 1px; }
-
-/* ==========================================
-   SISTEMA DE COMENTARIOS (TIPO YOUTUBE)
-   ========================================== */
-.comments-section { padding: 30px; }
-
-.comments-header h3 { font-size: 1.1rem; margin-bottom: 20px; }
-
-.comment-input-block {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-#comment-text {
-    flex: 1;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid #333;
-    color: #fff;
-    padding: 10px 0;
-    font-size: 0.95rem;
-}
-
-#comment-text:focus { border-bottom: 2px solid var(--accent); }
-
-.comment-item { margin-bottom: 25px; }
-
-.comment-user { 
-    font-weight: bold; 
-    font-size: 0.85rem; 
-    color: var(--accent); 
-    display: block; 
-    margin-bottom: 5px; 
-}
-
-.comment-content { font-size: 0.95rem; color: #ddd; line-height: 1.5; }
-
-.reply-btn {
-    background: none;
-    border: none;
-    color: #555;
-    font-size: 0.75rem;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 8px;
-}
-
-.replies-container {
-    margin-left: 35px;
-    border-left: 1px solid #222;
-    padding-left: 15px;
-    margin-top: 10px;
-}
-
-/* ==========================================
-   LIVE CHAT PREMIUM
-   ========================================== */
-.chat-header {
-    padding: 10px;
-    font-size: 0.7rem;
-    color: #444;
-    text-align: center;
-    border-bottom: 1px solid #111;
-    font-weight: 900;
-}
-
-.chat-messages {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-}
-
-.chat-input-area {
-    display: flex;
-    padding: 15px;
-    background: #0a0a0a;
-    border-top: 1px solid #222;
-    gap: 10px;
-}
-
-#user-msg {
-    flex: 1;
-    background: #151515;
-    border: 1px solid #333;
-    color: #fff;
-    padding: 12px;
-    border-radius: 12px;
-}
-
-/* ==========================================
-   BOTONES MAESTROS (ENVIAR Y PUBLICAR)
-   ========================================== */
-#send-msg, .comment-input-block button {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-#send-msg:hover, .comment-input-block button:hover {
-    background: #fff;
-    box-shadow: 0 0 20px var(--accent);
-    transform: scale(1.05);
-}
-
-#send-msg:active, .comment-input-block button:active {
-    transform: scale(0.95);
-}
-
-/* ==========================================
-   MENSAJES DEL CHAT Y RAINBOW VIP
-   ========================================== */
-.msg {
-    margin-bottom: 12px;
-    padding: 10px;
-    background: var(--glass);
-    border-radius: 8px;
-    font-size: 0.9rem;
-}
-
-.msg b { color: var(--accent); display: block; font-size: 0.7rem; margin-bottom: 3px; }
-
-.msg.artista-vip {
-    border: 2px solid red;
-    background: rgba(255, 0, 0, 0.05);
-    animation: rainbow-border 1s linear infinite;
-}
-
-@keyframes rainbow-border {
-    0% { filter: hue-rotate(0deg); }
-    100% { filter: hue-rotate(360deg); }
-}
-
-/* ==========================================
-   NAVBAR INFERIOR
-   ========================================== */
-.bottom-nav {
-    height: 70px;
-    display: flex;
-    justify-content: space-around;
-    background: #000;
-    border-top: 1px solid #222;
-    flex-shrink: 0;
-}
-
-.nav-item {
-    color: #444;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.nav-item.active { color: var(--accent); }
-.nav-item span { font-size: 0.6rem; margin-top: 4px; font-weight: bold; }
-
-/* ==========================================
-   RESPONSIVIDAD (PC VS MÓVIL)
-   ========================================== */
-
-/* Pantallas Grandes (Escritorio) */
 @media (min-width: 1025px) {
     .app-page.active { flex-direction: row; }
+    .chat-section-wrapper { flex: 0 0 380px; border-left: 1px solid #222; display: flex; flex-direction: column; }
+    #mobile-chat-toggle, .close-chat { display: none; }
 }
 
-/* Pantallas Pequeñas (Celulares) */
 @media (max-width: 1024px) {
-    .chat-section-wrapper {
-        height: 350px;
-        flex: none;
-        border-left: none;
-        border-top: 1px solid #222;
-    }
-    .chat-input-area { margin-bottom: 70px; } /* Espacio para el nav */
-    .top-bar { grid-template-columns: 1.5fr 1fr 1fr; }
-    .subs-counter .label, .fans-text { display: none; }
+    .chat-section-wrapper { position: absolute; right: 0; top: 0; bottom: 0; width: 85%; z-index: 2000; transform: translateX(100%); transition: 0.3s; background: #050505; }
+    .chat-section-wrapper.open { transform: translateX(0); }
+    #mobile-chat-toggle { display: block; position: fixed; right: 20px; bottom: 90px; z-index: 999; background: var(--accent); border: none; padding: 12px 20px; border-radius: 50px; font-weight: 900; }
 }
+
+/* CHAT MESSAGES */
+.chat-messages { flex: 1; padding: 15px; overflow-y: auto; }
+.msg { margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+.msg.artista-vip { border: 1px solid red; animation: rainbow-border 1s linear infinite; }
+@keyframes rainbow-border { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+
+/* BOTONES */
+#send-msg, .comment-input-block button { background: var(--accent); border: none; padding: 10px 20px; border-radius: 12px; font-weight: 900; cursor: pointer; }
+.bottom-nav { height: 70px; display: flex; justify-content: space-around; border-top: 1px solid #222; background: #000; }
+.nav-item.active { color: var(--accent); }

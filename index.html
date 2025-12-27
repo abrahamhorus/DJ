@@ -8,71 +8,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-
     <header class="top-bar">
         <div class="logo">ABRAHAM HORUS</div>
-        <div class="subs-counter"><span class="label">SUBS:</span> <span id="total-subs">12,450</span></div>
-        <div class="status-info">
-            <span class="dot pulse"></span>
-            <span id="live-views">2,540</span> <span class="fans-text">LIVE</span>
-        </div>
+        <div class="subs-counter">SUBS: <span id="total-subs">12,450</span></div>
+        <div class="status-info"><span class="dot pulse"></span> <span id="live-views">2,540</span> LIVE</div>
     </header>
 
     <main class="app-container">
+        <button id="mobile-chat-toggle" onclick="window.toggleChat()">💬 CHAT</button>
         <div id="p-videos" class="app-page active">
-            
             <div class="video-main-wrapper">
-                <div class="video-container">
-                    <video id="main-video" controls poster="assets/poster.jpg">
-                        <source src="https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4" type="video/mp4">
-                    </video>
-                </div>
-                
-                <div class="video-actions">
-                    <div class="likes-btn" onclick="window.darLike()">
-                        <span>❤️</span> <span id="likes-count">0</span>
+                <div class="video-carousel">
+                    <button class="carousel-btn prev" onclick="window.changeVideo(-1)">❮</button>
+                    <div class="video-container">
+                        <video id="main-video" controls poster="assets/poster.jpg">
+                            <source id="video-source" src="" type="video/mp4">
+                        </video>
                     </div>
-                    <div class="video-info">DESPIERTO: el primer video oficial del artista Abraham Horus el video trata de la superación de una crisis por la cual el protagonista pasa varios obstáculos llegando a la muerte y renaciendo con una fuerza de voluntad inquebrantable logrando la iluminación de cuerpo y alma. 👑
- 👑</div>
+                    <button class="carousel-btn next" onclick="window.changeVideo(1)">❯</button>
                 </div>
-
+                <div class="video-actions-v2">
+                    <div class="action-stats">
+                        <div class="likes-btn" onclick="window.darLike()">❤️ <span id="likes-count">0</span></div>
+                        <div class="views-display">👁️ <span id="total-views">0</span></div>
+                    </div>
+                    <div class="video-description-box">
+                        <h1 id="v-title" class="video-title">Cargando...</h1>
+                        <p id="v-desc" class="video-text">Cargando...</p>
+                    </div>
+                </div>
                 <div class="comments-section">
-                    <div class="comments-header">
-                        <h3>Comentarios (<span id="comments-count">0</span>)</h3>
-                    </div>
+                    <h3>Comentarios (<span id="comments-count">0</span>)</h3>
                     <div class="comment-input-block">
-                        <input type="text" id="comment-text" placeholder="Escribe un comentario...">
+                        <input type="text" id="comment-text" placeholder="Añade un comentario...">
                         <button onclick="window.enviarComentario()">PUBLICAR</button>
                     </div>
                     <div id="comments-list"></div>
                 </div>
             </div>
-
-            <div class="chat-section-wrapper">
-                <div class="chat-header">LIVE CHAT</div>
+            <div id="chat-sidebar" class="chat-section-wrapper">
+                <div class="chat-header">LIVE CHAT <button onclick="window.toggleChat()">✕</button></div>
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-area">
                     <input type="text" id="user-msg" placeholder="Dile algo a la potra...">
-                    <button id="send-msg" onclick="window.enviarMsg()">ENVIAR</button>
+                    <button onclick="window.enviarMsg()">ENVIAR</button>
                 </div>
             </div>
         </div>
-
-        <div id="p-fotos" class="app-page"><h2 style="padding:20px">Fotos Exclusivas</h2></div>
-        <div id="p-eventos" class="app-page"><h2 style="padding:20px">Próximos Shows</h2></div>
-        <div id="p-tienda" class="app-page"><h2 style="padding:20px">Merch Oficial</h2></div>
     </main>
-
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="window.showPage('p-videos')">📺<span>Live</span></div>
         <div class="nav-item" onclick="window.showPage('p-fotos')">📸<span>Fotos</span></div>
-        <div class="nav-item" onclick="window.showPage('p-eventos')">🗓️<span>Events</span></div>
-        <div class="nav-item" onclick="window.showPage('p-tienda')">👕<span>Merch</span></div>
     </nav>
-
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
-    <audio id="ding-sound" src="assets/Gemido de tortuga.mp3" preload="auto"></audio>
 </body>
 </html>
