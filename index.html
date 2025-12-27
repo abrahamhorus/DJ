@@ -22,6 +22,35 @@
         <button id="mobile-chat-toggle" onclick="window.toggleChat()">💬 CHAT</button>
 
         <div id="p-videos" class="app-page active">
+            <div id="p-musica" class="app-page">
+    <div class="music-container">
+        <h2 class="section-title">DISCOGRAFÍA VIP</h2>
+        <div class="music-grid" id="music-list">
+            <div class="music-card">
+                <img src="assets/cover-despierto.jpg" alt="Cover">
+                <div class="music-info">
+                    <h4>DESPIERTO</h4>
+                    <p>Abraham Horus</p>
+                    <button class="play-mini-btn" onclick="window.loadVideo(0)">ESCUCHAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="p-eventos" class="app-page">
+    <div class="events-container">
+        <h2 class="section-title">PRÓXIMOS EVENTOS</h2>
+        <div class="event-card">
+            <div class="event-date">15<span>ENE</span></div>
+            <div class="event-details">
+                <h4>Lanzamiento Exclusivo Plataforma</h4>
+                <p>Live Streaming VIP - 20:00 HRS</p>
+            </div>
+            <button class="event-btn">RECORDAR</button>
+        </div>
+    </div>
+</div>
             <div class="video-main-wrapper">
                 
                 <div class="video-carousel">
@@ -64,16 +93,18 @@
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-area">
                     <input type="text" id="user-msg" placeholder="Dile algo a la potra...">
-                    <button onclick="window.enviarMsg()">ENVIAR</button>
+                    <button id="send-msg" onclick="window.enviarMsg()">ENVIAR</button>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="window.showPage('p-videos')">📺<span>Live</span></div>
-        <div class="nav-item" onclick="window.showPage('p-fotos')">📸<span>Fotos</span></div>
-    </nav>
+   <nav class="bottom-nav">
+    <div class="nav-item active" onclick="window.showPage('p-videos')">📺<span>Live</span></div>
+    <div class="nav-item" onclick="window.showPage('p-musica')">🎵<span>Música</span></div>
+    <div class="nav-item" onclick="window.showPage('p-fotos')">📸<span>Fotos</span></div>
+    <div class="nav-item" onclick="window.showPage('p-eventos')">🗓️<span>Eventos</span></div>
+</nav>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
