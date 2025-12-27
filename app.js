@@ -1,112 +1,124 @@
-const firebaseConfig = {
-    databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com/",
-    projectId: "abrahamhorus1996"
+const firebaseConfig = { 
+    databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com/", 
+    projectId: "abrahamhorus1996" 
 };
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 let fanName = localStorage.getItem('fanName') || null;
 
-// 1. LIKES & CONTADOR
-db.ref('likes').on('value', snap => {
-    document.getElementById('likes-count').innerText = (snap.val() || 0).toLocaleString();
+// LIKES
+db.ref('likes').on('value', s => {
+    const el = document.getElementById('likes-count');
+    if(el) el.innerText = (s.val() || 0).toLocaleString();
 });
 window.darLike = () => db.ref('likes').transaction(c => (c || 0) + 1);
 
-db.ref('comments').on('value', snap => {
-    document.getElementById('comments-count').innerText = snap.numChildren();
-});
-
-// 2. CHAT EN VIVO
-db.ref('messages').limitToLast(20).on('child_added', snap => {
-    const d = snap.val();
+// CHAT EN VIVO
+const chatBox = document.getElementById('chat-box');
+db.ref('messages').limitToLast(20).on('child_added', s => {
+    const d = s.val();
+    if (!chatBox) return;
     const div = document.createElement('div');
-    if (d.text.startsWith('*')) {
-        div.className = 'msg artista-vip';
-        div.innerHTML = `<b>👑 LA POTRA:</b> ${d.text.substring(1)}`;
-        document.getElementById('ding-sound').play().catch(()=>{});
-    } else {
-        div.className = 'msg';
-        div.innerHTML = `<b>${d.userName}:</b> ${d.text}`;
-    }
-    document.getElementById('chat-box').appendChild(div);
-    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+    const isVIP = d.text && d.text.startsWith('*');
+    div.className = isVIP ? 'msg artista-vip' : 'msg';
+    div.innerHTML = `<b>${isVIP ? '👑 LA POTRA' : (d.userName || 'Fan')}:</b> ${isVIP ? d.text.substring(1) : d.text}`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    if(isVIP) document.getElementById('ding-sound').play().catch(()=>{});
 });
 
 window.enviarMsg = () => {
     const input = document.getElementById('user-msg');
-    if (input.value.trim()) {
-        verificarNombre();
-        db.ref('messages').push({ text: input.value, userName: fanName });
+    const text = input.value.trim();
+    if (text) {
+        if(!text.startsWith('*')) verificarNombre();
+        db.ref('messages').push({ text: text, userName: text.startsWith('*') ? "LA POTRA" : fanName });
         input.value = "";
     }
 };
 
-// 3. COMENTARIOS Y RESPUESTAS
+// COMENTARIOS
+db.ref('comments').on('value', s => {
+    const el = document.getElementById('comments-count');
+    if(el) el.innerText = s.numChildren();
+});
+
 db.ref('comments').on('child_added', snap => {
     const c = snap.val();
     const id = snap.key;
+    const list = document.getElementById('comments-list');
+    if(!list) return;
+
     const div = document.createElement('div');
     div.className = 'comment-item';
     div.id = `comment-${id}`;
     div.innerHTML = `
         <span class="comment-user">@${c.userName}</span>
-        <span class="comment-content">${c.text}</span>
-        <button class="reply-btn" onclick="abrirReply('${id}')">Responder</button>
+        <p class="comment-content">${c.text}</p>
+        <button class="reply-btn" onclick="window.abrirReply('${id}')">Responder</button>
         <div id="replies-${id}" class="replies-container"></div>
     `;
-    document.getElementById('comments-list').prepend(div);
+    list.prepend(div);
 
-    // Escuchar respuestas para este comentario
-    db.ref(`replies/${id}`).on('child_added', rSnap => {
-        const r = rSnap.val();
+    db.ref(`replies/${id}`).on('child_added', rs => {
+        const r = rs.val();
         const rDiv = document.createElement('div');
-        rDiv.style.marginBottom = "10px";
+        rDiv.style.marginTop = "8px";
         rDiv.innerHTML = `<span class="comment-user" style="font-size:0.75rem">@${r.userName}</span>
-                          <span class="comment-content" style="font-size:0.85rem">${r.text}</span>`;
+                          <p class="comment-content" style="font-size:0.85rem">${r.text}</p>`;
         document.getElementById(`replies-${id}`).appendChild(rDiv);
     });
 });
 
 window.enviarComentario = () => {
     const input = document.getElementById('comment-text');
-    if (input.value.trim()) {
+    const text = input.value.trim();
+    if (text) {
         verificarNombre();
-        db.ref('comments').push({ text: input.value, userName: fanName });
+        db.ref('comments').push({ text: text, userName: fanName });
         input.value = "";
     }
 };
 
 window.abrirReply = (id) => {
     if (document.getElementById(`ri-${id}`)) return;
-    const wrapper = document.createElement('div');
-    wrapper.className = 'reply-input-wrapper';
-    wrapper.id = `ri-${id}`;
-    wrapper.innerHTML = `
-        <input type="text" id="ti-${id}" placeholder="Escribe respuesta...">
-        <button onclick="enviarReply('${id}')" style="background:var(--accent);border:none;border-radius:4px;padding:2px 8px;font-size:10px;cursor:pointer">OK</button>
+    const w = document.createElement('div');
+    w.id = `ri-${id}`;
+    w.style.display = "flex"; w.style.gap = "5px"; w.style.marginTop = "5px";
+    w.innerHTML = `
+        <input type="text" id="ti-${id}" placeholder="Responde..." style="flex:1; background:#111; border:1px solid #333; color:#fff; padding:5px; border-radius:5px;">
+        <button onclick="window.enviarReply('${id}')" style="background:var(--accent); border:none; border-radius:5px; padding:0 10px; cursor:pointer; font-weight:bold;">OK</button>
     `;
-    document.getElementById(`comment-${id}`).appendChild(wrapper);
+    document.getElementById(`comment-${id}`).appendChild(w);
 };
 
 window.enviarReply = (id) => {
     const input = document.getElementById(`ti-${id}`);
-    if (input.value.trim()) {
+    const text = input.value.trim();
+    if (text) {
         verificarNombre();
-        db.ref(`replies/${id}`).push({ text: input.value, userName: fanName });
+        db.ref(`replies/${id}`).push({ text: text, userName: fanName });
         document.getElementById(`ri-${id}`).remove();
     }
 };
 
 function verificarNombre() {
     if (!fanName) {
-        fanName = prompt("¿Tu nombre?");
+        fanName = prompt("¡Dinos tu apodo!");
         if (!fanName) fanName = "Fan" + Math.floor(Math.random()*99);
         localStorage.setItem('fanName', fanName);
     }
 }
 
-document.getElementById('send-msg').onclick = enviarMsg;
+// Evento ENTER para el chat
+document.getElementById('user-msg').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') window.enviarMsg();
+});
+
 window.showPage = (id) => {
     document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById(id).classList.add('active');
+    if(event) event.currentTarget.classList.add('active');
 };
