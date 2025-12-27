@@ -25,17 +25,39 @@ body {
     padding: 0 20px;
     border-bottom: 1px solid #222;
     background: #000;
+    flex-shrink: 0;
+    z-index: 1001;
 }
 
 .logo { color: var(--accent); font-weight: bold; letter-spacing: 2px; }
 
-/* CONTENEDOR DE PÁGINAS */
-.app-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.app-page { display: none; width: 100%; height: 100%; flex-direction: column; }
-.app-page.active { display: flex; }
+/* CONTENEDOR PRINCIPAL */
+.app-container { 
+    flex: 1; 
+    display: flex; 
+    overflow: hidden; 
+    position: relative;
+}
+
+.app-page { 
+    display: none; 
+    width: 100%; 
+    height: 100%; 
+}
+
+/* ESTADO ACTIVO - Aquí hacemos la magia para PC */
+.app-page.active { 
+    display: flex; 
+    flex-direction: column; /* Por defecto para móvil */
+}
 
 /* VIDEO */
-.video-container { width: 100%; aspect-ratio: 16/9; background: #000; }
+.video-container { 
+    width: 100%; 
+    background: #000; 
+    flex-shrink: 0;
+}
+
 video { width: 100%; height: 100%; object-fit: cover; }
 
 /* CHAT AREA */
@@ -44,7 +66,6 @@ video { width: 100%; height: 100%; object-fit: cover; }
     background: #050505;
     padding: 15px;
     overflow-y: auto;
-    display: block !important;
 }
 
 .chat-input-area {
@@ -52,7 +73,6 @@ video { width: 100%; height: 100%; object-fit: cover; }
     padding: 10px;
     background: #080808;
     border-top: 1px solid #222;
-    margin-bottom: 70px;
 }
 
 #user-msg {
@@ -75,35 +95,17 @@ video { width: 100%; height: 100%; object-fit: cover; }
     cursor: pointer;
 }
 
-/* MENSAJES NORMALES */
-.msg { 
-    margin-bottom: 12px; 
-    background: rgba(255,255,255,0.05); 
-    padding: 10px; 
-    border-radius: 8px; 
-    border-left: 3px solid #333;
-}
-
+/* MENSAJES */
+.msg { margin-bottom: 12px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-left: 3px solid #333; }
 .msg b { color: var(--accent); font-size: 0.75rem; display: block; margin-bottom: 4px; }
 
-/* ==========================================
-   EFECTO RAINBOW - SOLO PARA LA POTRA (*)
-   ========================================== */
-
+/* RAINBOW PATRONA */
 .msg.artista-vip {
     background: rgba(255, 255, 255, 0.08) !important;
-    border: 3px solid #ff0000 !important; /* Color base */
-    padding: 12px !important;
-    position: relative;
-    /* EFECTO ARCOÍRIS EN EL BORDE Y BRILLO */
+    border: 3px solid #ff0000 !important;
     animation: rainbow-border 1s linear infinite !important;
 }
-
 .msg.artista-vip b {
-    font-size: 0.9rem !important;
-    font-weight: 900 !important;
-    text-transform: uppercase;
-    /* TEXTO ARCOÍRIS ANIMADO */
     background: linear-gradient(90deg, #e4ee53, #ff0080, #00e1ff, #00ff88, #e20707);
     background-size: 300%;
     -webkit-background-clip: text;
@@ -112,13 +114,10 @@ video { width: 100%; height: 100%; object-fit: cover; }
     animation: rainbow-text 3s linear infinite !important;
 }
 
-/* Animación que rota el color de TODO el recuadro */
 @keyframes rainbow-border {
-    0% { filter: hue-rotate(0deg); box-shadow: 0 0 10px rgba(255,0,0,0.5); }
-    100% { filter: hue-rotate(360deg); box-shadow: 0 0 10px rgba(255,0,0,0.5); }
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
 }
-
-/* Animación para que los colores del nombre se muevan */
 @keyframes rainbow-text {
     0% { background-position: 0% 50%; }
     100% { background-position: 100% 50%; }
@@ -126,17 +125,57 @@ video { width: 100%; height: 100%; object-fit: cover; }
 
 /* NAVBAR */
 .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
     height: 70px;
     background: #000;
     border-top: 1px solid #222;
     display: flex;
     justify-content: space-around;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .nav-item { color: #555; text-align: center; cursor: pointer; }
 .nav-item.active { color: var(--accent); }
 .nav-item span { display: block; font-size: 0.6rem; }
+
+/* ==========================================
+    DISEÑO PARA PANTALLAS GRANDES (PC)
+   ========================================== */
+
+@media (min-width: 1024px) {
+    .app-page.active { 
+        flex-direction: row; /* Video izquierda, Chat derecha */
+    }
+
+    .video-container {
+        flex: 3; /* El video ocupa el 75% */
+        height: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Columna derecha: Chat + Input */
+    .chat-section-wrapper {
+        flex: 1; /* El chat ocupa el 25% */
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid #222;
+        background: #050505;
+        height: 100%;
+    }
+
+    .chat-messages {
+        height: auto;
+    }
+
+    .chat-input-area {
+        margin-bottom: 0; /* En PC no hay espacio extra abajo */
+    }
+}
+
+/* MÓVIL AJUSTE */
+@media (max-width: 1023px) {
+    .chat-input-area {
+        margin-bottom: 70px; /* Para no chocar con la nav en móvil */
+    }
+}
