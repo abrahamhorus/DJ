@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abraham Horus | VIP</title>
+    <title>Abraham Horus | Comunidad VIP</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -11,7 +11,10 @@
 
     <header class="top-bar">
         <div class="logo">ABRAHAM HORUS</div>
-        <div class="counter"><span id="live-views">2,540</span> FANS</div>
+        <div class="status-info">
+            <div class="status"><span class="dot pulse"></span> LIVE</div>
+            <div class="counter"><span id="live-views">2,540</span> FANS</div>
+        </div>
     </header>
 
     <main class="app-container">
@@ -22,16 +25,15 @@
                 </video>
             </div>
             <div id="chat-box" class="chat-messages"></div>
-            
             <div class="chat-input-area">
-                <input type="text" id="user-msg" placeholder="Escribe un mensaje público...">
+                <input type="text" id="user-msg" placeholder="Únete a la conversación...">
                 <button id="send-msg">ENVIAR</button>
             </div>
         </div>
 
-        <div id="p-fotos" class="app-page"><h2 style="padding:20px">Galería VIP</h2></div>
-        <div id="p-eventos" class="app-page"><h2 style="padding:20px">Eventos</h2></div>
-        <div id="p-tienda" class="app-page"><h2 style="padding:20px">Merch</h2></div>
+        <div id="p-fotos" class="app-page"><h2 class="section-title">Galería</h2></div>
+        <div id="p-eventos" class="app-page"><h2 class="section-title">Shows</h2></div>
+        <div id="p-tienda" class="app-page"><h2 class="section-title">Tienda</h2></div>
     </main>
 
     <nav class="bottom-nav">
@@ -44,5 +46,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
+    <audio id="ding-sound" src="assets/Gemido de tortuga.mp3" preload="auto"></audio>
 </body>
 </html>
