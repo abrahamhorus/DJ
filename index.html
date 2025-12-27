@@ -58,11 +58,15 @@
                 <div class="chat-header">LIVE CHAT <button class="close-chat" onclick="window.toggleChat()">✕</button></div>
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-area">
-                    <input type="text" id="user-msg" placeholder="Dile algo a la potra..." onkeypress="if(event.key === 'Enter') window.enviarMsg()">
-                    <button id="send-msg" onclick="window.enviarMsg()">➜</button>
+                    <input type="text" id="user-msg" placeholder="Dile algo..." onkeypress="if(event.key === 'Enter') window.enviarMsg()">
+                    <button onclick="window.enviarMsg()">➜</button>
                 </div>
             </aside>
         </section>
+
+        <section id="p-musica" class="app-page"><h2>Música Próximamente</h2></section>
+        <section id="p-fotos" class="app-page"><h2>Fotos VIP</h2></section>
+        <section id="p-eventos" class="app-page"><h2>Próximos Eventos</h2></section>
     </main>
 
     <nav class="bottom-nav">
