@@ -52,3 +52,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') sendMessage();
     });
 });
+
+
+// Configuración de tu proyecto AbrahamHorus
+const firebaseConfig = {
+  databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com/",
+  projectId: "abrahamhorus1996",
+  // Los demás datos los sacas de "Configuración del proyecto" en el engrane de Firebase
+};
+
+// Lógica para guardar el Email y el País
+const leadForm = document.getElementById('lead-form');
+
+leadForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const country = document.getElementById('country').value;
+
+    // Guardamos en la rama "leads"
+    const dbRef = firebase.database().ref('leads');
+    dbRef.push({
+        email: email,
+        country: country,
+        date: new Date().toLocaleString()
+    }).then(() => {
+        alert("¡Bienvenido a la Élite! Ahora tienes acceso al Chat.");
+        // Aquí podrías desbloquear el chat o mandar al WhatsApp
+    });
+});

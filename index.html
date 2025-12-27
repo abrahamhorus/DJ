@@ -3,47 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artista | Live Experience</title>
+    <title>Artista | Plataforma Exclusiva</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header class="top-bar">
-        <div class="logo">ABRAHAM HORUS</div>
-        <div class="status-container">
-            <div class="status">
-                <span class="status-dot online"></span> 
-                <span class="status-text">ARTISTA ONLINE</span>
-            </div>
-            <div class="views-counter">
-                <span id="view-count">84</span> VIÉNDOTE AHORA
-            </div>
+        <div class="logo">TU MARCA</div>
+        <div class="status-info">
+            <div class="status"><span class="dot pulse"></span> ARTISTA ONLINE</div>
+            <div class="counter"><span id="live-views">124</span> FANS EN VIVO</div>
         </div>
     </header>
 
-    <main class="main-container">
-        <section class="content-area">
-            <div class="video-wrapper">
-            <video src="/videos/despierto.mp4"></video>
+    <main class="main-layout">
+        <section class="video-area">
+            <div class="video-container">
+                <video id="main-video" poster="assets/poster.jpg" controls>
+                    <source src="https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4" type="video/mp4">
+                </video>
             </div>
 
-            <div class="info-card">
-                <h1>Título de tu Video Musical</h1>
-                <p>Estás en el espacio oficial. El chat está activo para fans reales.</p>
+            <div class="subscription-box">
+                <h2>Únete a la Élite</h2>
+                <p>Deja tus datos para el chat VIP y acceso a preventas.</p>
+                <form id="lead-form">
+                    <input type="email" id="email" placeholder="Tu Email" required>
+                    <select id="country" required>
+                        <option value="" disabled selected>País</option>
+                        <option value="MX">México</option>
+                        <option value="CO">Colombia</option>
+                        <option value="ES">España</option>
+                        <option value="AR">Argentina</option>
+                        <option value="US">USA</option>
+                    </select>
+                    <button type="submit" class="btn-vip">ACCESO VIP</button>
+                </form>
+                <a href="https://wa.me/tu_link" class="wa-link">O entra al grupo de WhatsApp</a>
             </div>
+        </section>
 
-            <section class="subscribe-card">
-                <h3>Únete a la Comunidad</h3>
-                <p>Deja tus datos para recibir acceso prioritario a conciertos y merch.</p>
-                
-                <form id="subscribe-form" class="sub-form">
-                    <input type="email" id="user-email" placeholder="Tu Email" required>
-                    <select id="country-select" required>
-                        <option value="" disabled selected>Tu País</option>
-                        <option value="México">México</option>
-                        <option value="Colombia">Colombia</option>
-                        <option value="España">España</option>
-                        <option value="Argentina">Argentina</option>
-                        <option value="Chile">Chile</option
+        <aside class="chat-area">
+            <div class="chat-header">CHAT EXCLUSIVO</div>
+            <div id="chat-box" class="chat-messages">
+                <div class="msg artist"><span>ARTISTA:</span> ¡Bienvenidos al cuartel general!</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="user-msg" placeholder="Escribe un mensaje...">
+                <button id="send-msg">ENVIAR</button>
+            </div>
+        </aside>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
