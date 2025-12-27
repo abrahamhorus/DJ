@@ -54,29 +54,47 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Configuración de tu proyecto AbrahamHorus
+// CONFIGURACIÓN REAL
 const firebaseConfig = {
-  databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com/",
-  projectId: "abrahamhorus1996",
-  // Los demás datos los sacas de "Configuración del proyecto" en el engrane de Firebase
+    databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com/",
+    projectId: "abrahamhorus1996" // Asegúrate de que el ID coincida con tu consola
 };
 
-// Lógica para guardar el Email y el País
-const leadForm = document.getElementById('lead-form');
+// Inicialización segura
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
 
-leadForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const country = document.getElementById('country').value;
+// Selección de elementos
+const sendBtn = document.getElementById('send-msg');
+const userMsg = document.getElementById('user-msg');
+const chatBox = document.getElementById('chat-box');
 
-    // Guardamos en la rama "leads"
-    const dbRef = firebase.database().ref('leads');
-    dbRef.push({
-        email: email,
-        country: country,
-        date: new Date().toLocaleString()
-    }).then(() => {
-        alert("¡Bienvenido a la Élite! Ahora tienes acceso al Chat.");
-        // Aquí podrías desbloquear el chat o mandar al WhatsApp
-    });
+// FUNCIÓN PARA ENVIAR
+sendBtn.addEventListener('click', () => {
+    const text = userMsg.value.trim();
+    if(text !== "") {
+        console.log("Enviando a 1996..."); 
+        db.ref('messages').push({
+            text: text,
+            timestamp: Date.now()
+        }).then(() => {
+            userMsg.value = "";
+            console.log("¡Mensaje en la base de datos!");
+        }).catch(err => {
+            console.error("Error: Revisa las REGLAS de Firebase", err);
+            alert("Error al enviar. ¿Publicaste las reglas en True?");
+        });
+    }
+});
+
+// ESCUCHAR MENSAJES (Para que aparezcan en tu pantalla)
+db.ref('messages').limitToLast(15).on('child_added', (snapshot) => {
+    const data = snapshot.val();
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('msg');
+    msgDiv.innerHTML = `<span>Fan:</span> ${data.text}`;
+    chatBox.appendChild(msgDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
 });
