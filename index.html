@@ -21,7 +21,7 @@
     <main class="app-container">
         <button id="mobile-chat-toggle" onclick="window.toggleChat()">💬 CHAT</button>
 
-        <div id="p-videos" class="app-page active">
+        <section id="p-videos" class="app-page active">
             <div class="video-main-wrapper">
                 <div class="video-carousel">
                     <button class="carousel-btn prev" onclick="window.changeVideo(-1)">❮</button>
@@ -40,7 +40,7 @@
                     </div>
                     <div class="video-description-box">
                         <h1 id="v-title" class="video-title">Cargando...</h1>
-                        <p id="v-desc" class="video-text">Cargando descripción...</p>
+                        <p id="v-desc" class="video-text">...</p>
                     </div>
                 </div>
 
@@ -54,25 +54,22 @@
                 </div>
             </div>
 
-            <div id="chat-sidebar" class="chat-section-wrapper">
+            <aside id="chat-sidebar" class="chat-section-wrapper">
                 <div class="chat-header">LIVE CHAT <button class="close-chat" onclick="window.toggleChat()">✕</button></div>
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-area">
-                    <input type="text" id="user-msg" placeholder="Dile algo a la potra...">
-                    <button id="send-msg" onclick="window.enviarMsg()">ENVIAR</button>
+                    <input type="text" id="user-msg" placeholder="Dile algo a la potra..." onkeypress="if(event.key === 'Enter') window.enviarMsg()">
+                    <button id="send-msg" onclick="window.enviarMsg()">➜</button>
                 </div>
-            </div>
-        </div>
+            </aside>
+        </section>
     </main>
 
     <nav class="bottom-nav">
-        <div id="nav-live" class="nav-item active" onclick="window.showPage('p-videos')">
-            📺<span>Live</span>
-            <span id="live-badge" class="badge-live">!</span>
-        </div>
-        <div id="nav-music" class="nav-item">🎵<span>Música</span></div>
-        <div id="nav-photos" class="nav-item">📸<span>Fotos</span></div>
-        <div id="nav-events" class="nav-item">🗓️<span>Eventos</span></div>
+        <div id="nav-live" class="nav-item active" onclick="window.showPage('p-videos')">📺<span>Live</span><span id="live-badge" class="badge-live">!</span></div>
+        <div class="nav-item" onclick="window.showPage('p-musica')">🎵<span>Música</span></div>
+        <div class="nav-item" onclick="window.showPage('p-fotos')">📸<span>Fotos</span></div>
+        <div class="nav-item" onclick="window.showPage('p-eventos')">🗓️<span>Eventos</span></div>
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
