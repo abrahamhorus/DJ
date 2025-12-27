@@ -107,3 +107,53 @@ video { width: 100%; height: 100%; object-fit: cover; }
 @media (max-width: 1023px) {
     .chat-input-area { margin-bottom: 70px; }
 }
+/* Barra de scroll estilo Neon */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-messages::-webkit-scrollbar-track {
+    background: #000;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 10px;
+}
+.likes-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 15px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    transition: transform 0.2s;
+    z-index: 10;
+}
+
+.likes-container:active {
+    transform: scale(1.2); /* Efecto de presionado */
+}
+
+#heart-icon { font-size: 1.2rem; }
+
+#likes-count {
+    font-weight: bold;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Animación cuando sube el like */
+.pop-animation {
+    animation: heartPop 0.4s ease-out;
+}
+
+@keyframes heartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}

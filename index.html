@@ -19,11 +19,15 @@
 
     <main class="app-container">
         <div id="p-videos" class="app-page active">
-            <div class="video-container">
-                <video id="main-video" controls poster="assets/poster.jpg">
-                    <source src="https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4" type="video/mp4">
-                </video>
-            </div>
+           <div class="video-container">
+    <video id="main-video" controls poster="assets/poster.jpg">
+        <source src="https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4" type="video/mp4">
+    </video>
+    <div class="likes-container" onclick="darLike()">
+        <span id="heart-icon">❤️</span>
+        <span id="likes-count">0</span>
+    </div>
+</div>
 
             <div class="chat-section-wrapper">
                 <div id="chat-box" class="chat-messages"></div>

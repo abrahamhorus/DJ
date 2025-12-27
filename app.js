@@ -54,3 +54,23 @@ window.showPage = (id) => {
     document.getElementById(id).classList.add('active');
     event.currentTarget.classList.add('active');
 };
+// 1. Escuchar los likes desde la base de datos
+db.ref('likes').on('value', (snapshot) => {
+    const totalLikes = snapshot.val() || 0;
+    document.getElementById('likes-count').innerText = totalLikes.toLocaleString();
+});
+
+// 2. Función para dar Like
+window.darLike = function() {
+    const likesRef = db.ref('likes');
+    
+    // Incrementamos el valor en la base de datos de forma segura (transacción)
+    likesRef.transaction((currentLikes) => {
+        return (currentLikes || 0) + 1;
+    });
+
+    // Efecto visual en el icono
+    const heart = document.getElementById('heart-icon');
+    heart.classList.add('pop-animation');
+    setTimeout(() => heart.classList.remove('pop-animation'), 4000);
+};
