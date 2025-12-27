@@ -29,15 +29,14 @@
                 
                 <div class="video-actions">
                     <div class="likes-btn" onclick="darLike()">
-                        <span id="heart-icon">❤️</span>
-                        <span id="likes-count">0</span>
+                        <span>❤️</span> <span id="likes-count">0</span>
                     </div>
                     <div class="video-info">ESTÁS ESCUCHANDO A LA POTRA 👑</div>
                 </div>
 
                 <div class="comments-section">
                     <div class="comments-header">
-                        <h3>Comentarios</h3>
+                        <h3>Comentarios (<span id="comments-count">0</span>)</h3>
                     </div>
                     <div class="comment-input-block">
                         <input type="text" id="comment-text" placeholder="Añade un comentario público...">
@@ -58,13 +57,13 @@
             </div>
         </div>
 
-        <div id="p-fotos" class="app-page"><h2 class="section-title">Galería</h2></div>
-        <div id="p-eventos" class="app-page"><h2 class="section-title">Shows</h2></div>
-        <div id="p-tienda" class="app-page"><h2 class="section-title">Merch</h2></div>
+        <div id="p-fotos" class="app-page"></div>
+        <div id="p-eventos" class="app-page"></div>
+        <div id="p-tienda" class="app-page"></div>
     </main>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="showPage('p-videos')">📺<span>Live</span></div>
+        <div class="nav-item active" onclick="showPage('p-videos')">📺<span>Videos</span></div>
         <div class="nav-item" onclick="showPage('p-fotos')">📸<span>Fotos</span></div>
         <div class="nav-item" onclick="showPage('p-eventos')">🗓️<span>Events</span></div>
         <div class="nav-item" onclick="showPage('p-tienda')">👕<span>Merch</span></div>
