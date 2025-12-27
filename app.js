@@ -1,49 +1,76 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const subscribeForm = document.getElementById('subscribe-form');
-    const viewCountElement = document.getElementById('view-count');
-    const chatMessages = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('send-btn');
+    // 1. CONFIGURACIÓN FIREBASE
+    const firebaseConfig = {
+        databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com/",
+        projectId: "abrahamhorus1996"
+    };
 
-    // 1. SIMULACIÓN DE CONTADOR DINÁMICO
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.database();
+
+    // 2. ELEMENTOS DEL DOM (Asegúrate que estos IDs coincidan con tu HTML)
+    const viewCountElement = document.getElementById('live-views'); // Cambiado para tu HTML
+    const leadForm = document.getElementById('lead-form');
+    const chatBox = document.getElementById('chat-box');
+    const chatInput = document.getElementById('user-msg');
+    const sendBtn = document.getElementById('send-msg');
+    const ding = document.getElementById('ding-sound');
+
+    // 3. SIMULACIÓN DE CONTADOR (La chispa de la página)
     setInterval(() => {
-        let count = parseInt(viewCountElement.innerText);
-        let change = Math.floor(Math.random() * 5) - 2; 
-        viewCountElement.innerText = Math.max(50, count + change);
+        if (viewCountElement) {
+            let count = parseInt(viewCountElement.innerText);
+            let change = Math.floor(Math.random() * 5) - 2; 
+            viewCountElement.innerText = Math.max(50, count + change);
+        }
     }, 4000);
 
-    // 2. LÓGICA DE SUSCRIPCIÓN Y REDIRECCIÓN
-    subscribeForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('user-email').value;
-        const country = document.getElementById('country-select').value;
-        const btn = document.getElementById('submit-btn');
+    // 4. CAPTURA DE LEADS Y REDIRECCIÓN A WHATSAPP
+    if (leadForm) {
+        leadForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const country = document.getElementById('country').value;
+            const submitBtn = leadForm.querySelector('button');
 
-        // Efecto visual de carga
-        btn.innerText = "REGISTRANDO...";
-        btn.disabled = true;
+            submitBtn.innerText = "REGISTRANDO...";
+            submitBtn.disabled = true;
 
-        console.log(`Lead capturado: ${email} de ${country}`);
+            // Guardar en Firebase
+            db.ref('leads').push({
+                email: email,
+                country: country,
+                timestamp: Date.now()
+            }).then(() => {
+                submitBtn.innerText = "¡LISTO! REDIRIGIENDO...";
+                submitBtn.style.backgroundColor = "#00ff88";
+                
+                setTimeout(() => {
+                    window.open("https://chat.whatsapp.com/TU_LINK_DE_GRUPO", "_blank");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "ACCESO VIP";
+                    leadForm.reset();
+                }, 1500);
+            });
+        });
+    }
 
-        setTimeout(() => {
-            btn.innerText = "¡LISTO! REDIRIGIENDO...";
-            btn.style.backgroundColor = "#00ff88";
-            
-            // Redirige al grupo de WhatsApp (Abre en nueva pestaña)
-            window.open("https://chat.whatsapp.com/TU_LINK_DE_GRUPO", "_blank");
-        }, 1500);
-    });
-
-    // 3. SIMULACIÓN DE CHAT (Para que no se vea vacío al inicio)
+    // 5. ENVIAR MENSAJES REALES A FIREBASE
     const sendMessage = () => {
         const text = chatInput.value.trim();
         if (text !== "") {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
-            msgDiv.innerHTML = `<span class="name">Tú:</span> ${text}`;
-            chatMessages.appendChild(msgDiv);
-            chatInput.value = "";
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            sendBtn.disabled = true;
+            db.ref('messages').push({
+                text: text,
+                timestamp: Date.now()
+            }).then(() => {
+                chatInput.value = "";
+                sendBtn.disabled = false;
+            }).catch(() => {
+                sendBtn.disabled = false;
+            });
         }
     };
 
@@ -51,65 +78,31 @@ document.addEventListener('DOMContentLoaded', () => {
     chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
     });
-});
 
+    // 6. RECIBIR MENSAJES EN TIEMPO REAL (Filtro Potra + Ding)
+    db.ref('messages').limitToLast(15).on('child_added', (snapshot) => {
+        const data = snapshot.val();
+        if (!data.text) return;
 
-// CONFIGURACIÓN REAL
-const firebaseConfig = {
-    databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com/",
-    projectId: "abrahamhorus1996" // Asegúrate de que el ID coincida con tu consola
-};
-
-// Inicialización segura
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.database();
-
-// Selección de elementos
-const sendBtn = document.getElementById('send-msg');
-const userMsg = document.getElementById('user-msg');
-const chatBox = document.getElementById('chat-box');
-
-// FUNCIÓN PARA ENVIAR
-sendBtn.addEventListener('click', () => {
-    const text = userMsg.value.trim();
-    if(text !== "") {
-        console.log("Enviando a 1996..."); 
-        db.ref('messages').push({
-            text: text,
-            timestamp: Date.now()
-        }).then(() => {
-            userMsg.value = "";
-            console.log("¡Mensaje en la base de datos!");
-        }).catch(err => {
-            console.error("Error: Revisa las REGLAS de Firebase", err);
-            alert("Error al enviar. ¿Publicaste las reglas en True?");
-        });
-    }
-});
-
-// ESCUCHAR MENSAJES (Para que aparezcan en tu pantalla)
-const ding = document.getElementById('ding-sound');
-
-db.ref('messages').limitToLast(15).on('child_added', (snapshot) => {
-    const data = snapshot.val();
-    const msgDiv = document.createElement('div');
-    const mensajeOriginal = data.text || "";
-
-    if (mensajeOriginal.startsWith('*')) {
-        msgDiv.className = 'msg artista-vip';
-        const textoSinAsterisco = mensajeOriginal.substring(1);
-        msgDiv.innerHTML = `<span>👑 LA POTRA:</span> ${textoSinAsterisco}`;
+        const msgDiv = document.createElement('div');
         
-        // ¡SUENA EL DING! (Solo para tus mensajes VIP)
-        ding.play().catch(e => console.log("El navegador bloqueó el audio hasta que el usuario interactúe"));
-        
-    } else {
-        msgDiv.className = 'msg';
-        msgDiv.innerHTML = `<span>Fan:</span> ${mensajeOriginal}`;
-    }
+        if (data.text.startsWith('*')) {
+            msgDiv.className = 'msg artista-vip';
+            msgDiv.innerHTML = `<span>👑 LA POTRA:</span> ${data.text.substring(1)}`;
+            if(ding) ding.play().catch(() => {});
+        } else {
+            msgDiv.className = 'msg';
+            msgDiv.innerHTML = `<span>Fan:</span> ${data.text}`;
+        }
 
-    chatBox.appendChild(msgDiv);
-    chatBox.scrollTop = chatBox.scrollHeight;
+        chatBox.appendChild(msgDiv);
+
+        // Scroll suave para que no se trabe
+        setTimeout(() => {
+            chatBox.scrollTo({
+                top: chatBox.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 100);
+    });
 });
