@@ -35,27 +35,42 @@ body {
 
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-.app-container { flex: 1; position: relative; overflow: hidden; }
+/* Ajuste para que el contenedor de la página use todo el alto disponible */
+.app-container { 
+    flex: 1; 
+    position: relative; 
+    display: flex; 
+    flex-direction: column;
+}
 
-.app-page { display: none; height: 100%; width: 100%; }
-.app-page.active { display: flex; flex-direction: column; }
+.app-page { 
+    display: none; 
+    width: 100%; 
+    height: 100%; /* Ocupa todo el alto del contenedor */
+}
 
-.video-container { width: 100%; background: #000; aspect-ratio: 16/9; flex-shrink: 0; }
-video { width: 100%; height: 100%; object-fit: cover; }
+.app-page.active { 
+    display: flex; 
+    flex-direction: column; 
+}
 
+/* El chat debe "estirarse" para llenar el hueco entre el video y el input */
 .chat-messages {
-    flex: 1;
+    flex: 1; /* Esto obliga al chat a ocupar todo el espacio sobrante */
     background: #050505;
     padding: 15px;
     overflow-y: auto;
+    border-top: 1px solid #111;
+    min-height: 200px; /* Evita que desaparezca en pantallas pequeñas */
 }
 
+/* El área de input se queda pegada abajo */
 .chat-input-area {
     display: flex;
     padding: 10px;
     background: #080808;
     border-top: 1px solid #222;
-    margin-bottom: 70px; /* Espacio para la nav */
+    padding-bottom: 80px; /* Margen para que no lo tape la nav bar */
 }
 
 #user-msg {

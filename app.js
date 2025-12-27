@@ -58,63 +58,21 @@ window.closeLogin = () => {
 
 // 5. LÓGICA DEL CHAT (ENVIAR Y RECIBIR)
 document.addEventListener('DOMContentLoaded', () => {
-    const sendBtn = document.getElementById('send-msg');
-    const chatInput = document.getElementById('user-msg');
-    const chatBox = document.getElementById('chat-box');
+    const chatBox = document.getElementById('chat-box'); // Lo buscamos adentro
     const ding = document.getElementById('ding-sound');
 
-    const enviarMensaje = () => {
-        const text = chatInput.value.trim();
-        if (!currentUser) {
-            document.getElementById('login-modal').style.display = 'flex';
-            return;
-        }
-        if (text !== "") {
-            db.ref('messages').push({
-                text: text,
-                userName: currentUser.displayName,
-                userFoto: currentUser.photoURL,
-                timestamp: Date.now()
-            }).then(() => {
-                chatInput.value = "";
-            });
-        }
-    };
-
-    if(sendBtn) sendBtn.onclick = enviarMensaje;
-    if(chatInput) {
-        chatInput.onkeypress = (e) => {
-            if (e.key === 'Enter') enviarMensaje();
-        };
-    }
-
-    // ESCUCHAR MENSAJES
+    // ESCUCHAR MENSAJES (Movido aquí adentro para seguridad)
     db.ref('messages').limitToLast(20).on('child_added', (snapshot) => {
         const data = snapshot.val();
         if (!chatBox) return;
 
         const msgDiv = document.createElement('div');
-        if (data.text.startsWith('*')) {
-            msgDiv.className = 'msg artista-vip';
-            msgDiv.innerHTML = `<span>👑 LA POTRA:</span> ${data.text.substring(1)}`;
-            if (ding) ding.play().catch(() => {});
-        } else {
-            msgDiv.className = 'msg';
-            const foto = data.userFoto || 'https://via.placeholder.com/30';
-            msgDiv.innerHTML = `
-                <div style="display:flex; gap:10px;">
-                    <img src="${foto}" style="width:30px; height:30px; border-radius:50%;">
-                    <div>
-                        <span style="font-size:0.7rem; color:var(--accent); font-weight:bold;">${data.userName || 'Fan'}</span>
-                        <p style="margin:0;">${data.text}</p>
-                    </div>
-                </div>`;
-        }
+        // ... (resto del código de la potra y fans que ya tienes) ...
+        
         chatBox.appendChild(msgDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
     });
 });
-
 // 6. CONTADOR DE FANS
 setInterval(() => {
     const el = document.getElementById('live-views');
