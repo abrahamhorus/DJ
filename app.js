@@ -1,80 +1,99 @@
+// 1. FIREBASE CONFIG
 const firebaseConfig = {
     databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com/",
     projectId: "abrahamhorus1996"
 };
-firebase.initializeApp(firebaseConfig);
+
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
 const db = firebase.database();
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
 
 let currentUser = null;
 
-// GESTIÓN DE PÁGINAS
-window.showPage = (pageId) => {
+// 2. SESIÓN DE USUARIO
+auth.onAuthStateChanged(user => {
+    if (user) {
+        currentUser = user;
+        console.log("Sesión activa");
+        if(document.getElementById('login-modal')) document.getElementById('login-modal').style.display = 'none';
+    }
+});
+
+// 3. FUNCIONES DE NAVEGACIÓN
+window.showPage = function(pageId) {
     if (pageId !== 'p-videos' && !currentUser) {
         document.getElementById('login-modal').style.display = 'flex';
         return;
     }
     document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
-    
-    // Actualizar Nav
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    // (Asignar la clase active según el orden si es necesario)
+    
+    document.getElementById(pageId).classList.add('active');
 };
 
-window.closeLogin = () => document.getElementById('login-modal').style.display = 'none';
-
-window.loginConGoogle = () => {
-    auth.signInWithPopup(provider).then(() => location.reload()).catch(e => console.log(e));
+window.loginConGoogle = function() {
+    auth.signInWithPopup(provider).then(() => {
+        location.reload();
+    }).catch(err => alert("Error Google: " + err.message));
 };
 
-auth.onAuthStateChanged(user => {
-    if (user) {
-        currentUser = user;
-        document.getElementById('login-modal').style.display = 'none';
-    }
-});
+window.closeLogin = function() {
+    document.getElementById('login-modal').style.display = 'none';
+};
 
-// LÓGICA DE CHAT RE-CONECTADA
+// 4. LÓGICA DEL CHAT
 document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('send-msg');
-    const input = document.getElementById('user-msg');
-    const box = document.getElementById('chat-box');
+    const chatBox = document.getElementById('chat-box');
+    const sendBtn = document.getElementById('send-msg');
+    const chatInput = document.getElementById('user-msg');
+    const ding = document.getElementById('ding-sound');
 
+    // Escuchar mensajes
+    db.ref('messages').limitToLast(20).on('child_added', (snap) => {
+        const d = snap.val();
+        if (!chatBox) return;
+
+        const div = document.createElement('div');
+        if (d.text.startsWith('*')) {
+            div.className = 'msg artista-vip';
+            div.innerHTML = `<b>👑 LA POTRA:</b> ${d.text.substring(1)}`;
+            if(ding) ding.play().catch(()=>{});
+        } else {
+            div.className = 'msg';
+            div.innerHTML = `<b>${d.userName || 'Fan'}:</b> ${d.text}`;
+        }
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    // Enviar mensaje
     function enviar() {
-        const t = input.value.trim();
-        if (!currentUser) { document.getElementById('login-modal').style.display = 'flex'; return; }
-        if (t !== "") {
+        if (!currentUser) {
+            document.getElementById('login-modal').style.display = 'flex';
+            return;
+        }
+        const text = chatInput.value.trim();
+        if (text !== "") {
             db.ref('messages').push({
-                text: t,
+                text: text,
                 userName: currentUser.displayName,
-                userFoto: currentUser.photoURL,
                 timestamp: Date.now()
             });
-            input.value = "";
+            chatInput.value = "";
         }
     }
 
-    if (btn) btn.onclick = enviar;
-    if (input) input.onkeypress = (e) => { if (e.key === 'Enter') enviar(); };
-
-    // ESCUCHAR FIREBASE
-    db.ref('messages').limitToLast(20).on('child_added', (snap) => {
-        const d = snap.val();
-        const div = document.createElement('div');
-        div.className = 'msg';
-        div.innerHTML = `<span>${d.userName || 'Fan'}:</span> ${d.text}`;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-    });
+    if(sendBtn) sendBtn.onclick = enviar;
+    if(chatInput) chatInput.onkeypress = (e) => { if (e.key === 'Enter') enviar(); };
 });
 
-// CONTADOR
+// 5. CONTADOR DE FANS
 setInterval(() => {
     const el = document.getElementById('live-views');
     if (el) {
-        let n = parseInt(el.innerText.replace(',','')) + Math.floor(Math.random()*20-10);
+        let n = parseInt(el.innerText.replace(',','')) || 2540;
+        n += Math.floor(Math.random() * 20) - 10;
         el.innerText = Math.max(100, n).toLocaleString();
     }
 }, 3000);
