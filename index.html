@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abraham Horus | Sitio Oficial</title>
+    <title>Abraham Horus | Dev Platform</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00ff88">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
     <div class="layout-wrapper">
         
         <aside class="vscode-sidebar">
-            <div class="brand-box"><img src="assets/logo192.png" class="brand-img"></div>
+            <div class="brand-box">
+                <img src="assets/logo192.png" alt="AH" class="brand-img">
+            </div>
+            
             <nav class="vscode-nav">
                 <div class="v-item active" onclick="window.showPage('p-videos', this)">
                     <span class="v-icon">📺</span> Videos
@@ -31,8 +37,10 @@
         </aside>
 
         <main class="vscode-main">
+            
             <header class="vscode-header">
                 <h1>ABRAHAM HORUS</h1>
+                <p>Plataforma Oficial v2.0</p>
             </header>
 
             <div id="p-videos" class="app-page active">
@@ -45,22 +53,37 @@
                     </div>
                     
                     <div class="video-controls-bar">
-                        <h2 id="current-title">Selecciona un video</h2>
+                        <div class="info-block">
+                            <h2 id="current-title">Cargando...</h2>
+                            <p id="video-description" class="desc-text">// Cargando descripción del sistema...</p>
+                        </div>
+
                         <div class="actions-row">
-                            <button onclick="window.darLike()" class="btn-code">❤️ <span id="likes-count">0</span></button>
-                            <button class="btn-code no-click">👁️ <span id="total-views">0</span></button>
+                            <button onclick="window.darLike()" class="btn-code">
+                                ❤️ <span id="likes-count">0</span>
+                            </button>
+                            
+                            <button class="btn-code no-click">
+                                👁️ <span id="total-views">0</span>
+                            </button>
+
+                            <button onclick="window.toggleComments()" class="btn-code">
+                                💬 <span id="comments-count-btn">0</span>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="terminal-comments-integrated">
-                        <div class="term-head">COMENTARIOS</div>
+                    <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
+                        <div class="term-head">CONSOLE_LOG > COMMENTS_STREAM</div>
+                        
+                        <div class="term-input">
+                            <span>root@horus:~$</span>
+                            <input id="comment-text" placeholder="Escribe un comentario nuevo...">
+                            <button onclick="window.enviarComentario()">PUBLICAR</button>
+                        </div>
+
                         <div id="comments-list" class="term-body-fixed">
                             <p class="term-line">Cargando...</p>
-                        </div>
-                        <div class="term-input">
-                            <span>></span>
-                            <input id="comment-text" placeholder="Escribe un comentario...">
-                            <button onclick="window.enviarComentario()">ENVIAR</button>
                         </div>
                     </div>
                 </div>
@@ -79,6 +102,7 @@
                             <p>Video Oficial</p>
                         </div>
                     </div>
+
                     <div class="code-card" onclick="window.loadVideo(1)">
                         <div class="card-thumb">
                             <img src="assets/shot 1.jpeg" style="filter:grayscale(1);">
@@ -119,7 +143,10 @@
         </main>
     </div>
 
-    <div class="chat-launcher" onclick="window.toggleLiveChat()"><span class="status-dot"></span> Chat Global</div>
+    <div class="chat-launcher" onclick="window.toggleLiveChat()">
+        <span class="status-dot"></span> Chat Global
+    </div>
+    
     <div id="live-chat-window" class="chat-window">
         <div class="chat-header">Comunidad <span onclick="window.toggleLiveChat()">x</span></div>
         <div id="chat-global-msgs" class="chat-body"></div>
