@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="not-logged">
 
     <header class="top-bar">
         <div class="logo">ABRAHAM HORUS</div>
@@ -67,7 +67,8 @@
 
         <div id="p-musica" class="app-page">
             <div class="lock-overlay">
-                <h2 style="color: var(--accent); font-weight: 900;">💎 SECCIÓN VIP</h2>
+                <h2>💎 MÚSICA VIP</h2>
+                <p>Discografía exclusiva.</p>
                 <button onclick="window.loginGoogle()" class="btn-premium">ENTRAR CON GOOGLE</button>
             </div>
             <div class="music-container">
@@ -85,9 +86,21 @@
             </div>
         </div>
 
+        <div id="p-photos" class="app-page">
+             <div class="lock-overlay">
+                <h2>📸 FOTOS VIP</h2>
+                <p>Galería privada.</p>
+                <button onclick="window.loginGoogle()" class="btn-premium">ENTRAR CON GOOGLE</button>
+            </div>
+            <div class="events-container">
+                <h2 class="section-title">Galería Exclusiva</h2>
+            </div>
+        </div>
+
         <div id="p-eventos" class="app-page">
             <div class="lock-overlay">
-                <h2 style="color: var(--accent); font-weight: 900;">🗓️ AGENDA VIP</h2>
+                <h2>🗓️ AGENDA VIP</h2>
+                <p>Fechas confirmadas.</p>
                 <button onclick="window.loginGoogle()" class="btn-premium">ENTRAR CON GOOGLE</button>
             </div>
             <div class="events-container">
@@ -107,7 +120,7 @@
     <nav class="bottom-nav">
         <div id="nav-live" class="nav-item active" onclick="window.showPage('p-videos')">📺<span>Live</span><div id="live-badge" class="badge-live">!</div></div>
         <div id="nav-music" class="nav-item" onclick="window.showPage('p-musica')">🎵<span>Música</span></div>
-        <div id="nav-photos" class="nav-item" onclick="window.showPage('p-fotos')">📸<span>Fotos</span></div>
+        <div id="nav-photos" class="nav-item" onclick="window.showPage('p-photos')">📸<span>Fotos</span></div>
         <div id="nav-events" class="nav-item" onclick="window.showPage('p-eventos')">🗓️<span>Eventos</span></div>
     </nav>
 
