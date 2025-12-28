@@ -9,28 +9,30 @@ const db = firebase.database();
 let fanName = localStorage.getItem('fanName') || null;
 
 const playlist = [
-    { id: "despierto", title: "DESPIERTO (Video Oficial)", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", desc: "DESPIERTO: el primer video oficial del artista Abraham Horus. El video trata de la superación de una crisis, llegando a la muerte y renaciendo con una fuerza de voluntad inquebrantable logrando la iluminación de cuerpo y alma. 👑" },
-    { id: "proximamente", title: "PRÓXIMO LANZAMIENTO", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", desc: "Espéralo muy pronto..." }
-];
-let currentIndex = 0;
-
-// --- MEJORA: CONTADORES DINÁMICOS ---
-setInterval(() => {
-    const liveEl = document.getElementById('live-views');
-    const subsEl = document.getElementById('total-subs');
-    
-    if(liveEl) {
-        const viewers = Math.floor(Math.random() * (300 - 500 + 1)) + 1000;
-        liveEl.innerText = viewers.toLocaleString();
+    { 
+        id: "despierto", 
+        title: "DESPIERTO (Video Oficial)", 
+        url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", 
+        poster: "assets/shot 1.jpeg", // <--- Añade esto
+        desc: "DESPIERTO: el primer video oficial..." 
+    },
+    { 
+        id: "proximamente", 
+        title: "PRÓXIMO LANZAMIENTO", 
+        url: "https://tu-url-de-video.mp4", 
+        poster: "assets/poster-proximamente.jpg", // <--- Y esto
+        desc: "Espéralo muy pronto..." 
     }
-    
-   
-}, 5000);
+];
 
 window.loadVideo = (index) => {
     const v = playlist[index];
+    const vid = document.getElementById('main-video');
+    
     document.getElementById('video-source').src = v.url;
-    document.getElementById('main-video').load();
+    vid.poster = v.poster; // <--- Esto cambia la imagen de previsualización al vuelo
+    vid.load();
+    
     document.getElementById('v-title').innerText = v.title;
     document.getElementById('v-desc').innerText = v.desc;
     vincularData(v.id);
