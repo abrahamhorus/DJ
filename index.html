@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abraham Horus | Dev Platform</title>
+    <title>Abraham Horus | Plataforma Oficial</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00ff88">
@@ -55,18 +55,16 @@
                     <div class="video-controls-bar">
                         <div class="info-block">
                             <h2 id="current-title">Cargando...</h2>
-                            <p id="video-description" class="desc-text">// Cargando descripción del sistema...</p>
+                            <p id="video-description" class="desc-text">...</p>
                         </div>
 
                         <div class="actions-row">
                             <button onclick="window.darLike()" class="btn-code">
                                 ❤️ <span id="likes-count">0</span>
                             </button>
-                            
                             <button class="btn-code no-click">
                                 👁️ <span id="total-views">0</span>
                             </button>
-
                             <button onclick="window.toggleComments()" class="btn-code">
                                 💬 <span id="comments-count-btn">0</span>
                             </button>
@@ -74,11 +72,11 @@
                     </div>
 
                     <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
-                        <div class="term-head">CONSOLE_LOG > COMMENTS_STREAM</div>
+                        <div class="term-head">COMENTARIOS DE LA COMUNIDAD</div>
                         
                         <div class="term-input">
-                            <span>root@horus:~$</span>
-                            <input id="comment-text" placeholder="Escribe un comentario nuevo...">
+                            <span style="color: #00ff88;">➜</span>
+                            <input id="comment-text" placeholder="Escribe un comentario...">
                             <button onclick="window.enviarComentario()">PUBLICAR</button>
                         </div>
 
@@ -105,11 +103,11 @@
 
                     <div class="code-card" onclick="window.loadVideo(1)">
                         <div class="card-thumb">
-                            <img src="assets/shot 1.jpeg" style="filter:grayscale(1);">
-                            <div class="card-overlay">BLOQUEADO 🔒</div>
+                            <img src="assets/shot 2.jpeg" style="filter:grayscale(1);">
+                            <div class="card-overlay">PRÓXIMAMENTE</div>
                         </div>
                         <div class="card-text">
-                            <h4>PRÓXIMAMENTE</h4>
+                            <h4>SISTEMA EN MANTENIMIENTO</h4>
                             <p>Muy pronto...</p>
                         </div>
                     </div>
@@ -123,18 +121,21 @@
 
             <div id="p-photos" class="app-page">
                 <div class="code-block-lock">
-                    <div class="line-nums">15<br>16<br>17<br>18</div>
-                    <div class="code-text">
-                        <p><span class="c-purple">if</span> (!vip) { <span class="c-blue">System</span>.lock(); }</p>
-                        <br><button onclick="window.loginGoogle()" class="btn-green-glow">ENTRAR CON GOOGLE</button>
+                    <div class="code-text" style="text-align: center;">
+                        <h3 style="color: #fff; margin-bottom: 10px;">🔒 Contenido Exclusivo</h3>
+                        <p style="color: #bbb; margin-bottom: 20px;">Inicia sesión para ver la galería oculta.</p>
+                        <button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER CON GOOGLE</button>
                     </div>
                 </div>
-                <div class="protected-content"><h2 class="section-label">Galería VIP</h2></div>
+                <div class="protected-content">
+                    <h2 class="section-label">Galería VIP</h2>
+                    <p>Bienvenido al área privada.</p>
+                    </div>
             </div>
 
             <div id="p-profile" class="app-page">
                 <div class="profile-panel">
-                    <img id="profile-preview" src="https://i.imgur.com/6VBx3io.png">
+                    <img id="profile-preview" src="https://via.placeholder.com/100" alt="Profile">
                     <h3 id="display-name" style="color:#fff;">Invitado</h3>
                     <button class="btn-green-glow" onclick="window.cerrarSesion()">CERRAR SESIÓN</button>
                 </div>
@@ -148,9 +149,12 @@
     </div>
     
     <div id="live-chat-window" class="chat-window">
-        <div class="chat-header">Comunidad <span onclick="window.toggleLiveChat()">x</span></div>
+        <div class="chat-header">Comunidad en vivo <span onclick="window.toggleLiveChat()" style="cursor:pointer;">x</span></div>
         <div id="chat-global-msgs" class="chat-body"></div>
-        <div class="chat-input"><input id="chat-input-msg"><button onclick="window.enviarMensajeChat()">➤</button></div>
+        <div class="chat-input">
+            <input id="chat-input-msg" placeholder="Enviar mensaje...">
+            <button onclick="window.enviarMensajeChat()">➤</button>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
