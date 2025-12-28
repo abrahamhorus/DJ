@@ -13,9 +13,10 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-// --- ¡PON AQUÍ TU CORREO DE JEFE! ---
-const ADMIN_EMAIL = "tucorreo@gmail.com"; // <--- CAMBIA ESTO POR EL TUYO
-// ------------------------------------
+// ======================================================
+// 👇👇👇 CORREO DEL PATRÓN CONFIGURADO 👇👇👇
+const ADMIN_EMAIL = "abrahorus@gmail.com"; 
+// ======================================================
 
 let fanName = localStorage.getItem('fanName') || "Fan";
 let fanAvatar = localStorage.getItem('fanAvatar') || "https://i.imgur.com/6VBx3io.png";
@@ -177,7 +178,6 @@ db.ref('messages').limitToLast(1).on('child_added', s => {
     const avatarUrl = d.avatar || "https://i.imgur.com/6VBx3io.png";
     const div = document.createElement('div'); div.className = isVIP ? 'msg artista-vip' : 'msg'; div.style.padding = "10px"; div.style.marginBottom = "8px"; div.style.borderRadius = "8px"; div.style.background = "rgba(255,255,255,0.05)";
     
-    // AQUÍ ESTÁ EL CAMBIO:
     div.innerHTML = `<div class="msg-content"><img src="${isVIP ? 'assets/shot 1.jpeg' : avatarUrl}" class="chat-mini-avatar"><div><b style="color:var(--accent); font-size:0.75rem;">${isVIP ? '👑 EL PATRÓN' : (d.userName || 'Fan')}:</b> <span style="font-size:0.9rem; display:block;">${msgText}</span></div></div>`;
     
     document.getElementById('chat-box').appendChild(div);
@@ -190,11 +190,14 @@ window.enviarMsg = () => {
     if (input.value.trim()) {
         if (!auth.currentUser) { alert("Inicia sesión"); window.loginGoogle(); return; }
         
-        const isBoss = auth.currentUser.email === ADMIN_EMAIL;
+        // --- DETECCIÓN DE CORREO SIN IMPORTAR MAYÚSCULAS ---
+        const myEmail = (auth.currentUser.email || "").toLowerCase().trim();
+        const bossEmail = ADMIN_EMAIL.toLowerCase().trim();
+        const isBoss = myEmail === bossEmail;
         
         db.ref('messages').push({ 
             text: input.value, 
-            userName: isBoss ? "👑 EL PATRÓN" : fanName, // CAMBIO AQUÍ TAMBIÉN
+            userName: isBoss ? "👑 EL PATRÓN" : fanName, 
             avatar: fanAvatar,
             isVIP: isBoss 
         });
