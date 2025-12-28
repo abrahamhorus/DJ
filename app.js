@@ -13,41 +13,34 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
+// --- ¡PON AQUÍ TU CORREO DE JEFE! ---
+const ADMIN_EMAIL = "tucorreo@gmail.com"; // <--- CAMBIA ESTO POR EL TUYO
+// ------------------------------------
+
 let fanName = localStorage.getItem('fanName') || "Fan";
 let fanAvatar = localStorage.getItem('fanAvatar') || "https://i.imgur.com/6VBx3io.png";
 
-// --- SISTEMA DE PRESENCIA REAL ---
+// SISTEMA DE PRESENCIA
 const connectedRef = db.ref(".info/connected");
 const conRef = db.ref("connections");
-
 connectedRef.on("value", (snap) => {
-  if (snap.val() === true) {
-    const con = conRef.push();
-    con.onDisconnect().remove();
-    con.set(true);
-  }
+  if (snap.val() === true) { const con = conRef.push(); con.onDisconnect().remove(); con.set(true); }
 });
-
 conRef.on("value", (snap) => {
   const realUsers = snap.numChildren(); 
-  
-  // 1. Contador en el BOTÓN flotante (Móvil)
   const btnCount = document.getElementById('btn-live-count');
   if(btnCount) btnCount.innerText = "● " + realUsers;
-
-  // 2. Contador en el Header del CHAT (Desktop)
   const deskCount = document.getElementById('desk-live-count');
   if(deskCount) deskCount.innerText = "● " + realUsers;
 });
-// ------------------------------------------------
 
-// ESCUCHAR SUBS
+// SUBS
 db.ref('siteStats/subscribers').on('value', snapshot => {
     const count = snapshot.val() || 1000; 
     document.getElementById('total-subs').innerText = count.toLocaleString();
 });
 
-// LOGICA DE SESIÓN
+// SESIÓN
 auth.onAuthStateChanged(user => {
     if (user) { 
         document.body.classList.add('is-vip');
@@ -86,12 +79,7 @@ function actualizarUI() {
 }
 
 window.abrirPerfil = () => {
-    if (document.body.classList.contains('is-vip')) {
-        window.showPage('p-profile');
-    } else {
-        alert("Inicia sesión para ver tu perfil.");
-        window.loginGoogle();
-    }
+    if (document.body.classList.contains('is-vip')) { window.showPage('p-profile'); } else { alert("Inicia sesión"); window.loginGoogle(); }
 };
 
 window.guardarPerfil = () => {
@@ -135,9 +123,7 @@ window.loadVideo = (index) => {
 };
 
 function vincularData(videoId) {
-    db.ref(`stats/${videoId}/likes`).off(); 
-    db.ref(`stats/${videoId}/views`).off(); 
-    db.ref(`comments/${videoId}`).off();
+    db.ref(`stats/${videoId}/likes`).off(); db.ref(`stats/${videoId}/views`).off(); db.ref(`comments/${videoId}`).off();
     document.getElementById('comments-list').innerHTML = "";
     db.ref(`stats/${videoId}/likes`).on('value', s => document.getElementById('likes-count').innerText = s.val() || 0);
     db.ref(`stats/${videoId}/views`).on('value', s => document.getElementById('total-views').innerText = s.val() || 0);
@@ -146,8 +132,7 @@ function vincularData(videoId) {
     db.ref(`comments/${videoId}`).on('child_added', snap => {
         const c = snap.val(); const id = snap.key;
         const avatarUrl = c.avatar || "https://i.imgur.com/6VBx3io.png"; 
-        const div = document.createElement('div');
-        div.className = 'comment-item'; div.id = `comment-${id}`;
+        const div = document.createElement('div'); div.className = 'comment-item'; div.id = `comment-${id}`;
         div.innerHTML = `
             <div class="comment-header"><img src="${avatarUrl}" class="comment-avatar"><span class="comment-user">@${c.userName}</span></div>
             <p style="color:#ccc; margin-left: 40px; margin-top:-5px;">${c.text}</p>
@@ -159,8 +144,7 @@ function vincularData(videoId) {
         db.ref(`comments/${videoId}/${id}/likes`).on('value', ls => { const countSpan = document.getElementById(`lc-${id}`); if(countSpan) countSpan.innerText = ls.val() || 0; });
         db.ref(`replies/${id}`).on('child_added', rs => {
             const r = rs.val(); const rAvatar = r.avatar || "https://i.imgur.com/6VBx3io.png";
-            const rDiv = document.createElement('div');
-            rDiv.style.marginTop = "10px"; rDiv.style.display = "flex"; rDiv.style.gap = "8px";
+            const rDiv = document.createElement('div'); rDiv.style.marginTop = "10px"; rDiv.style.display = "flex"; rDiv.style.gap = "8px";
             rDiv.innerHTML = `<img src="${rAvatar}" style="width:20px; height:20px; border-radius:50%; object-fit:cover;"><div><span style="color:var(--accent); font-size:0.75rem; display:block;">@${r.userName}</span><p style="font-size:0.85rem; color:#aaa;">${r.text}</p></div>`;
             document.getElementById(`replies-${id}`).appendChild(rDiv);
         });
@@ -182,20 +166,42 @@ window.enviarComentario = () => {
     const input = document.getElementById('comment-text');
     if (input.value.trim()) { if (!auth.currentUser) { alert("Inicia sesión"); window.loginGoogle(); return; } db.ref(`comments/${playlist[currentIndex].id}`).push({ text: input.value, userName: fanName, avatar: fanAvatar, likes: 0 }); input.value = ""; }
 };
+
+// --- CHAT CON DETECCIÓN DE PATRÓN ---
 db.ref('messages').limitToLast(1).on('child_added', s => {
-    const d = s.val(); const isVIP = d.text.startsWith('*');
+    const d = s.val(); 
+    const isVIP = d.isVIP === true || d.text.startsWith('*');
+    const msgText = d.text.startsWith('*') ? d.text.substring(1) : d.text;
+
     if(isVIP && !document.getElementById('p-videos').classList.contains('active')) { const badge = document.getElementById('live-badge'); if(badge) badge.style.display = 'block'; }
     const avatarUrl = d.avatar || "https://i.imgur.com/6VBx3io.png";
     const div = document.createElement('div'); div.className = isVIP ? 'msg artista-vip' : 'msg'; div.style.padding = "10px"; div.style.marginBottom = "8px"; div.style.borderRadius = "8px"; div.style.background = "rgba(255,255,255,0.05)";
-    div.innerHTML = `<div class="msg-content"><img src="${isVIP ? 'assets/shot 1.jpeg' : avatarUrl}" class="chat-mini-avatar"><div><b style="color:var(--accent); font-size:0.75rem;">${isVIP ? '👑 LA POTRA' : (d.userName || 'Fan')}:</b> <span style="font-size:0.9rem; display:block;">${isVIP ? d.text.substring(1) : d.text}</span></div></div>`;
+    
+    // AQUÍ ESTÁ EL CAMBIO:
+    div.innerHTML = `<div class="msg-content"><img src="${isVIP ? 'assets/shot 1.jpeg' : avatarUrl}" class="chat-mini-avatar"><div><b style="color:var(--accent); font-size:0.75rem;">${isVIP ? '👑 EL PATRÓN' : (d.userName || 'Fan')}:</b> <span style="font-size:0.9rem; display:block;">${msgText}</span></div></div>`;
+    
     document.getElementById('chat-box').appendChild(div);
     document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
     if(isVIP) document.getElementById('ding-sound').play().catch(()=>{});
 });
+
 window.enviarMsg = () => {
     const input = document.getElementById('user-msg');
-    if (input.value.trim()) { if (!auth.currentUser) { alert("Inicia sesión"); window.loginGoogle(); return; } db.ref('messages').push({ text: input.value, userName: input.value.startsWith('*') ? "LA POTRA" : fanName, avatar: fanAvatar }); input.value = ""; }
+    if (input.value.trim()) {
+        if (!auth.currentUser) { alert("Inicia sesión"); window.loginGoogle(); return; }
+        
+        const isBoss = auth.currentUser.email === ADMIN_EMAIL;
+        
+        db.ref('messages').push({ 
+            text: input.value, 
+            userName: isBoss ? "👑 EL PATRÓN" : fanName, // CAMBIO AQUÍ TAMBIÉN
+            avatar: fanAvatar,
+            isVIP: isBoss 
+        });
+        input.value = "";
+    }
 };
+
 window.changeVideo = (dir) => { currentIndex = (currentIndex + dir + playlist.length) % playlist.length; window.loadVideo(currentIndex); };
 window.darLike = () => db.ref(`stats/${playlist[currentIndex].id}/likes`).transaction(c => (c || 0) + 1);
 window.toggleChat = () => document.getElementById('chat-sidebar').classList.toggle('open');
