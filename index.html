@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Abraham Horus | Plataforma Oficial</title>
-    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00ff88">
-    
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -19,7 +17,6 @@
             <div class="brand-box">
                 <img src="assets/logo192.png" alt="AH" class="brand-img">
             </div>
-            
             <nav class="vscode-nav">
                 <div class="v-item active" onclick="window.showPage('p-videos', this)">
                     <span class="v-icon">📺</span> Videos
@@ -47,7 +44,7 @@
                 
                 <div class="integrated-player-box">
                     <div class="video-frame">
-                        <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
+                        <video id="main-video" controls playsinline>
                             <source id="video-source" src="" type="video/mp4">
                         </video>
                     </div>
@@ -72,17 +69,15 @@
                     </div>
 
                     <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
-                        <div class="term-head">COMENTARIOS DE LA COMUNIDAD</div>
+                        <div class="term-head">CONSOLE_LOG > COMMENTS_STREAM</div>
                         
                         <div class="term-input">
-                            <span style="color: #00ff88;">➜</span>
+                            <span class="prompt">➜</span>
                             <input id="comment-text" placeholder="Escribe un comentario...">
                             <button onclick="window.enviarComentario()">PUBLICAR</button>
                         </div>
 
-                        <div id="comments-list" class="term-body-fixed">
-                            <p class="term-line">Cargando...</p>
-                        </div>
+                        <div id="comments-list" class="term-body-fixed"></div>
                     </div>
                 </div>
 
@@ -103,11 +98,11 @@
 
                     <div class="code-card" onclick="window.loadVideo(1)">
                         <div class="card-thumb">
-                            <img src="assets/shot 2.jpeg" style="filter:grayscale(1);">
+                            <img src="assets/shot 1.jpeg" style="filter:grayscale(1);">
                             <div class="card-overlay">PRÓXIMAMENTE</div>
                         </div>
                         <div class="card-text">
-                            <h4>SISTEMA EN MANTENIMIENTO</h4>
+                            <h4>SISTEMA</h4>
                             <p>Muy pronto...</p>
                         </div>
                     </div>
@@ -123,19 +118,18 @@
                 <div class="code-block-lock">
                     <div class="code-text" style="text-align: center;">
                         <h3 style="color: #fff; margin-bottom: 10px;">🔒 Contenido Exclusivo</h3>
-                        <p style="color: #bbb; margin-bottom: 20px;">Inicia sesión para ver la galería oculta.</p>
+                        <p style="color: #bbb; margin-bottom: 20px;">Inicia sesión para ver la galería.</p>
                         <button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER CON GOOGLE</button>
                     </div>
                 </div>
                 <div class="protected-content">
                     <h2 class="section-label">Galería VIP</h2>
-                    <p>Bienvenido al área privada.</p>
-                    </div>
+                </div>
             </div>
 
             <div id="p-profile" class="app-page">
                 <div class="profile-panel">
-                    <img id="profile-preview" src="https://via.placeholder.com/100" alt="Profile">
+                    <img id="profile-preview" src="https://via.placeholder.com/100">
                     <h3 id="display-name" style="color:#fff;">Invitado</h3>
                     <button class="btn-green-glow" onclick="window.cerrarSesion()">CERRAR SESIÓN</button>
                 </div>
@@ -149,10 +143,13 @@
     </div>
     
     <div id="live-chat-window" class="chat-window">
-        <div class="chat-header">Comunidad en vivo <span onclick="window.toggleLiveChat()" style="cursor:pointer;">x</span></div>
+        <div class="chat-header">
+            root@horus:~/chat <span onclick="window.toggleLiveChat()" style="cursor:pointer">x</span>
+        </div>
         <div id="chat-global-msgs" class="chat-body"></div>
-        <div class="chat-input">
-            <input id="chat-input-msg" placeholder="Enviar mensaje...">
+        <div class="chat-input-container">
+            <span class="prompt">➜</span>
+            <input id="chat-input-msg" placeholder="Escribe..." autocomplete="off">
             <button onclick="window.enviarMensajeChat()">➤</button>
         </div>
     </div>
