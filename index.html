@@ -4,136 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Abraham Horus | Sitio Oficial</title>
-    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00ff88">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <div class="layout-container">
+    <div class="layout-wrapper">
         
-        <aside class="sidebar">
-            <div class="brand">
-                <img src="assets/logo192.png" alt="Logo" class="brand-logo">
-            </div>
-            <nav class="side-nav">
-                <div class="nav-item active" onclick="window.showPage('p-videos', this)">
-                    <span class="icon">📺</span> <span class="label">Videos</span>
+        <aside class="vscode-sidebar">
+            <div class="brand-box"><img src="assets/logo192.png" class="brand-img"></div>
+            <nav class="vscode-nav">
+                <div class="v-item active" onclick="window.showPage('p-videos', this)">
+                    <span class="v-icon">📺</span> Videos
                 </div>
-                <div class="nav-item" onclick="window.showPage('p-musica', this)">
-                    <span class="icon">🎵</span> <span class="label">Música</span>
+                <div class="v-item" onclick="window.showPage('p-musica', this)">
+                    <span class="v-icon">♬</span> Música
                 </div>
-                <div class="nav-item" onclick="window.showPage('p-photos', this)">
-                    <span class="icon">🔒</span> <span class="label">Fotos VIP</span>
+                <div class="v-item" onclick="window.showPage('p-photos', this)">
+                    <span class="v-icon">🔓</span> Fotos VIP
                 </div>
-                <div class="nav-item" onclick="window.showPage('p-profile', this)">
-                    <span class="icon">👤</span> <span class="label">Mi Perfil</span>
+                <div class="v-item" onclick="window.showPage('p-profile', this)">
+                    <span class="v-icon">⚙</span> Perfil
                 </div>
             </nav>
         </aside>
 
-        <main class="main-content">
-            
-            <header class="content-header">
+        <main class="vscode-main">
+            <header class="vscode-header">
                 <h1>ABRAHAM HORUS</h1>
             </header>
 
             <div id="p-videos" class="app-page active">
                 
-                <div class="main-stage">
+                <div class="integrated-player-box">
                     <div class="video-frame">
                         <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
                             <source id="video-source" src="" type="video/mp4">
                         </video>
                     </div>
-
-                    <div class="video-details-panel">
+                    
+                    <div class="video-controls-bar">
                         <h2 id="current-title">Selecciona un video</h2>
-                        
-                        <div class="action-buttons">
-                            <button onclick="window.darLike()" class="act-btn">❤️ <span id="likes-count">0</span></button>
-                            <button class="act-btn disabled">👁️ <span id="total-views">0</span></button>
+                        <div class="actions-row">
+                            <button onclick="window.darLike()" class="btn-code">❤️ <span id="likes-count">0</span></button>
+                            <button class="btn-code no-click">👁️ <span id="total-views">0</span></button>
                         </div>
+                    </div>
 
-                        <div class="integrated-comments">
-                            <div class="comments-header">Comentarios del Video</div>
-                            <div id="comments-list" class="comments-scroll">
-                                <p class="empty">Cargando...</p>
-                            </div>
-                            <div class="comment-input-row">
-                                <input type="text" id="comment-text" placeholder="Comenta algo...">
-                                <button onclick="window.enviarComentario()">Enviar</button>
-                            </div>
+                    <div class="terminal-comments-integrated">
+                        <div class="term-head">COMENTARIOS</div>
+                        <div id="comments-list" class="term-body-fixed">
+                            <p class="term-line">Cargando...</p>
+                        </div>
+                        <div class="term-input">
+                            <span>></span>
+                            <input id="comment-text" placeholder="Escribe un comentario...">
+                            <button onclick="window.enviarComentario()">ENVIAR</button>
                         </div>
                     </div>
                 </div>
 
-                <hr class="separator">
+                <div class="divider-line"></div>
 
-                <h3 class="playlist-title">Siguientes Videos</h3>
-                <div class="horizontal-grid">
-                    
-                    <div class="video-thumbnail-card" onclick="window.cambiarVideo(0)">
-                        <div class="thumb-img">
+                <h3 class="section-label">Lista de Reproducción</h3>
+                <div class="cards-grid">
+                    <div class="code-card" onclick="window.loadVideo(0)">
+                        <div class="card-thumb">
                             <img src="assets/shot 1.jpeg">
-                            <div class="duration">3:45</div>
+                            <div class="card-overlay">VER AHORA ▶</div>
                         </div>
-                        <div class="thumb-info">
+                        <div class="card-text">
                             <h4>DESPIERTO</h4>
                             <p>Video Oficial</p>
                         </div>
                     </div>
-
-                    <div class="video-thumbnail-card" onclick="window.cambiarVideo(1)">
-                        <div class="thumb-img">
+                    <div class="code-card" onclick="window.loadVideo(1)">
+                        <div class="card-thumb">
                             <img src="assets/shot 1.jpeg" style="filter:grayscale(1);">
-                            <div class="duration">--:--</div>
+                            <div class="card-overlay">BLOQUEADO 🔒</div>
                         </div>
-                        <div class="thumb-info">
+                        <div class="card-text">
                             <h4>PRÓXIMAMENTE</h4>
-                            <p>Muy pronto</p>
+                            <p>Muy pronto...</p>
                         </div>
                     </div>
-
                 </div>
             </div>
 
             <div id="p-musica" class="app-page">
-                <h2 class="section-title">Tu Música</h2>
-                <div id="music-list" class="music-list-container"></div>
+                <h2 class="section-label">Música</h2>
+                <div id="music-list" class="simple-list"></div>
             </div>
 
             <div id="p-photos" class="app-page">
-                <div class="locked-box">
-                    <h3>Galería VIP</h3>
-                    <button onclick="window.loginGoogle()" class="btn-neon">ENTRAR CON GOOGLE</button>
+                <div class="code-block-lock">
+                    <div class="line-nums">15<br>16<br>17<br>18</div>
+                    <div class="code-text">
+                        <p><span class="c-purple">if</span> (!vip) { <span class="c-blue">System</span>.lock(); }</p>
+                        <br><button onclick="window.loginGoogle()" class="btn-green-glow">ENTRAR CON GOOGLE</button>
+                    </div>
                 </div>
-                <div class="protected-content">
-                    <h2>Bienvenido a la Galería</h2>
-                </div>
+                <div class="protected-content"><h2 class="section-label">Galería VIP</h2></div>
             </div>
 
             <div id="p-profile" class="app-page">
-                <div class="profile-box">
+                <div class="profile-panel">
                     <img id="profile-preview" src="https://i.imgur.com/6VBx3io.png">
-                    <h3 id="display-name">Invitado</h3>
-                    <button class="btn-neon" onclick="window.cerrarSesion()">CERRAR SESIÓN</button>
+                    <h3 id="display-name" style="color:#fff;">Invitado</h3>
+                    <button class="btn-green-glow" onclick="window.cerrarSesion()">CERRAR SESIÓN</button>
                 </div>
             </div>
 
         </main>
     </div>
 
-    <div class="chat-bubble-launcher" onclick="window.toggleLiveChat()">💬</div>
-    <div id="live-chat-window" class="chat-window-fixed">
-        <div class="chat-head">Chat Global <span onclick="window.toggleLiveChat()">✕</span></div>
-        <div id="chat-global-msgs" class="chat-body-scroll"></div>
-        <div class="chat-foot">
-            <input id="chat-input-msg" placeholder="...">
-            <button onclick="window.enviarMensajeChat()">➤</button>
-        </div>
+    <div class="chat-launcher" onclick="window.toggleLiveChat()"><span class="status-dot"></span> Chat Global</div>
+    <div id="live-chat-window" class="chat-window">
+        <div class="chat-header">Comunidad <span onclick="window.toggleLiveChat()">x</span></div>
+        <div id="chat-global-msgs" class="chat-body"></div>
+        <div class="chat-input"><input id="chat-input-msg"><button onclick="window.enviarMensajeChat()">➤</button></div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>

@@ -1,83 +1,98 @@
-:root { --bg: #000; --panel: #111; --accent: #00ff88; --text: #fff; --border: #222; }
+/* VARIABLES ESTILO VS CODE */
+:root {
+    --bg-main: #1e1e1e; --bg-sidebar: #252526; --accent: #00ff88;
+    --text-main: #d4d4d4; --border: #333333; --font-tech: 'Fira Code', monospace;
+    --c-purple: #c586c0; --c-blue: #569cd6; --c-orange: #ce9178; --c-green: #6a9955;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
+body { background: var(--bg-main); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
 
-.layout-container { display: grid; grid-template-columns: 240px 1fr; height: 100vh; }
-.sidebar { background: #050505; border-right: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; }
-.brand { text-align: center; margin-bottom: 20px; } .brand-logo { width: 50px; }
-.nav-item { padding: 15px 20px; color: #777; cursor: pointer; display: flex; gap: 10px; font-weight: 600; }
-.nav-item:hover, .nav-item.active { color: #fff; background: #151515; }
-.nav-item.active { border-left: 3px solid var(--accent); }
-.main-content { padding: 30px; overflow-y: auto; background: #000; }
+.layout-wrapper { display: grid; grid-template-columns: 240px 1fr; height: 100vh; }
 
-/* --- DISEÑO DE REPRODUCTOR INTEGRADO --- */
-.main-stage { 
-    display: grid; 
-    grid-template-columns: 2fr 1fr; /* Video 66% - Chat 33% */
-    gap: 20px; 
-    height: 500px; /* Altura fija para escritorio */
-    margin-bottom: 30px;
-}
+/* SIDEBAR */
+.vscode-sidebar { background: var(--bg-sidebar); border-right: 1px solid #111; padding-top: 20px; display: flex; flex-direction: column; }
+.brand-box { text-align: center; margin-bottom: 30px; } .brand-img { width: 70px; }
+.v-item { padding: 12px 25px; color: #858585; cursor: pointer; display: flex; gap: 15px; font-size: 0.9rem; border-left: 3px solid transparent; }
+.v-item:hover, .v-item.active { color: #fff; background: #37373d; border-left-color: var(--accent); }
 
-.video-frame { background: #000; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.video-frame video { width: 100%; height: 100%; object-fit: contain; }
-
-.video-details-panel { display: flex; flex-direction: column; background: var(--panel); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
-#current-title { font-size: 1.1rem; padding: 15px; border-bottom: 1px solid var(--border); margin: 0; }
-
-.action-buttons { padding: 10px 15px; display: flex; gap: 10px; border-bottom: 1px solid var(--border); }
-.act-btn { background: #222; border: none; color: #fff; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
-.act-btn:hover { color: var(--accent); }
-
-.integrated-comments { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.comments-header { font-size: 0.8rem; color: #666; padding: 10px 15px; text-transform: uppercase; font-weight: bold; }
-.comments-scroll { flex: 1; overflow-y: auto; padding: 0 15px; }
-.single-comment { font-size: 0.9rem; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #222; }
-.c-user { color: var(--accent); font-weight: bold; font-size: 0.8rem; }
-.c-text { color: #ccc; }
-
-.comment-input-row { padding: 10px; background: #151515; display: flex; gap: 5px; }
-.comment-input-row input { flex: 1; background: #000; border: 1px solid #333; padding: 8px; color: #fff; border-radius: 4px; }
-.comment-input-row button { background: var(--accent); border: none; padding: 0 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-
-/* --- PLAYLIST ABAJO --- */
-.separator { border: 0; border-top: 1px solid var(--border); margin: 20px 0; }
-.playlist-title { margin-bottom: 15px; font-size: 1.2rem; }
-.horizontal-grid { display: flex; flex-wrap: wrap; gap: 20px; }
-
-.video-thumbnail-card { width: 220px; cursor: pointer; transition: 0.2s; }
-.video-thumbnail-card:hover { transform: translateY(-5px); }
-.thumb-img { width: 100%; aspect-ratio: 16/9; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-.thumb-img img { width: 100%; height: 100%; object-fit: cover; }
-.duration { position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.8); padding: 2px 5px; font-size: 0.7rem; border-radius: 3px; }
-.thumb-info h4 { margin-top: 8px; font-size: 0.95rem; line-height: 1.2; }
-.thumb-info p { font-size: 0.8rem; color: #666; }
-
-/* --- RESPONSIVE --- */
-@media (max-width: 900px) {
-    .main-stage { grid-template-columns: 1fr; height: auto; } /* En móvil uno debajo de otro */
-    .video-frame { aspect-ratio: 16/9; }
-    .video-details-panel { height: 400px; }
-}
-@media (max-width: 768px) {
-    .layout-container { grid-template-columns: 1fr; grid-template-rows: 1fr 60px; }
-    .sidebar { position: fixed; bottom: 0; width: 100%; height: 60px; flex-direction: row; padding: 0; justify-content: space-around; z-index: 100; border-top: 1px solid #222; }
-    .nav-item { flex-direction: column; font-size: 0.7rem; padding: 5px; border: none; }
-    .main-content { padding: 15px; padding-bottom: 80px; }
-    .brand { display: none; }
-}
-
-/* EXTRAS */
+/* MAIN AREA */
+.vscode-main { padding: 40px; overflow-y: auto; background: var(--bg-main); }
+.vscode-header h1 { color: #fff; font-weight: 700; margin-bottom: 20px; }
 .app-page { display: none; } .app-page.active { display: block; }
-.btn-neon { background: var(--accent); padding: 10px 20px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-.music-list-container div { padding: 10px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
 
-/* Chat Global Flotante */
-.chat-bubble-launcher { position: fixed; bottom: 80px; right: 20px; width: 50px; height: 50px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; z-index: 200; box-shadow: 0 5px 15px rgba(0,255,136,0.3); }
-.chat-window-fixed { position: fixed; bottom: 140px; right: 20px; width: 300px; height: 350px; background: #111; border: 1px solid #333; z-index: 200; border-radius: 10px; display: none; flex-direction: column; }
-.chat-head { background: #222; padding: 10px; display: flex; justify-content: space-between; font-weight: bold; }
-.chat-body-scroll { flex: 1; padding: 10px; overflow-y: auto; background: #000; }
-.chat-foot { padding: 10px; display: flex; gap: 5px; background: #222; }
-.chat-foot input { flex: 1; background: #000; border: 1px solid #444; color: #fff; padding: 5px; }
-.protected-content { display: none; }
-body.is-vip .protected-content { display: block; } body.is-vip .locked-box { display: none; }
+/* --- REPRODUCTOR INTEGRADO (ESTILO CÓDIGO) --- */
+.integrated-player-box {
+    border: 1px solid var(--border);
+    background: #000;
+    margin-bottom: 40px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.video-frame { width: 100%; aspect-ratio: 16/9; background: #000; }
+.video-frame video { width: 100%; height: 100%; }
+
+.video-controls-bar {
+    padding: 15px;
+    background: #252526;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+}
+#current-title { margin: 0; font-size: 1.1rem; color: #fff; font-family: var(--font-tech); }
+
+.actions-row { display: flex; gap: 10px; }
+.btn-code { background: #333; border: 1px solid var(--border); color: #fff; padding: 5px 15px; cursor: pointer; font-family: var(--font-tech); }
+.btn-code:hover { border-color: var(--accent); color: var(--accent); }
+
+.terminal-comments-integrated { padding: 0; background: #1e1e1e; font-family: var(--font-tech); }
+.term-head { font-size: 0.75rem; color: #666; padding: 5px 15px; background: #2d2d2d; border-bottom: 1px solid var(--border); }
+.term-body-fixed { max-height: 200px; overflow-y: auto; padding: 15px; color: #ccc; font-size: 0.85rem; }
+.term-line { margin-bottom: 5px; border-bottom: 1px dashed #333; padding-bottom: 2px; }
+
+.term-input { display: flex; gap: 10px; padding: 10px; border-top: 1px solid var(--border); align-items: center; }
+.term-input span { color: var(--accent); }
+.term-input input { flex: 1; background: transparent; border: none; color: #fff; font-family: var(--font-tech); }
+.term-input button { background: var(--accent); color: #000; border: none; font-weight: bold; cursor: pointer; padding: 2px 10px; }
+
+/* --- GRID VIDEOS --- */
+.divider-line { height: 1px; background: var(--border); margin: 30px 0; }
+.section-label { color: #fff; margin-bottom: 20px; font-size: 1.1rem; border-left: 3px solid var(--accent); padding-left: 10px; }
+.cards-grid { display: flex; flex-wrap: wrap; gap: 20px; }
+
+.code-card { width: 260px; background: #252526; border-radius: 4px; overflow: hidden; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
+.code-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+
+.card-thumb { width: 100%; aspect-ratio: 16/9; position: relative; background: #000; }
+.card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.card-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; color: var(--accent); font-family: var(--font-tech); font-weight: bold; opacity: 0; border: 2px solid var(--accent); transition: 0.2s; }
+.code-card:hover .card-overlay { opacity: 1; }
+
+.card-text { padding: 10px; }
+.card-text h4 { color: #fff; font-size: 0.9rem; margin-bottom: 5px; }
+.card-text p { font-size: 0.8rem; color: #888; font-family: var(--font-tech); }
+
+/* --- EXTRAS (Chat, Profile, Lock) --- */
+.code-block-lock { background: #1e1e1e; border: 1px solid var(--border); display: flex; font-family: var(--font-tech); max-width: 500px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+.line-nums { background: #252526; color: #666; padding: 20px 10px; text-align: right; border-right: 1px solid var(--border); }
+.code-text { padding: 20px; flex: 1; color: #d4d4d4; line-height: 1.6; }
+.c-purple { color: var(--c-purple); } .c-blue { color: var(--c-blue); } .c-green { color: var(--c-green); }
+.btn-green-glow { background: var(--accent); color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+
+.chat-launcher { position: fixed; bottom: 20px; right: 20px; background: #000; border: 1px solid var(--accent); color: #fff; padding: 10px 20px; font-family: var(--font-tech); cursor: pointer; z-index: 200; display: flex; gap: 10px; }
+.status-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+.chat-window { position: fixed; bottom: 70px; right: 20px; width: 300px; height: 350px; background: #1e1e1e; border: 1px solid var(--border); display: none; flex-direction: column; font-family: var(--font-tech); z-index: 200; }
+.chat-header { background: #252526; padding: 10px; display: flex; justify-content: space-between; font-size: 0.8rem; }
+.chat-body { flex: 1; padding: 10px; overflow-y: auto; color: #ccc; background: #111; font-size: 0.85rem; }
+.chat-input { padding: 10px; display: flex; border-top: 1px solid var(--border); background: #252526; }
+.chat-input input { flex: 1; background: transparent; border: none; color: #fff; font-family: var(--font-tech); }
+
+.profile-panel { text-align: center; max-width: 400px; margin: 0 auto; padding: 40px; background: #252526; border-radius: 8px; }
+.profile-panel img { width: 100px; border-radius: 50%; border: 2px solid var(--accent); margin-bottom: 20px; }
+.protected-content { display: none; } body.is-vip .protected-content { display: block; } body.is-vip .code-block-lock { display: none; }
+
+@media (max-width: 768px) {
+    .layout-wrapper { grid-template-columns: 1fr; grid-template-rows: 1fr 60px; }
+    .vscode-sidebar { position: fixed; bottom: 0; width: 100%; height: 60px; flex-direction: row; padding: 0; justify-content: space-around; z-index: 100; border-top: 1px solid #333; }
+    .v-item { flex-direction: column; padding: 5px; font-size: 0.7rem; border: none; gap: 5px; }
+    .brand-box { display: none; }
+    .vscode-main { padding: 15px; padding-bottom: 80px; }
+}
