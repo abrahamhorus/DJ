@@ -16,6 +16,7 @@ body {
     overflow: hidden; 
 }
 
+/* HEADER */
 .top-bar { 
     height: 60px; 
     display: grid; 
@@ -28,12 +29,6 @@ body {
     z-index: 1001; 
 }
 
-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Para que la previsualización llene el cuadro perfectamente */
-    background: #000;
-}
 .logo { color: var(--accent); font-weight: 900; font-size: 0.9rem; letter-spacing: 2px; }
 .subs-counter { text-align: center; font-size: 0.8rem; color: #555; font-weight: bold; }
 #total-subs { color: #fff; }
@@ -41,6 +36,7 @@ video {
 .dot.pulse { height: 8px; width: 8px; background: red; border-radius: 50%; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
+/* CONTENEDOR PRINCIPAL */
 .app-container { flex: 1; display: flex; overflow: hidden; position: relative; }
 .app-page { display: none; width: 100%; height: 100%; }
 .app-page.active { display: flex; width: 100%; }
@@ -52,14 +48,17 @@ video {
     scrollbar-width: thin;
 }
 
+/* VIDEO Y REPRODUCTOR */
 .video-carousel { position: relative; width: 100%; display: flex; align-items: center; background: #000; }
 .video-container { flex: 1; aspect-ratio: 16/9; }
+
 video {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Para que la previsualización llene el cuadro perfectamente */
+    object-fit: cover; /* Previsualización perfecta mi amor */
     background: #000;
 }
+
 .carousel-btn { 
     position: absolute; z-index: 10; background: rgba(0,0,0,0.7); color: var(--accent); 
     border: none; padding: 25px 15px; cursor: pointer; font-size: 1.5rem; transition: 0.3s;
@@ -68,6 +67,7 @@ video {
 .carousel-btn.prev { left: 0; border-radius: 0 10px 10px 0; }
 .carousel-btn.next { right: 0; border-radius: 10px 0 0 10px; }
 
+/* ACCIONES VIDEO */
 .video-actions-v2 { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
 .action-stats { display: flex; gap: 10px; }
 .likes-btn, .views-display { 
@@ -77,6 +77,7 @@ video {
 }
 .likes-btn:hover { border-color: var(--accent); }
 
+/* BOTONES PREMIUM */
 #send-msg, .comment-input-block button, .reply-btn-ok {
     background: var(--accent); color: #000; border: none; padding: 12px 25px; 
     border-radius: 12px; font-weight: 900; text-transform: uppercase; 
@@ -84,18 +85,59 @@ video {
 }
 #send-msg:hover, .comment-input-block button:hover { background: #fff; box-shadow: 0 0 20px var(--accent); transform: scale(1.05); }
 
+/* DESCRIPCIÓN */
 .video-description-box { background: #0a0a0a; padding: 20px; border-radius: 12px; border: 1px solid #111; }
 .video-title { font-size: 1.2rem; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
 .video-text { font-size: 0.9rem; color: #bbb; line-height: 1.6; }
 
+/* COMENTARIOS DESPLEGABLES */
 .comments-section { padding: 25px; border-top: 1px solid #111; }
+
+/* Estilo para el botón que despliega comentarios */
+.btn-stat-comments {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background: #111;
+    border: 1px solid #222;
+    color: var(--accent);
+    padding: 12px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 900;
+    margin-bottom: 15px;
+    transition: 0.3s;
+}
+.btn-stat-comments:hover { border-color: var(--accent); box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
+
+#comments-wrapper { display: none; } /* Oculto por defecto */
+
 .comment-input-block { display: flex; gap: 10px; margin-bottom: 25px; }
 #comment-text { flex: 1; background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; padding: 10px; }
+
 .comment-item { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #0a0a0a; }
 .comment-user { color: var(--accent); font-weight: bold; font-size: 0.85rem; }
+
+/* LIKES EN COMENTARIOS */
+.comment-like-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #222;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: 0.3s;
+}
+.comment-like-btn:hover { border-color: var(--accent); background: rgba(0, 255, 136, 0.1); }
+
 .reply-btn { background: none; border: none; color: #555; font-size: 0.7rem; cursor: pointer; font-weight: bold; margin-top: 8px; text-transform: uppercase; }
 .replies-container { margin-left: 30px; border-left: 2px solid #111; padding-left: 15px; margin-top: 10px; }
 
+/* CHAT */
 .chat-section-wrapper { background: #050505; display: flex; flex-direction: column; transition: 0.3s ease; }
 .chat-header { padding: 15px; font-size: 0.75rem; color: #555; text-align: center; border-bottom: 1px solid #111; font-weight: 900; }
 .chat-messages { flex: 1; padding: 15px; overflow-y: auto; }
@@ -105,6 +147,7 @@ video {
 .msg.artista-vip { border: 2px solid red; animation: rainbow-border 1s linear infinite; padding: 8px; border-radius: 8px; }
 @keyframes rainbow-border { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
 
+/* RESPONSIVE */
 @media (min-width: 1025px) {
     .app-page.active { flex-direction: row; }
     .chat-section-wrapper { flex: 0 0 380px; border-left: 1px solid #222; transform: none !important; }
@@ -126,6 +169,7 @@ video {
     .chat-header { display: flex; justify-content: space-between; align-items: center; }
 }
 
+/* NAVBAR INFERIOR */
 .bottom-nav { 
     height: 70px; 
     display: flex; 
@@ -147,6 +191,7 @@ video {
     cursor: pointer; 
     transition: all 0.3s ease;
     width: 60px; 
+    position: relative;
 }
 
 .nav-item span { 
@@ -169,6 +214,15 @@ video {
     box-shadow: 0 0 10px var(--accent);
 }
 
+/* BADGE NOTIFICACIÓN VIP */
+.badge-live { 
+    position: absolute; top: -5px; right: -5px; 
+    background: red; color: #fff; padding: 2px 6px; 
+    border-radius: 50%; font-weight: bold; font-size: 0.6rem;
+    display: none; 
+}
+
+/* SECCIONES EXTRA */
 .section-title { padding: 20px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-size: 1.2rem; }
 .music-container, .events-container { flex: 1; overflow-y: auto; padding-bottom: 100px; }
 .music-grid { display: grid; gap: 15px; padding: 20px; }
@@ -206,26 +260,4 @@ video {
     border-color: var(--accent);
     box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
     transform: translateY(-3px);
-}
-/* Añade esto al final de tu CSS para no mover lo anterior */
-.comment-like-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #222;
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    cursor: pointer;
-    margin-right: 10px;
-    transition: 0.3s;
-}
-.comment-like-btn:hover {
-    border-color: var(--accent);
-    background: rgba(0, 255, 136, 0.1);
-}
-.badge-live { 
-    position: absolute; top: -5px; right: -5px; 
-    background: red; color: #fff; padding: 2px 6px; 
-    border-radius: 50%; font-weight: bold; font-size: 0.6rem;
-    display: none; /* Se activa por JS */
 }

@@ -13,28 +13,58 @@ const playlist = [
         id: "despierto", 
         title: "DESPIERTO (Video Oficial)", 
         url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", 
-        poster: "assets/shot 1.jpeg", // <--- Añade esto
-        desc: "DESPIERTO: el primer video oficial..." 
+        poster: "assets/shot 1.jpeg", 
+        desc: "DESPIERTO: el primer video oficial del artista Abraham Horus. El video trata de la superación de una crisis, llegando a la muerte y renaciendo con una fuerza de voluntad inquebrantable logrando la iluminación de cuerpo y alma. 👑" 
     },
     { 
         id: "proximamente", 
         title: "PRÓXIMO LANZAMIENTO", 
         url: "https://tu-url-de-video.mp4", 
-        poster: "assets/poster-proximamente.jpg", // <--- Y esto
+        poster: "assets/poster-proximamente.jpg", 
         desc: "Espéralo muy pronto..." 
     }
 ];
+let currentIndex = 0;
+
+// --- MEJORA: CONTADORES DINÁMICOS DE AUDIENCIA ---
+setInterval(() => {
+    const liveEl = document.getElementById('live-views');
+    const subsEl = document.getElementById('total-subs');
+    
+    if(liveEl) {
+        const viewers = Math.floor(Math.random() * (1000 - 200 + 1)) + 100;
+        liveEl.innerText = viewers.toLocaleString();
+    }
+    
+    
+}, 5000);
+
+// --- MEJORA: DESPLEGAR COMENTARIOS ---
+window.toggleComments = () => {
+    const wrapper = document.getElementById('comments-wrapper');
+    if (wrapper.style.display === "none") {
+        wrapper.style.display = "block";
+        wrapper.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        wrapper.style.display = "none";
+    }
+};
 
 window.loadVideo = (index) => {
     const v = playlist[index];
     const vid = document.getElementById('main-video');
     
     document.getElementById('video-source').src = v.url;
-    vid.poster = v.poster; // <--- Esto cambia la imagen de previsualización al vuelo
+    vid.poster = v.poster; 
     vid.load();
     
     document.getElementById('v-title').innerText = v.title;
     document.getElementById('v-desc').innerText = v.desc;
+
+    // Resetear el desplegable de comentarios al cambiar video
+    const wrapper = document.getElementById('comments-wrapper');
+    if (wrapper) wrapper.style.display = "none";
+
     vincularData(v.id);
 };
 
@@ -54,7 +84,6 @@ function vincularData(videoId) {
         const div = document.createElement('div');
         div.className = 'comment-item'; div.id = `comment-${id}`;
         
-        // --- MEJORA: LIKES EN COMENTARIOS ---
         div.innerHTML = `
             <span class="comment-user">@${c.userName}</span>
             <p style="color:#ccc; margin-top:5px;">${c.text}</p>
@@ -68,7 +97,6 @@ function vincularData(videoId) {
         
         document.getElementById('comments-list').prepend(div);
 
-        // Listener para actualizar likes del comentario en tiempo real
         db.ref(`comments/${videoId}/${id}/likes`).on('value', ls => {
             const countSpan = document.getElementById(`lc-${id}`);
             if(countSpan) countSpan.innerText = ls.val() || 0;
@@ -83,7 +111,6 @@ function vincularData(videoId) {
     });
 }
 
-// --- MEJORA: LIKES EN COMENTARIOS (Función) ---
 window.likeComentario = (vId, cId) => {
     db.ref(`comments/${vId}/${cId}/likes`).transaction(c => (c || 0) + 1);
 };
@@ -115,11 +142,9 @@ window.enviarComentario = () => {
     }
 };
 
-// --- MEJORA: NOTIFICACIÓN VIP ---
 db.ref('messages').limitToLast(1).on('child_added', s => {
     const d = s.val(); const isVIP = d.text.startsWith('*');
     
-    // Alerta visual en la Nav
     if(isVIP && !document.getElementById('p-videos').classList.contains('active')) {
         const badge = document.getElementById('live-badge');
         if(badge) badge.style.display = 'block';
@@ -148,7 +173,6 @@ window.changeVideo = (dir) => { currentIndex = (currentIndex + dir + playlist.le
 window.darLike = () => db.ref(`stats/${playlist[currentIndex].id}/likes`).transaction(c => (c || 0) + 1);
 window.toggleChat = () => document.getElementById('chat-sidebar').classList.toggle('open');
 
-// --- MEJORA: LIMPIAR NOTIFICACIÓN AL ENTRAR ---
 window.showPage = (id) => { 
     document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); 
     document.getElementById(id).classList.add('active'); 
