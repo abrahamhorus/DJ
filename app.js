@@ -57,10 +57,17 @@ auth.onAuthStateChanged(user => {
 });
 
 function actualizarUI() {
-    document.getElementById('header-avatar').src = fanAvatar;
-    document.getElementById('profile-preview').src = fanAvatar;
-    document.getElementById('edit-name').value = fanName;
-    document.getElementById('edit-photo').value = fanAvatar;
+    const headerAvatar = document.getElementById('header-avatar');
+    if(headerAvatar) headerAvatar.src = fanAvatar;
+    
+    const profilePreview = document.getElementById('profile-preview');
+    if(profilePreview) profilePreview.src = fanAvatar;
+    
+    const editName = document.getElementById('edit-name');
+    if(editName) editName.value = fanName;
+    
+    const editPhoto = document.getElementById('edit-photo');
+    if(editPhoto) editPhoto.value = fanAvatar;
 }
 
 window.abrirPerfil = () => {
@@ -163,10 +170,9 @@ function vincularData(videoId) {
     db.ref(`stats/${videoId}/views`).on('value', s => document.getElementById('total-views').innerText = s.val() || 0);
     db.ref(`comments/${videoId}`).on('value', s => document.getElementById('comments-count').innerText = s.numChildren());
     
-    // --- AQUÍ MOSTRAMOS LOS COMENTARIOS CON FOTO ---
+    // --- COMENTARIOS CON FOTO Y RESPUESTAS RESTAURADAS ---
     db.ref(`comments/${videoId}`).on('child_added', snap => {
         const c = snap.val(); const id = snap.key;
-        // Si es mensaje viejo y no tiene avatar, usamos el default
         const avatarUrl = c.avatar || "https://i.imgur.com/6VBx3io.png"; 
 
         const div = document.createElement('div');
@@ -181,22 +187,70 @@ function vincularData(videoId) {
                 <button class="comment-like-btn" onclick="window.likeComentario('${videoId}','${id}')">
                     ❤️ <span id="lc-${id}">${c.likes || 0}</span>
                 </button>
-            </div>`;
+                <button class="reply-btn" onclick="window.abrirReply('${id}')">Responder</button>
+            </div>
+            <div id="replies-${id}" class="replies-container"></div>`;
+            
         document.getElementById('comments-list').prepend(div);
+        
+        // Listener de Likes
         db.ref(`comments/${videoId}/${id}/likes`).on('value', ls => {
             const countSpan = document.getElementById(`lc-${id}`);
             if(countSpan) countSpan.innerText = ls.val() || 0;
+        });
+
+        // Listener de Respuestas (RESTORED)
+        db.ref(`replies/${id}`).on('child_added', rs => {
+            const r = rs.val();
+            const rAvatar = r.avatar || "https://i.imgur.com/6VBx3io.png";
+            
+            const rDiv = document.createElement('div');
+            rDiv.style.marginTop = "10px";
+            rDiv.style.display = "flex";
+            rDiv.style.gap = "8px";
+            
+            rDiv.innerHTML = `
+                <img src="${rAvatar}" style="width:20px; height:20px; border-radius:50%; object-fit:cover;">
+                <div>
+                    <span style="color:var(--accent); font-size:0.75rem; display:block;">@${r.userName}</span>
+                    <p style="font-size:0.85rem; color:#aaa;">${r.text}</p>
+                </div>`;
+            document.getElementById(`replies-${id}`).appendChild(rDiv);
         });
     });
 }
 
 window.likeComentario = (vId, cId) => db.ref(`comments/${vId}/${cId}/likes`).transaction(c => (c || 0) + 1);
 
+// --- FUNCIONES DE RESPUESTA RESTAURADAS ---
+window.abrirReply = (id) => {
+    if (document.getElementById(`ri-${id}`)) return;
+    const w = document.createElement('div');
+    w.id = `ri-${id}`; 
+    w.style.display="flex"; w.style.gap="10px"; w.style.marginTop="10px"; w.style.marginLeft="40px";
+    w.innerHTML = `<input type="text" id="ti-${id}" placeholder="Responde..." style="flex:1; background:#111; border:1px solid #333; color:#fff; padding:8px; border-radius:8px;">
+                   <button onclick="window.enviarReply('${id}')" class="reply-btn-ok">OK</button>`;
+    document.getElementById(`comment-${id}`).appendChild(w);
+};
+
+window.enviarReply = (id) => {
+    const input = document.getElementById(`ti-${id}`);
+    if (input.value.trim()) {
+        if (!auth.currentUser) { alert("Inicia sesión para responder"); window.loginGoogle(); return; }
+        
+        db.ref(`replies/${id}`).push({ 
+            text: input.value, 
+            userName: fanName,
+            avatar: fanAvatar // Guardamos el avatar también
+        });
+        document.getElementById(`ri-${id}`).remove();
+    }
+};
+
 window.enviarComentario = () => {
     const input = document.getElementById('comment-text');
     if (input.value.trim()) {
         if (!auth.currentUser) { alert("Inicia sesión primero"); window.loginGoogle(); return; }
-        // AHORA GUARDAMOS EL AVATAR TAMBIÉN
         db.ref(`comments/${playlist[currentIndex].id}`).push({ 
             text: input.value, 
             userName: fanName, 
@@ -207,7 +261,6 @@ window.enviarComentario = () => {
     }
 };
 
-// --- AQUÍ MOSTRAMOS EL CHAT CON FOTO ---
 db.ref('messages').limitToLast(1).on('child_added', s => {
     const d = s.val(); const isVIP = d.text.startsWith('*');
     if(isVIP && !document.getElementById('p-videos').classList.contains('active')) {
@@ -221,7 +274,6 @@ db.ref('messages').limitToLast(1).on('child_added', s => {
     div.className = isVIP ? 'msg artista-vip' : 'msg';
     div.style.padding = "10px"; div.style.marginBottom = "8px"; div.style.borderRadius = "8px"; div.style.background = "rgba(255,255,255,0.05)";
     
-    // ESTRUCTURA CON FOTO
     div.innerHTML = `
         <div class="msg-content">
             <img src="${isVIP ? 'assets/shot 1.jpeg' : avatarUrl}" class="chat-mini-avatar">
@@ -241,7 +293,6 @@ window.enviarMsg = () => {
     const input = document.getElementById('user-msg');
     if (input.value.trim()) {
         if (!auth.currentUser) { alert("Inicia sesión para chatear"); window.loginGoogle(); return; }
-        // GUARDAMOS EL AVATAR
         db.ref('messages').push({ 
             text: input.value, 
             userName: input.value.startsWith('*') ? "LA POTRA" : fanName,
