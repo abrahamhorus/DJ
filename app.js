@@ -1,4 +1,3 @@
-// CONFIGURACIÓN DE FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA",
   authDomain: "abrahamhorus1996.firebaseapp.com",
@@ -10,48 +9,127 @@ const firebaseConfig = {
   measurementId: "G-PEYW3V3GSB"
 };
 
-// Inicializar Firebase
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
 const db = firebase.database();
 const auth = firebase.auth();
-let fanName = localStorage.getItem('fanName') || null;
 
-// Lógica para ocultar el muro cuando entras
+let fanName = localStorage.getItem('fanName') || "Fan";
+let fanAvatar = localStorage.getItem('fanAvatar') || "https://i.imgur.com/6VBx3io.png";
+
+// ESCUCHAR SUBS
+db.ref('siteStats/subscribers').on('value', snapshot => {
+    const count = snapshot.val() || 1000; 
+    document.getElementById('total-subs').innerText = count.toLocaleString();
+});
+
+// LOGICA DE SESIÓN
 auth.onAuthStateChanged(user => {
     if (user) { 
         document.body.classList.add('is-vip');
-        fanName = user.displayName;
+        
+        // Cargar datos guardados del usuario
+        db.ref('users/' + user.uid).once('value').then(snap => {
+            if (snap.exists()) {
+                const data = snap.val();
+                fanName = data.name || user.displayName;
+                fanAvatar = data.avatar || user.photoURL || "https://i.imgur.com/6VBx3io.png";
+            } else {
+                // Usuario nuevo: Registrar y sumar sub
+                fanName = user.displayName;
+                fanAvatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+                
+                db.ref('siteStats/subscribers').transaction(c => (c || 1000) + 1);
+                db.ref('users/' + user.uid).set({
+                    name: fanName,
+                    email: user.email,
+                    avatar: fanAvatar,
+                    joined: Date.now()
+                });
+            }
+            
+            // Actualizar interfaz
+            actualizarUI();
+            localStorage.setItem('fanName', fanName);
+            localStorage.setItem('fanAvatar', fanAvatar);
+        });
+
     } else { 
         document.body.classList.remove('is-vip');
+        fanName = "Fan";
+        fanAvatar = "https://i.imgur.com/6VBx3io.png";
+        actualizarUI();
     }
 });
 
-// Función para el botón del muro
+function actualizarUI() {
+    document.getElementById('header-avatar').src = fanAvatar;
+    document.getElementById('profile-preview').src = fanAvatar;
+    document.getElementById('edit-name').value = fanName;
+    document.getElementById('edit-photo').value = fanAvatar;
+}
+
+// FUNCIONES DE PERFIL
+window.abrirPerfil = () => {
+    if (document.body.classList.contains('is-vip')) {
+        window.showPage('p-profile');
+    } else {
+        alert("Inicia sesión para ver tu perfil.");
+        window.loginGoogle();
+    }
+};
+
+window.guardarPerfil = () => {
+    const user = auth.currentUser;
+    if (user) {
+        const newName = document.getElementById('edit-name').value;
+        const newPhoto = document.getElementById('edit-photo').value;
+
+        if (newName && newPhoto) {
+            fanName = newName;
+            fanAvatar = newPhoto;
+            
+            // Guardar en DB y LocalStorage
+            db.ref('users/' + user.uid).update({ name: newName, avatar: newPhoto });
+            localStorage.setItem('fanName', newName);
+            localStorage.setItem('fanAvatar', newPhoto);
+            
+            actualizarUI();
+            alert("¡Perfil actualizado con éxito! 👑");
+        }
+    }
+};
+
+window.cerrarSesion = () => {
+    auth.signOut().then(() => {
+        alert("Sesión cerrada. ¡Vuelve pronto!");
+        window.showPage('p-videos');
+    });
+};
+
 window.loginGoogle = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider).catch(e => console.log(e));
 };
 
+// ... RESTO DEL CÓDIGO ORIGINAL ...
 const playlist = [
     { 
         id: "despierto", 
         title: "DESPIERTO (Video Oficial)", 
         url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", 
         poster: "assets/shot 1.jpeg", 
-        desc: "DESPIERTO: el primer video oficial del artista Abraham Horus. El video trata de la superación de una crisis, llegando a la muerte y renaciendo con una fuerza de voluntad inquebrantable logrando la iluminación de cuerpo y alma. 👑" 
+        desc: "DESPIERTO: el primer video oficial del artista Abraham Horus. 👑" 
     },
     { 
         id: "proximamente", 
         title: "PRÓXIMO LANZAMIENTO", 
-        url: "https://tu-url-de-video.mp4", 
+        url: "", 
         poster: "assets/poster-proximamente.jpg", 
         desc: "Espéralo muy pronto..." 
     }
 ];
 let currentIndex = 0;
 
-// CONTADORES DINÁMICOS
 setInterval(() => {
     const liveEl = document.getElementById('live-views');
     if(liveEl) {
@@ -60,7 +138,6 @@ setInterval(() => {
     }
 }, 5000);
 
-// DESPLEGAR COMENTARIOS
 window.toggleComments = () => {
     const wrapper = document.getElementById('comments-wrapper');
     if (wrapper.style.display === "none") {
@@ -74,18 +151,13 @@ window.toggleComments = () => {
 window.loadVideo = (index) => {
     const v = playlist[index];
     const vid = document.getElementById('main-video');
-    
-    document.getElementById('video-source').src = v.url;
+    if(v.url) document.getElementById('video-source').src = v.url;
     vid.poster = v.poster; 
     vid.load();
-    
     document.getElementById('v-title').innerText = v.title;
     document.getElementById('v-desc').innerText = v.desc;
-
-    // Resetear el desplegable de comentarios al cambiar video
     const wrapper = document.getElementById('comments-wrapper');
     if (wrapper) wrapper.style.display = "none";
-
     vincularData(v.id);
 };
 
@@ -103,7 +175,6 @@ function vincularData(videoId) {
         const c = snap.val(); const id = snap.key;
         const div = document.createElement('div');
         div.className = 'comment-item'; div.id = `comment-${id}`;
-        
         div.innerHTML = `
             <span class="comment-user">@${c.userName}</span>
             <p style="color:#ccc; margin-top:5px;">${c.text}</p>
@@ -111,52 +182,21 @@ function vincularData(videoId) {
                 <button class="comment-like-btn" onclick="window.likeComentario('${videoId}','${id}')">
                     ❤️ <span id="lc-${id}">${c.likes || 0}</span>
                 </button>
-                <button class="reply-btn" onclick="window.abrirReply('${id}')">Responder</button>
-            </div>
-            <div id="replies-${id}" class="replies-container"></div>`;
-        
+            </div>`;
         document.getElementById('comments-list').prepend(div);
-
         db.ref(`comments/${videoId}/${id}/likes`).on('value', ls => {
             const countSpan = document.getElementById(`lc-${id}`);
             if(countSpan) countSpan.innerText = ls.val() || 0;
         });
-
-        db.ref(`replies/${id}`).on('child_added', rs => {
-            const r = rs.val();
-            const rDiv = document.createElement('div');
-            rDiv.innerHTML = `<span style="color:var(--accent); font-size:0.75rem;">@${r.userName}</span><p style="font-size:0.85rem; color:#aaa;">${r.text}</p>`;
-            document.getElementById(`replies-${id}`).appendChild(rDiv);
-        });
     });
 }
 
-window.likeComentario = (vId, cId) => {
-    db.ref(`comments/${vId}/${cId}/likes`).transaction(c => (c || 0) + 1);
-};
-
-window.abrirReply = (id) => {
-    if (document.getElementById(`ri-${id}`)) return;
-    const w = document.createElement('div');
-    w.id = `ri-${id}`; w.style.display="flex"; w.style.gap="10px"; w.style.marginTop="10px";
-    w.innerHTML = `<input type="text" id="ti-${id}" placeholder="Responde..." style="flex:1; background:#111; border:1px solid #333; color:#fff; padding:8px; border-radius:8px;">
-                   <button onclick="window.enviarReply('${id}')" class="reply-btn-ok">OK</button>`;
-    document.getElementById(`comment-${id}`).appendChild(w);
-};
-
-window.enviarReply = (id) => {
-    const input = document.getElementById(`ti-${id}`);
-    if (input.value.trim()) {
-        verificarNombre();
-        db.ref(`replies/${id}`).push({ text: input.value, userName: fanName });
-        document.getElementById(`ri-${id}`).remove();
-    }
-};
+window.likeComentario = (vId, cId) => db.ref(`comments/${vId}/${cId}/likes`).transaction(c => (c || 0) + 1);
 
 window.enviarComentario = () => {
     const input = document.getElementById('comment-text');
     if (input.value.trim()) {
-        verificarNombre();
+        if (!auth.currentUser) { alert("Inicia sesión primero"); window.loginGoogle(); return; }
         db.ref(`comments/${playlist[currentIndex].id}`).push({ text: input.value, userName: fanName, likes: 0 });
         input.value = "";
     }
@@ -164,12 +204,10 @@ window.enviarComentario = () => {
 
 db.ref('messages').limitToLast(1).on('child_added', s => {
     const d = s.val(); const isVIP = d.text.startsWith('*');
-    
     if(isVIP && !document.getElementById('p-videos').classList.contains('active')) {
         const badge = document.getElementById('live-badge');
         if(badge) badge.style.display = 'block';
     }
-
     const div = document.createElement('div');
     div.className = isVIP ? 'msg artista-vip' : 'msg';
     div.style.padding = "10px"; div.style.marginBottom = "8px"; div.style.borderRadius = "8px"; div.style.background = "rgba(255,255,255,0.05)";
@@ -182,17 +220,15 @@ db.ref('messages').limitToLast(1).on('child_added', s => {
 window.enviarMsg = () => {
     const input = document.getElementById('user-msg');
     if (input.value.trim()) {
-        if(!input.value.startsWith('*')) verificarNombre();
-        db.ref('messages').push({ text: input.value, userName: input.value.startsWith('*') ? "LA POTRA" : (fanName || "Anónimo") });
+        if (!auth.currentUser) { alert("Inicia sesión para chatear"); window.loginGoogle(); return; }
+        db.ref('messages').push({ text: input.value, userName: input.value.startsWith('*') ? "LA POTRA" : fanName });
         input.value = "";
     }
 };
 
-function verificarNombre() { if (!fanName) { fanName = prompt("¿Tu apodo?"); localStorage.setItem('fanName', fanName); } }
 window.changeVideo = (dir) => { currentIndex = (currentIndex + dir + playlist.length) % playlist.length; window.loadVideo(currentIndex); };
 window.darLike = () => db.ref(`stats/${playlist[currentIndex].id}/likes`).transaction(c => (c || 0) + 1);
 window.toggleChat = () => document.getElementById('chat-sidebar').classList.toggle('open');
-
 window.showPage = (id) => { 
     document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); 
     document.getElementById(id).classList.add('active'); 
