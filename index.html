@@ -10,15 +10,23 @@
 <body class="not-logged">
 
     <header class="top-bar">
-        <div class="logo">ABRAHAM HORUS</div>
-        <div class="subs-counter">SUBS: <span id="total-subs">1000</span></div>
+        <div class="logo">HORUS</div>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                👥 <span id="total-subs">0</span>
+            </div>
+        </div>
+
         <div class="user-area" onclick="window.abrirPerfil()">
             <img id="header-avatar" src="https://i.imgur.com/6VBx3io.png" alt="User">
         </div>
     </header>
 
     <main class="app-container">
-        <button id="mobile-chat-toggle" onclick="window.toggleChat()">💬 CHAT</button>
+        <button id="mobile-chat-toggle" onclick="window.toggleChat()">
+            💬 <span id="btn-live-count" class="live-count-badge">● 0</span>
+        </button>
 
         <div id="p-videos" class="app-page active">
             <div class="video-main-wrapper">
@@ -54,7 +62,10 @@
             </div>
 
             <div id="chat-sidebar" class="chat-section-wrapper">
-                <div class="chat-header">LIVE CHAT <button class="close-chat" onclick="window.toggleChat()">✕</button></div>
+                <div class="chat-header">
+                    <span>LIVE CHAT <span id="desk-live-count" style="color:red; margin-left:5px;">● 0</span></span>
+                    <button class="close-chat" onclick="window.toggleChat()">✕</button>
+                </div>
                 <div id="chat-box" class="chat-messages"></div>
                 <div class="chat-input-area">
                     <input type="text" id="user-msg" placeholder="Dile algo a la potra...">
@@ -119,20 +130,16 @@
                 <h2 class="section-title" style="text-align: center;">MI PERFIL</h2>
                 <div class="profile-card">
                     <img id="profile-preview" src="https://i.imgur.com/6VBx3io.png" class="big-avatar">
-                    
                     <div class="input-group">
                         <label>Tu Apodo</label>
                         <input type="text" id="edit-name" placeholder="Ej: El Rey del Flow">
                     </div>
-
                     <div class="input-group">
                         <label>Foto de Perfil (URL)</label>
                         <input type="text" id="edit-photo" placeholder="Pega el link de tu imagen...">
                         <small style="color:#666; font-size:0.7rem; margin-top: 5px; display:block;">Tip: Usa un link de Discord o Google.</small>
                     </div>
-
                     <button class="btn-save" onclick="window.guardarPerfil()">GUARDAR CAMBIOS</button>
-                    
                     <div style="margin-top: 20px; width: 100%; border-top: 1px solid #222; padding-top: 20px;">
                         <button class="btn-logout" onclick="window.cerrarSesion()">CERRAR SESIÓN</button>
                     </div>
