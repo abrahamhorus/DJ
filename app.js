@@ -13,32 +13,30 @@ if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-// ======================================================
-// 👇👇👇 CORREO DEL PATRÓN CONFIGURADO 👇👇👇
+// CONFIGURACIÓN PATRÓN
 const ADMIN_EMAIL = "abrahorus@gmail.com"; 
-// ======================================================
+
+const musicPlaylist = [
+    { id: "m1", title: "DESPIERTO (Original Mix)", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1734200000/tu-musica.mp3", cover: "assets/cover-despierto.jpg" },
+    { id: "m2", title: "PRÓXIMO HIT", url: "", cover: "assets/shot 1.jpeg" }
+];
 
 let fanName = localStorage.getItem('fanName') || "Fan";
 let fanAvatar = localStorage.getItem('fanAvatar') || "https://i.imgur.com/6VBx3io.png";
 
-// SISTEMA DE PRESENCIA
-const connectedRef = db.ref(".info/connected");
-const conRef = db.ref("connections");
-connectedRef.on("value", (snap) => {
-  if (snap.val() === true) { const con = conRef.push(); con.onDisconnect().remove(); con.set(true); }
+// PRESENCIA REAL
+db.ref(".info/connected").on("value", (snap) => {
+  if (snap.val() === true) { const con = db.ref("connections").push(); con.onDisconnect().remove(); con.set(true); }
 });
-conRef.on("value", (snap) => {
-  const realUsers = snap.numChildren(); 
-  const btnCount = document.getElementById('btn-live-count');
-  if(btnCount) btnCount.innerText = "● " + realUsers;
-  const deskCount = document.getElementById('desk-live-count');
-  if(deskCount) deskCount.innerText = "● " + realUsers;
+db.ref("connections").on("value", (snap) => {
+  const count = snap.numChildren();
+  if(document.getElementById('btn-live-count')) document.getElementById('btn-live-count').innerText = "● " + count;
+  if(document.getElementById('desk-live-count')) document.getElementById('desk-live-count').innerText = "● " + count;
 });
 
 // SUBS
-db.ref('siteStats/subscribers').on('value', snapshot => {
-    const count = snapshot.val() || 1000; 
-    document.getElementById('total-subs').innerText = count.toLocaleString();
+db.ref('siteStats/subscribers').on('value', snap => {
+    document.getElementById('total-subs').innerText = (snap.val() || 1000).toLocaleString();
 });
 
 // SESIÓN
@@ -47,166 +45,90 @@ auth.onAuthStateChanged(user => {
         document.body.classList.add('is-vip');
         db.ref('users/' + user.uid).once('value').then(snap => {
             if (snap.exists()) {
-                const data = snap.val();
-                fanName = data.name || user.displayName;
-                fanAvatar = data.avatar || user.photoURL || "https://i.imgur.com/6VBx3io.png";
+                const d = snap.val(); fanName = d.name; fanAvatar = d.avatar;
             } else {
-                fanName = user.displayName;
-                fanAvatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
+                fanName = user.displayName; fanAvatar = user.photoURL || fanAvatar;
                 db.ref('siteStats/subscribers').transaction(c => (c || 1000) + 1);
                 db.ref('users/' + user.uid).set({ name: fanName, email: user.email, avatar: fanAvatar, joined: Date.now() });
             }
             actualizarUI();
-            localStorage.setItem('fanName', fanName);
-            localStorage.setItem('fanAvatar', fanAvatar);
         });
-    } else { 
-        document.body.classList.remove('is-vip');
-        fanName = "Fan";
-        fanAvatar = "https://i.imgur.com/6VBx3io.png";
-        actualizarUI();
-    }
+    } else { document.body.classList.remove('is-vip'); actualizarUI(); }
 });
 
 function actualizarUI() {
-    const headerAvatar = document.getElementById('header-avatar');
-    if(headerAvatar) headerAvatar.src = fanAvatar;
-    const profilePreview = document.getElementById('profile-preview');
-    if(profilePreview) profilePreview.src = fanAvatar;
-    const editName = document.getElementById('edit-name');
-    if(editName) editName.value = fanName;
-    const editPhoto = document.getElementById('edit-photo');
-    if(editPhoto) editPhoto.value = fanAvatar;
+    document.getElementById('header-avatar').src = fanAvatar;
+    if(document.getElementById('profile-preview')) document.getElementById('profile-preview').src = fanAvatar;
+    if(document.getElementById('edit-name')) document.getElementById('edit-name').value = fanName;
+    if(document.getElementById('edit-photo')) document.getElementById('edit-photo').value = fanAvatar;
 }
 
-window.abrirPerfil = () => {
-    if (document.body.classList.contains('is-vip')) { window.showPage('p-profile'); } else { alert("Inicia sesión"); window.loginGoogle(); }
-};
-
-window.guardarPerfil = () => {
-    const user = auth.currentUser;
-    if (user) {
-        const newName = document.getElementById('edit-name').value;
-        const newPhoto = document.getElementById('edit-photo').value;
-        if (newName && newPhoto) {
-            fanName = newName; fanAvatar = newPhoto;
-            db.ref('users/' + user.uid).update({ name: newName, avatar: newPhoto });
-            localStorage.setItem('fanName', newName); localStorage.setItem('fanAvatar', newPhoto);
-            actualizarUI(); alert("¡Perfil actualizado! 👑");
-        }
-    }
-};
-
-window.cerrarSesion = () => { auth.signOut().then(() => { alert("Sesión cerrada."); window.showPage('p-videos'); }); };
-window.loginGoogle = () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(e => console.log(e)); };
-
-const playlist = [
-    { id: "despierto", title: "DESPIERTO (Video Oficial)", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", poster: "assets/shot 1.jpeg", desc: "DESPIERTO: el primer video oficial del artista Abraham Horus. 👑" },
-    { id: "proximamente", title: "PRÓXIMO LANZAMIENTO", url: "", poster: "assets/poster-proximamente.jpg", desc: "Espéralo muy pronto..." }
-];
-let currentIndex = 0;
-
-window.toggleComments = () => {
-    const wrapper = document.getElementById('comments-wrapper');
-    if (wrapper.style.display === "none") { wrapper.style.display = "block"; wrapper.scrollIntoView({ behavior: 'smooth' }); } else { wrapper.style.display = "none"; }
-};
-
-window.loadVideo = (index) => {
-    const v = playlist[index];
-    const vid = document.getElementById('main-video');
-    if(v.url) document.getElementById('video-source').src = v.url;
-    vid.poster = v.poster; vid.load();
-    document.getElementById('v-title').innerText = v.title;
-    document.getElementById('v-desc').innerText = v.desc;
-    const wrapper = document.getElementById('comments-wrapper');
-    if (wrapper) wrapper.style.display = "none";
-    vincularData(v.id);
-};
-
-function vincularData(videoId) {
-    db.ref(`stats/${videoId}/likes`).off(); db.ref(`stats/${videoId}/views`).off(); db.ref(`comments/${videoId}`).off();
-    document.getElementById('comments-list').innerHTML = "";
-    db.ref(`stats/${videoId}/likes`).on('value', s => document.getElementById('likes-count').innerText = s.val() || 0);
-    db.ref(`stats/${videoId}/views`).on('value', s => document.getElementById('total-views').innerText = s.val() || 0);
-    db.ref(`comments/${videoId}`).on('value', s => document.getElementById('comments-count').innerText = s.numChildren());
-    
-    db.ref(`comments/${videoId}`).on('child_added', snap => {
-        const c = snap.val(); const id = snap.key;
-        const avatarUrl = c.avatar || "https://i.imgur.com/6VBx3io.png"; 
-        const div = document.createElement('div'); div.className = 'comment-item'; div.id = `comment-${id}`;
-        div.innerHTML = `
-            <div class="comment-header"><img src="${avatarUrl}" class="comment-avatar"><span class="comment-user">@${c.userName}</span></div>
-            <p style="color:#ccc; margin-left: 40px; margin-top:-5px;">${c.text}</p>
-            <div style="margin-left:40px; margin-top:8px; display:flex; align-items:center;">
-                <button class="comment-like-btn" onclick="window.likeComentario('${videoId}','${id}')">❤️ <span id="lc-${id}">${c.likes || 0}</span></button>
-                <button class="reply-btn" onclick="window.abrirReply('${id}')">Responder</button>
-            </div><div id="replies-${id}" class="replies-container"></div>`;
-        document.getElementById('comments-list').prepend(div);
-        db.ref(`comments/${videoId}/${id}/likes`).on('value', ls => { const countSpan = document.getElementById(`lc-${id}`); if(countSpan) countSpan.innerText = ls.val() || 0; });
-        db.ref(`replies/${id}`).on('child_added', rs => {
-            const r = rs.val(); const rAvatar = r.avatar || "https://i.imgur.com/6VBx3io.png";
-            const rDiv = document.createElement('div'); rDiv.style.marginTop = "10px"; rDiv.style.display = "flex"; rDiv.style.gap = "8px";
-            rDiv.innerHTML = `<img src="${rAvatar}" style="width:20px; height:20px; border-radius:50%; object-fit:cover;"><div><span style="color:var(--accent); font-size:0.75rem; display:block;">@${r.userName}</span><p style="font-size:0.85rem; color:#aaa;">${r.text}</p></div>`;
-            document.getElementById(`replies-${id}`).appendChild(rDiv);
-        });
+// MÚSICA
+function cargarListaMusica() {
+    const container = document.getElementById('music-list');
+    if(!container) return;
+    container.innerHTML = "";
+    musicPlaylist.forEach((t, i) => {
+        const card = document.createElement('div');
+        card.className = 'music-card';
+        card.innerHTML = `<img src="${t.cover}"><div class="music-info"><h4>${t.title}</h4><p>Abraham Horus</p><button class="play-mini-btn" onclick="window.reproducirTrack(${i})">PLAY</button></div>`;
+        container.appendChild(card);
     });
 }
-window.likeComentario = (vId, cId) => db.ref(`comments/${vId}/${cId}/likes`).transaction(c => (c || 0) + 1);
-window.abrirReply = (id) => {
-    if (document.getElementById(`ri-${id}`)) return;
-    const w = document.createElement('div'); w.id = `ri-${id}`; 
-    w.style.display="flex"; w.style.gap="10px"; w.style.marginTop="10px"; w.style.marginLeft="40px";
-    w.innerHTML = `<input type="text" id="ti-${id}" placeholder="Responde..." style="flex:1; background:#111; border:1px solid #333; color:#fff; padding:8px; border-radius:8px;"><button onclick="window.enviarReply('${id}')" class="reply-btn-ok">OK</button>`;
-    document.getElementById(`comment-${id}`).appendChild(w);
-};
-window.enviarReply = (id) => {
-    const input = document.getElementById(`ti-${id}`);
-    if (input.value.trim()) { if (!auth.currentUser) { alert("Inicia sesión"); window.loginGoogle(); return; } db.ref(`replies/${id}`).push({ text: input.value, userName: fanName, avatar: fanAvatar }); document.getElementById(`ri-${id}`).remove(); }
-};
-window.enviarComentario = () => {
-    const input = document.getElementById('comment-text');
-    if (input.value.trim()) { if (!auth.currentUser) { alert("Inicia sesión"); window.loginGoogle(); return; } db.ref(`comments/${playlist[currentIndex].id}`).push({ text: input.value, userName: fanName, avatar: fanAvatar, likes: 0 }); input.value = ""; }
+window.reproducirTrack = (i) => {
+    const t = musicPlaylist[i]; if(!t.url) return alert("Próximamente");
+    const audio = document.getElementById('audio-element');
+    document.getElementById('track-title').innerText = t.title;
+    document.getElementById('track-cover').src = t.cover;
+    audio.src = t.url; audio.play();
 };
 
-// --- CHAT CON DETECCIÓN DE PATRÓN ---
-db.ref('messages').limitToLast(1).on('child_added', s => {
-    const d = s.val(); 
-    const isVIP = d.isVIP === true || d.text.startsWith('*');
-    const msgText = d.text.startsWith('*') ? d.text.substring(1) : d.text;
-
-    if(isVIP && !document.getElementById('p-videos').classList.contains('active')) { const badge = document.getElementById('live-badge'); if(badge) badge.style.display = 'block'; }
-    const avatarUrl = d.avatar || "https://i.imgur.com/6VBx3io.png";
-    const div = document.createElement('div'); div.className = isVIP ? 'msg artista-vip' : 'msg'; div.style.padding = "10px"; div.style.marginBottom = "8px"; div.style.borderRadius = "8px"; div.style.background = "rgba(255,255,255,0.05)";
-    
-    div.innerHTML = `<div class="msg-content"><img src="${isVIP ? 'assets/shot 1.jpeg' : avatarUrl}" class="chat-mini-avatar"><div><b style="color:var(--accent); font-size:0.75rem;">${isVIP ? '👑 EL PATRÓN' : (d.userName || 'Fan')}:</b> <span style="font-size:0.9rem; display:block;">${msgText}</span></div></div>`;
-    
-    document.getElementById('chat-box').appendChild(div);
-    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-    if(isVIP) document.getElementById('ding-sound').play().catch(()=>{});
-});
-
+// CHAT
 window.enviarMsg = () => {
     const input = document.getElementById('user-msg');
-    if (input.value.trim()) {
-        if (!auth.currentUser) { alert("Inicia sesión"); window.loginGoogle(); return; }
-        
-        // --- DETECCIÓN DE CORREO SIN IMPORTAR MAYÚSCULAS ---
-        const myEmail = (auth.currentUser.email || "").toLowerCase().trim();
-        const bossEmail = ADMIN_EMAIL.toLowerCase().trim();
-        const isBoss = myEmail === bossEmail;
-        
-        db.ref('messages').push({ 
-            text: input.value, 
-            userName: isBoss ? "👑 EL PATRÓN" : fanName, 
-            avatar: fanAvatar,
-            isVIP: isBoss 
-        });
+    if (input.value.trim() && auth.currentUser) {
+        const isBoss = auth.currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+        db.ref('messages').push({ text: input.value, userName: isBoss ? "👑 EL PATRÓN" : fanName, avatar: fanAvatar, isVIP: isBoss });
         input.value = "";
     }
 };
+db.ref('messages').limitToLast(1).on('child_added', s => {
+    const d = s.val(); const isVIP = d.isVIP;
+    const div = document.createElement('div'); div.className = isVIP ? 'msg artista-vip' : 'msg'; div.style.marginBottom = "10px";
+    div.innerHTML = `<div class="msg-content"><img src="${isVIP ? 'assets/shot 1.jpeg' : d.avatar}" class="chat-mini-avatar"><div><b style="color:var(--accent); font-size:0.7rem;">${d.userName}:</b><br><span style="font-size:0.9rem;">${d.text}</span></div></div>`;
+    document.getElementById('chat-box').appendChild(div);
+    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+});
 
-window.changeVideo = (dir) => { currentIndex = (currentIndex + dir + playlist.length) % playlist.length; window.loadVideo(currentIndex); };
+// VIDEO
+const playlist = [{ id: "despierto", title: "DESPIERTO", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", poster: "assets/shot 1.jpeg", desc: "Primer video oficial." }];
+let currentIndex = 0;
+window.loadVideo = (i) => {
+    const v = playlist[i];
+    document.getElementById('video-source').src = v.url;
+    document.getElementById('main-video').load();
+    document.getElementById('v-title').innerText = v.title;
+    document.getElementById('v-desc').innerText = v.desc;
+    vincularData(v.id);
+};
+function vincularData(vid) {
+    db.ref(`stats/${vid}/likes`).on('value', s => document.getElementById('likes-count').innerText = s.val() || 0);
+    db.ref(`stats/${vid}/views`).on('value', s => document.getElementById('total-views').innerText = s.val() || 0);
+    db.ref(`comments/${vid}`).on('value', s => document.getElementById('comments-count').innerText = s.numChildren());
+}
 window.darLike = () => db.ref(`stats/${playlist[currentIndex].id}/likes`).transaction(c => (c || 0) + 1);
+
+// NAVEGACIÓN
+window.showPage = (id, el) => {
+    document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if(el) el.classList.add('active');
+    if(id === 'p-musica') cargarListaMusica();
+};
 window.toggleChat = () => document.getElementById('chat-sidebar').classList.toggle('open');
-window.showPage = (id) => { document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id === 'p-videos') { const badge = document.getElementById('live-badge'); if(badge) badge.style.display = 'none'; } };
+window.abrirPerfil = () => auth.currentUser ? window.showPage('p-profile') : window.loginGoogle();
+window.cerrarSesion = () => auth.signOut().then(() => location.reload());
+window.loginGoogle = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+
 window.loadVideo(0);
