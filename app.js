@@ -1,6 +1,4 @@
-// ==========================================
-// 1. CONFIGURACIÓN DE FIREBASE (NO TOCAR)
-// ==========================================
+// CONFIGURACIÓN (Mantener la tuya)
 const firebaseConfig = {
   apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA",
   authDomain: "abrahamhorus1996.firebaseapp.com",
@@ -11,247 +9,143 @@ const firebaseConfig = {
   appId: "1:1002882996128:web:231c5eb841f3bec4a336c5",
   measurementId: "G-PEYW3V3GSB"
 };
-
-// Inicializar Firebase si no existe
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-console.log("%c SYSTEM ONLINE ", "background: #00ff88; color: #000; font-weight: bold; padding: 5px;");
-console.log("Conectando con la base de datos del Patrón...");
-
-// ==========================================
-// 2. BASE DE DATOS LOCAL (Tus Archivos)
-// ==========================================
-
-// --- LISTA DE VIDEOS ---
+// DATOS
 const playlist = [
-    {
-        id: "despierto",
-        title: "DESPIERTO",
-        desc: "Video Oficial - 4K Release",
-        url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4",
-        poster: "assets/shot 1.jpeg"
-    },
-    // Puedes agregar más videos aquí
-    {
-        id: "v2",
-        title: "PRÓXIMAMENTE",
-        desc: "Loading assets...",
-        url: "", // Dejar vacío si no está listo
-        poster: "assets/shot 1.jpeg"
-    }
+    { id: "despierto", title: "DESPIERTO (Video Oficial)", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4" },
+    { id: "v2", title: "PRÓXIMAMENTE", url: "" }
+];
+const music = [
+    { title: "DESPIERTO (Mix)", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1734200000/tu-musica.mp3" }
 ];
 
-// --- LISTA DE MÚSICA ---
-const musicPlaylist = [
-    {
-        title: "DESPIERTO (Original Mix)",
-        artist: "Abraham Horus",
-        url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1734200000/tu-musica.mp3",
-        cover: "assets/cover-despierto.jpg"
-    },
-    {
-        title: "SYSTEM OVERRIDE (Demo)",
-        artist: "Abraham Horus",
-        url: "", // Sin URL para probar
-        cover: "assets/shot 1.jpeg"
-    }
-];
+let currentUser = null;
+let currentIdx = 0;
 
-// ==========================================
-// 3. SISTEMA DE USUARIOS Y AUTH
-// ==========================================
-let fanName = "Guest User";
-let fanAvatar = "https://i.imgur.com/6VBx3io.png";
-
-// Escuchar cambios de sesión (Login/Logout)
+// USUARIOS
 auth.onAuthStateChanged(user => {
+    currentUser = user;
     if (user) {
-        // --- USUARIO LOGUEADO (VIP) ---
-        document.body.classList.add('is-vip'); // Esto oculta las terminales de bloqueo en CSS
-        console.log(`%c ACCESS GRANTED: ${user.email}`, "color: #00ff88");
-        
-        db.ref('users/' + user.uid).once('value').then(snap => {
-            if (snap.exists()) {
-                const d = snap.val();
-                fanName = d.name;
-                fanAvatar = d.avatar;
-            } else {
-                // Nuevo usuario
-                fanName = user.displayName;
-                fanAvatar = user.photoURL || fanAvatar;
-                db.ref('users/' + user.uid).set({
-                    name: fanName,
-                    email: user.email,
-                    avatar: fanAvatar,
-                    joined: Date.now()
-                });
-            }
-            actualizarPerfilUI();
-        });
+        document.body.classList.add('is-vip');
+        db.ref('users/' + user.uid).update({ email: user.email });
+        if(document.getElementById('display-name')) document.getElementById('display-name').innerText = user.displayName;
     } else {
-        // --- USUARIO NO LOGUEADO ---
         document.body.classList.remove('is-vip');
-        console.warn("ACCESS RESTRICTED: Guest Mode");
-        fanName = "Guest User";
-        fanAvatar = "https://i.imgur.com/6VBx3io.png";
-        actualizarPerfilUI();
+        if(document.getElementById('display-name')) document.getElementById('display-name').innerText = "Invitado";
     }
 });
 
-function actualizarPerfilUI() {
-    // Actualiza la tarjeta de perfil
-    if(document.getElementById('display-name')) document.getElementById('display-name').innerText = fanName;
-    if(document.getElementById('profile-preview')) document.getElementById('profile-preview').src = fanAvatar;
+window.loginGoogle = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+window.cerrarSesion = () => auth.signOut().then(() => location.reload());
+
+// NAVEGACIÓN
+window.showPage = (id, el) => {
+    document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(el) el.classList.add('active');
+    
+    if(id === 'p-musica') cargarMusica();
+};
+
+// --- FUNCIÓN CLAVE: CAMBIAR VIDEO SIN OVERLAY ---
+window.cambiarVideo = (index) => {
+    currentIdx = index;
+    const v = playlist[index];
+    if(!v.url) return alert("Pronto disponible");
+
+    // 1. Actualizar el reproductor fijo
+    const video = document.getElementById('main-video');
+    document.getElementById('video-source').src = v.url;
+    document.getElementById('current-title').innerText = v.title;
+    video.load();
+    video.play().catch(e => console.log("Autoplay bloqueado"));
+
+    // 2. Scroll arriba suave
+    document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
+
+    // 3. Conectar datos (Likes/Comentarios)
+    vincularDatos(v.id);
+};
+
+function vincularDatos(vidId) {
+    // Likes
+    db.ref(`stats/${vidId}/likes`).on('value', s => {
+        document.getElementById('likes-count').innerText = s.val() || 0;
+    });
+    // Comentarios
+    const list = document.getElementById('comments-list');
+    list.innerHTML = '<p class="empty">Cargando...</p>';
+    db.ref(`comments/${vidId}`).on('value', s => {
+        const d = s.val();
+        list.innerHTML = "";
+        if(d) {
+            Object.values(d).reverse().forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'single-comment';
+                div.innerHTML = `<span class="c-user">${c.user}</span>: <span class="c-text">${c.text}</span>`;
+                list.appendChild(div);
+            });
+        } else {
+            list.innerHTML = '<p class="empty">Sin comentarios.</p>';
+        }
+    });
 }
 
-// Funciones de Auth
-window.loginGoogle = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).catch(error => {
-        console.error("Error de autenticación:", error);
-        alert("Error al conectar: " + error.message);
-    });
+window.darLike = () => {
+    const id = playlist[currentIdx].id;
+    db.ref(`stats/${id}/likes`).transaction(c => (c || 0) + 1);
 };
 
-window.cerrarSesion = () => {
-    auth.signOut().then(() => {
-        window.location.reload();
-    });
-};
-
-// ==========================================
-// 4. NAVEGACIÓN (SIDEBAR)
-// ==========================================
-window.showPage = (pageId, elementRef) => {
-    // 1. Ocultar todas las páginas
-    document.querySelectorAll('.app-page').forEach(page => {
-        page.classList.remove('active');
-    });
-
-    // 2. Desactivar todos los items del menú
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-    });
-
-    // 3. Mostrar la página seleccionada
-    document.getElementById(pageId).classList.add('active');
-
-    // 4. Activar el item del menú clickeado
-    if (elementRef) {
-        elementRef.classList.add('active');
-    }
-
-    // Si entramos a música, cargar la lista
-    if(pageId === 'p-musica') {
-        renderMusicList();
-    }
-};
-
-// ==========================================
-// 5. VIDEO PLAYER (OVERLAY FLOTANTE)
-// ==========================================
-window.loadVideo = (index) => {
-    const videoData = playlist[index];
+window.enviarComentario = () => {
+    const txt = document.getElementById('comment-text').value.trim();
+    if(!currentUser) return alert("Inicia sesión");
+    if(!txt) return;
     
-    if (!videoData.url) {
-        alert("⚠️ ARCHIVO NO ENCONTRADO O ENCRIPTADO.");
-        return;
-    }
-
-    const overlay = document.getElementById('video-overlay');
-    const videoTag = document.getElementById('main-video');
-    const sourceTag = document.getElementById('video-source');
-
-    // Cargar video
-    sourceTag.src = videoData.url;
-    videoTag.load();
-    
-    // Mostrar overlay y reproducir
-    overlay.style.display = 'flex';
-    videoTag.play().catch(e => console.log("Autoplay bloqueado por navegador"));
-
-    console.log(`Reproduciendo: ${videoData.title}`);
+    db.ref(`comments/${playlist[currentIdx].id}`).push({
+        text: txt,
+        user: currentUser.displayName,
+        uid: currentUser.uid,
+        timestamp: Date.now()
+    });
+    document.getElementById('comment-text').value = "";
 };
 
-// Cerrar video al hacer click fuera del video o en la X
-document.getElementById('video-overlay').addEventListener('click', (e) => {
-    if (e.target.id === 'video-overlay' || e.target.classList.contains('close-video')) {
-        const overlay = document.getElementById('video-overlay');
-        const videoTag = document.getElementById('main-video');
-        
-        videoTag.pause();
-        overlay.style.display = 'none';
-    }
+// MÚSICA
+function cargarMusica() {
+    const box = document.getElementById('music-list');
+    if(box.innerHTML !== "") return;
+    music.forEach(m => {
+        const div = document.createElement('div');
+        div.innerHTML = `<span>${m.title}</span> <button onclick="new Audio('${m.url}').play()" style="background:var(--accent); border:none; border-radius:4px; cursor:pointer;">▶</button>`;
+        box.appendChild(div);
+    });
+}
+
+// CHAT GLOBAL
+window.toggleLiveChat = () => {
+    const w = document.getElementById('live-chat-window');
+    w.style.display = (w.style.display === 'flex') ? 'none' : 'flex';
+};
+
+window.enviarMensajeChat = () => {
+    const txt = document.getElementById('chat-input-msg').value.trim();
+    if(!currentUser) return alert("Inicia sesión");
+    if(!txt) return;
+    db.ref('messages').push({ text: txt, user: currentUser.displayName });
+    document.getElementById('chat-input-msg').value = "";
+};
+
+db.ref('messages').limitToLast(15).on('child_added', s => {
+    const m = s.val();
+    const d = document.createElement('div');
+    d.style.marginBottom = "5px"; d.style.fontSize = "0.9rem";
+    d.innerHTML = `<b style="color:var(--accent)">${m.user}:</b> ${m.text}`;
+    document.getElementById('chat-global-msgs').appendChild(d);
 });
 
-// ==========================================
-// 6. REPRODUCTOR DE MÚSICA (HACKER CONSOLE)
-// ==========================================
-function renderMusicList() {
-    const container = document.getElementById('music-list');
-    if (!container) return;
-    
-    container.innerHTML = ""; // Limpiar lista
-
-    musicPlaylist.forEach((track, index) => {
-        // Crear elemento HTML puro para la lista
-        const item = document.createElement('div');
-        item.className = 'nav-item'; // Reusamos el estilo del nav para que parezca lista
-        item.style.marginBottom = "10px";
-        item.style.background = "#1a1a1a";
-        item.style.border = "1px solid #333";
-        
-        item.innerHTML = `
-            <div style="display:flex; align-items:center; width:100%; justify-content:space-between;">
-                <div style="display:flex; align-items:center;">
-                    <span style="color:var(--accent); margin-right:15px; font-family:'Fira Code'">[${index + 1}]</span>
-                    <div>
-                        <div style="font-weight:bold; color:#fff;">${track.title}</div>
-                        <div style="font-size:0.8rem; color:#666;">${track.artist}</div>
-                    </div>
-                </div>
-                <button onclick="window.playTrack(${index})" style="background:transparent; border:1px solid var(--accent); color:var(--accent); padding:5px 15px; cursor:pointer; font-family:'Fira Code'">RUN ></button>
-            </div>
-        `;
-        
-        container.appendChild(item);
-    });
-}
-
-// Variable global para el audio
-let currentAudio = new Audio();
-
-window.playTrack = (index) => {
-    const track = musicPlaylist[index];
-    
-    if (!track.url) {
-        alert("⚠️ ERROR: AUDIO_FILE_MISSING");
-        return;
-    }
-
-    // Detener audio anterior
-    currentAudio.pause();
-    
-    // Cargar nuevo
-    currentAudio.src = track.url;
-    currentAudio.play();
-    
-    // Actualizar título en la sección (efecto visual)
-    const titleHeader = document.querySelector('#p-musica .section-title');
-    if(titleHeader) {
-        titleHeader.innerHTML = `console.play(<span style="color:var(--accent)">'${track.title}'</span>)`;
-    }
-};
-
-// ==========================================
-// 7. PWA (INSTALACIÓN DE APP)
-// ==========================================
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('Service Worker registrado:', reg.scope))
-            .catch(err => console.log('Service Worker falló:', err));
-    });
-}
+// Inicializar con el primer video
+window.cambiarVideo(0);

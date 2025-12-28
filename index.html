@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abraham Horus | Dev Platform</title>
+    <title>Abraham Horus | Sitio Oficial</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00ff88">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -19,19 +18,18 @@
             <div class="brand">
                 <img src="assets/logo192.png" alt="Logo" class="brand-logo">
             </div>
-            
             <nav class="side-nav">
                 <div class="nav-item active" onclick="window.showPage('p-videos', this)">
-                    <span class="icon">★</span> <span class="label">videos</span>
+                    <span class="icon">📺</span> <span class="label">Videos</span>
                 </div>
                 <div class="nav-item" onclick="window.showPage('p-musica', this)">
-                    <span class="icon">▶</span> <span class="label">musica</span>
+                    <span class="icon">🎵</span> <span class="label">Música</span>
                 </div>
                 <div class="nav-item" onclick="window.showPage('p-photos', this)">
-                    <span class="icon">🔒</span> <span class="label">fotos</span>
+                    <span class="icon">🔒</span> <span class="label">Fotos VIP</span>
                 </div>
                 <div class="nav-item" onclick="window.showPage('p-profile', this)">
-                    <span class="icon">📄</span> <span class="label">profile</span>
+                    <span class="icon">👤</span> <span class="label">Mi Perfil</span>
                 </div>
             </nav>
         </aside>
@@ -39,100 +37,108 @@
         <main class="main-content">
             
             <header class="content-header">
-                <h1>h1 - Abraham Horus</h1>
-                <p>el portal oficial, <span class="highlight">console.log('bienvenido')</span> al sistema.</p>
+                <h1>ABRAHAM HORUS</h1>
             </header>
 
             <div id="p-videos" class="app-page active">
-                <div class="grid-container">
-                    
-                    <div class="card active-card" onclick="window.loadVideo(0)">
-                        <div class="card-image">
-                            <img src="assets/shot 1.jpeg" alt="Video">
-                            <div class="play-overlay">▶</div>
+                
+                <div class="main-stage">
+                    <div class="video-frame">
+                        <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
+                            <source id="video-source" src="" type="video/mp4">
+                        </video>
+                    </div>
+
+                    <div class="video-details-panel">
+                        <h2 id="current-title">Selecciona un video</h2>
+                        
+                        <div class="action-buttons">
+                            <button onclick="window.darLike()" class="act-btn">❤️ <span id="likes-count">0</span></button>
+                            <button class="act-btn disabled">👁️ <span id="total-views">0</span></button>
                         </div>
-                        <div class="card-info">
-                            <h3>DESPIERTO</h3>
+
+                        <div class="integrated-comments">
+                            <div class="comments-header">Comentarios del Video</div>
+                            <div id="comments-list" class="comments-scroll">
+                                <p class="empty">Cargando...</p>
+                            </div>
+                            <div class="comment-input-row">
+                                <input type="text" id="comment-text" placeholder="Comenta algo...">
+                                <button onclick="window.enviarComentario()">Enviar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="separator">
+
+                <h3 class="playlist-title">Siguientes Videos</h3>
+                <div class="horizontal-grid">
+                    
+                    <div class="video-thumbnail-card" onclick="window.cambiarVideo(0)">
+                        <div class="thumb-img">
+                            <img src="assets/shot 1.jpeg">
+                            <div class="duration">3:45</div>
+                        </div>
+                        <div class="thumb-info">
+                            <h4>DESPIERTO</h4>
                             <p>Video Oficial</p>
                         </div>
                     </div>
 
-                    <div class="card" onclick="alert('Próximamente')">
-                        <div class="card-image">
-                            <img src="assets/shot 1.jpeg" alt="Video" style="filter: grayscale(1);">
+                    <div class="video-thumbnail-card" onclick="window.cambiarVideo(1)">
+                        <div class="thumb-img">
+                            <img src="assets/shot 1.jpeg" style="filter:grayscale(1);">
+                            <div class="duration">--:--</div>
                         </div>
-                        <div class="card-info">
-                            <h3>PRÓXIMAMENTE</h3>
-                            <p>Loading...</p>
+                        <div class="thumb-info">
+                            <h4>PRÓXIMAMENTE</h4>
+                            <p>Muy pronto</p>
                         </div>
                     </div>
-                </div>
 
-                <div class="hacker-terminal">
-                    <div class="terminal-header">
-                        <div class="dots">
-                            <span class="dot red"></span>
-                            <span class="dot yellow"></span>
-                            <span class="dot green"></span>
-                        </div>
-                        <span class="terminal-title">lock-overlay.js — AbrahamHorus</span>
-                    </div>
-                    <div class="terminal-body">
-                        <div class="line-numbers">
-                            15<br>16<br>17<br>18<br>19<br>20<br>21
-                        </div>
-                        <div class="code-content">
-                            <p><span class="c-purple">if</span> (<span class="c-blue">user</span>.status !== <span class="c-orange">'VIP'</span>) {</p>
-                            <p>&nbsp;&nbsp;<span class="c-green">// Acceso denegado al sistema</span></p>
-                            <p>&nbsp;&nbsp;<span class="c-blue">System</span>.lock(<span class="c-orange">'Contenido Exclusivo'</span>);</p>
-                            <p>&nbsp;&nbsp;<span class="c-purple">return</span> <span class="c-yellow">LoginWithGoogle</span>();</p>
-                            <p>}</p>
-                            <br>
-                            <button onclick="window.loginGoogle()" class="btn-terminal">ENTRAR CON GOOGLE</button>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <div id="p-musica" class="app-page">
-                <h2 class="section-title">console.play(music)</h2>
-                <div class="hacker-player">
-                    <p style="color:#666;">// Selecciona un track para iniciar...</p>
-                    <div id="music-list" class="music-grid"></div>
-                </div>
+                <h2 class="section-title">Tu Música</h2>
+                <div id="music-list" class="music-list-container"></div>
             </div>
 
             <div id="p-photos" class="app-page">
-                <div class="hacker-terminal">
-                    <div class="terminal-header"><span class="terminal-title">secret-gallery.jpg</span></div>
-                    <div class="terminal-body" style="justify-content:center; align-items:center; height: 300px;">
-                        <button onclick="window.loginGoogle()" class="btn-terminal">DESENCRIPTAR FOTOS</button>
-                    </div>
+                <div class="locked-box">
+                    <h3>Galería VIP</h3>
+                    <button onclick="window.loginGoogle()" class="btn-neon">ENTRAR CON GOOGLE</button>
+                </div>
+                <div class="protected-content">
+                    <h2>Bienvenido a la Galería</h2>
                 </div>
             </div>
 
             <div id="p-profile" class="app-page">
-                <div class="card profile-card-hacker">
+                <div class="profile-box">
                     <img id="profile-preview" src="https://i.imgur.com/6VBx3io.png">
-                    <h3 id="display-name">Guest User</h3>
-                    <button class="btn-terminal" onclick="window.cerrarSesion()">LOGOUT();</button>
+                    <h3 id="display-name">Invitado</h3>
+                    <button class="btn-neon" onclick="window.cerrarSesion()">CERRAR SESIÓN</button>
                 </div>
             </div>
 
         </main>
     </div>
 
+    <div class="chat-bubble-launcher" onclick="window.toggleLiveChat()">💬</div>
+    <div id="live-chat-window" class="chat-window-fixed">
+        <div class="chat-head">Chat Global <span onclick="window.toggleLiveChat()">✕</span></div>
+        <div id="chat-global-msgs" class="chat-body-scroll"></div>
+        <div class="chat-foot">
+            <input id="chat-input-msg" placeholder="...">
+            <button onclick="window.enviarMensajeChat()">➤</button>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
-    
-    <div id="video-overlay" class="video-overlay" style="display:none;">
-        <button class="close-video" onclick="document.getElementById('video-overlay').style.display='none'">✕</button>
-        <video id="main-video" controls playsinline>
-             <source id="video-source" src="" type="video/mp4">
-        </video>
-    </div>
-
 </body>
 </html>
