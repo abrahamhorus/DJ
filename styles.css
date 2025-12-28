@@ -38,7 +38,7 @@ body {
 
 /* CONTENEDOR PRINCIPAL */
 .app-container { flex: 1; display: flex; overflow: hidden; position: relative; }
-.app-page { display: none; width: 100%; height: 100%; }
+.app-page { display: none; width: 100%; height: 100%; position: relative; } /* Agregado relative para el lock-overlay */
 .app-page.active { display: flex; width: 100%; }
 
 .video-main-wrapper { 
@@ -55,7 +55,7 @@ body {
 video {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Previsualización perfecta mi amor */
+    object-fit: cover; 
     background: #000;
 }
 
@@ -92,47 +92,23 @@ video {
 
 /* COMENTARIOS DESPLEGABLES */
 .comments-section { padding: 25px; border-top: 1px solid #111; }
-
-/* Estilo para el botón que despliega comentarios */
 .btn-stat-comments {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    background: #111;
-    border: 1px solid #222;
-    color: var(--accent);
-    padding: 12px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: 900;
-    margin-bottom: 15px;
-    transition: 0.3s;
+    width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px; 
+    background: #111; border: 1px solid #222; color: var(--accent); padding: 12px; 
+    border-radius: 50px; cursor: pointer; font-weight: 900; margin-bottom: 15px; transition: 0.3s;
 }
-.btn-stat-comments:hover { border-color: var(--accent); box-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
-
-#comments-wrapper { display: none; } /* Oculto por defecto */
+#comments-wrapper { display: none; } 
 
 .comment-input-block { display: flex; gap: 10px; margin-bottom: 25px; }
 #comment-text { flex: 1; background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; padding: 10px; }
-
 .comment-item { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #0a0a0a; }
 .comment-user { color: var(--accent); font-weight: bold; font-size: 0.85rem; }
 
-/* LIKES EN COMENTARIOS */
 .comment-like-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #222;
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    cursor: pointer;
-    margin-right: 10px;
-    transition: 0.3s;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid #222; color: #fff; 
+    padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; 
+    margin-right: 10px; transition: 0.3s;
 }
-.comment-like-btn:hover { border-color: var(--accent); background: rgba(0, 255, 136, 0.1); }
 
 .reply-btn { background: none; border: none; color: #555; font-size: 0.7rem; cursor: pointer; font-weight: bold; margin-top: 8px; text-transform: uppercase; }
 .replies-container { margin-left: 30px; border-left: 2px solid #111; padding-left: 15px; margin-top: 10px; }
@@ -166,98 +142,61 @@ video {
     }
     .chat-section-wrapper.open { transform: translateX(0); }
     .close-chat { display: block; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
-    .chat-header { display: flex; justify-content: space-between; align-items: center; }
 }
 
 /* NAVBAR INFERIOR */
 .bottom-nav { 
-    height: 70px; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-    background: #000; 
-    border-top: 1px solid #1a1a1a; 
-    flex-shrink: 0;
-    padding-bottom: env(safe-area-inset-bottom);
-    gap: 40px; 
+    height: 70px; display: flex; justify-content: center; align-items: center; 
+    background: #000; border-top: 1px solid #1a1a1a; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); gap: 40px; 
 }
-
 .nav-item { 
-    color: #444; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer; 
-    transition: all 0.3s ease;
-    width: 60px; 
-    position: relative;
+    color: #444; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    cursor: pointer; transition: 0.3s; width: 60px; position: relative;
 }
-
-.nav-item span { 
-    font-size: 0.6rem; 
-    margin-top: 5px; 
-    font-weight: 700;
-    text-transform: uppercase;
-    white-space: nowrap; 
-}
-
+.nav-item span { font-size: 0.6rem; margin-top: 5px; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
 .nav-item.active { color: var(--accent); }
-
-.nav-item.active::after {
-    content: '';
-    width: 4px;
-    height: 4px;
-    background: var(--accent);
-    border-radius: 50%;
-    margin-top: 4px;
-    box-shadow: 0 0 10px var(--accent);
-}
-
-/* BADGE NOTIFICACIÓN VIP */
-.badge-live { 
-    position: absolute; top: -5px; right: -5px; 
-    background: red; color: #fff; padding: 2px 6px; 
-    border-radius: 50%; font-weight: bold; font-size: 0.6rem;
-    display: none; 
-}
 
 /* SECCIONES EXTRA */
 .section-title { padding: 20px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-size: 1.2rem; }
 .music-container, .events-container { flex: 1; overflow-y: auto; padding-bottom: 100px; }
 .music-grid { display: grid; gap: 15px; padding: 20px; }
-.music-card { 
-    background: #0a0a0a; border: 1px solid #1a1a1a; 
-    border-radius: 12px; display: flex; align-items: center; padding: 10px; gap: 15px;
-}
+.music-card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; display: flex; align-items: center; padding: 10px; gap: 15px; }
 .music-card img { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; }
-.music-info h4 { font-size: 0.9rem; color: #fff; }
-.music-info p { font-size: 0.75rem; color: #555; }
-.play-mini-btn { 
-    margin-top: 5px; background: transparent; border: 1px solid var(--accent); 
-    color: var(--accent); font-size: 0.6rem; padding: 4px 10px; border-radius: 4px; cursor: pointer;
-}
+.play-mini-btn { margin-top: 5px; background: transparent; border: 1px solid var(--accent); color: var(--accent); font-size: 0.6rem; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
 
-.event-card { 
-    display: flex; align-items: center; background: #0a0a0a; 
-    margin: 15px 20px; padding: 15px; border-radius: 12px; border-left: 4px solid var(--accent);
-}
+.event-card { display: flex; align-items: center; background: #0a0a0a; margin: 15px 20px; padding: 15px; border-radius: 12px; border-left: 4px solid var(--accent); }
 .event-date { text-align: center; font-weight: 900; font-size: 1.2rem; color: var(--accent); padding-right: 15px; border-right: 1px solid #222; }
 .event-date span { display: block; font-size: 0.6rem; color: #555; }
-.event-details { padding-left: 15px; flex: 1; }
-.event-details h4 { font-size: 0.9rem; }
-.event-details p { font-size: 0.75rem; color: #555; }
 .event-btn { background: var(--accent); border: none; padding: 8px 12px; border-radius: 8px; font-weight: 900; font-size: 0.7rem; cursor: pointer; }
 
-.music-card, .event-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: 0.3s;
+/* --- NUEVAS PIEZAS: BLOQUEO VIP (Agregado sin mover nada más) --- */
+/* Agrega esto al final de tu styles.css original */
+.lock-overlay {
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(15px); 
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 2000; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center; 
+    padding: 20px;
+    pointer-events: all; /* Asegura que capture clics para el botón de Google */
 }
 
-.music-card:hover, .event-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
-    transform: translateY(-3px);
+/* Solo se oculta si el body tiene la clase is-vip */
+body.is-vip .lock-overlay { 
+    display: none !important; 
 }
+.btn-premium {
+    background: var(--accent); color: #000; border: none; padding: 15px 35px;
+    border-radius: 50px; font-weight: 900; cursor: pointer;
+    box-shadow: 0 0 20px var(--accent);
+}
+.badge-live { position: absolute; top: -5px; right: -5px; background: red; color: #fff; padding: 2px 6px; border-radius: 50%; display: none; }
