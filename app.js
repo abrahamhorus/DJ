@@ -27,14 +27,12 @@ auth.onAuthStateChanged(user => {
     if (user) { 
         document.body.classList.add('is-vip');
         
-        // Cargar datos guardados del usuario
         db.ref('users/' + user.uid).once('value').then(snap => {
             if (snap.exists()) {
                 const data = snap.val();
                 fanName = data.name || user.displayName;
                 fanAvatar = data.avatar || user.photoURL || "https://i.imgur.com/6VBx3io.png";
             } else {
-                // Usuario nuevo: Registrar y sumar sub
                 fanName = user.displayName;
                 fanAvatar = user.photoURL || "https://i.imgur.com/6VBx3io.png";
                 
@@ -46,13 +44,10 @@ auth.onAuthStateChanged(user => {
                     joined: Date.now()
                 });
             }
-            
-            // Actualizar interfaz
             actualizarUI();
             localStorage.setItem('fanName', fanName);
             localStorage.setItem('fanAvatar', fanAvatar);
         });
-
     } else { 
         document.body.classList.remove('is-vip');
         fanName = "Fan";
@@ -68,7 +63,6 @@ function actualizarUI() {
     document.getElementById('edit-photo').value = fanAvatar;
 }
 
-// FUNCIONES DE PERFIL
 window.abrirPerfil = () => {
     if (document.body.classList.contains('is-vip')) {
         window.showPage('p-profile');
@@ -88,20 +82,19 @@ window.guardarPerfil = () => {
             fanName = newName;
             fanAvatar = newPhoto;
             
-            // Guardar en DB y LocalStorage
             db.ref('users/' + user.uid).update({ name: newName, avatar: newPhoto });
             localStorage.setItem('fanName', newName);
             localStorage.setItem('fanAvatar', newPhoto);
             
             actualizarUI();
-            alert("¡Perfil actualizado con éxito! 👑");
+            alert("¡Perfil actualizado! 👑");
         }
     }
 };
 
 window.cerrarSesion = () => {
     auth.signOut().then(() => {
-        alert("Sesión cerrada. ¡Vuelve pronto!");
+        alert("Sesión cerrada.");
         window.showPage('p-videos');
     });
 };
@@ -111,7 +104,6 @@ window.loginGoogle = () => {
     auth.signInWithPopup(provider).catch(e => console.log(e));
 };
 
-// ... RESTO DEL CÓDIGO ORIGINAL ...
 const playlist = [
     { 
         id: "despierto", 
@@ -171,14 +163,21 @@ function vincularData(videoId) {
     db.ref(`stats/${videoId}/views`).on('value', s => document.getElementById('total-views').innerText = s.val() || 0);
     db.ref(`comments/${videoId}`).on('value', s => document.getElementById('comments-count').innerText = s.numChildren());
     
+    // --- AQUÍ MOSTRAMOS LOS COMENTARIOS CON FOTO ---
     db.ref(`comments/${videoId}`).on('child_added', snap => {
         const c = snap.val(); const id = snap.key;
+        // Si es mensaje viejo y no tiene avatar, usamos el default
+        const avatarUrl = c.avatar || "https://i.imgur.com/6VBx3io.png"; 
+
         const div = document.createElement('div');
         div.className = 'comment-item'; div.id = `comment-${id}`;
         div.innerHTML = `
-            <span class="comment-user">@${c.userName}</span>
-            <p style="color:#ccc; margin-top:5px;">${c.text}</p>
-            <div style="margin-top:8px; display:flex; align-items:center;">
+            <div class="comment-header">
+                <img src="${avatarUrl}" class="comment-avatar">
+                <span class="comment-user">@${c.userName}</span>
+            </div>
+            <p style="color:#ccc; margin-left: 40px; margin-top:-5px;">${c.text}</p>
+            <div style="margin-left:40px; margin-top:8px; display:flex; align-items:center;">
                 <button class="comment-like-btn" onclick="window.likeComentario('${videoId}','${id}')">
                     ❤️ <span id="lc-${id}">${c.likes || 0}</span>
                 </button>
@@ -197,21 +196,42 @@ window.enviarComentario = () => {
     const input = document.getElementById('comment-text');
     if (input.value.trim()) {
         if (!auth.currentUser) { alert("Inicia sesión primero"); window.loginGoogle(); return; }
-        db.ref(`comments/${playlist[currentIndex].id}`).push({ text: input.value, userName: fanName, likes: 0 });
+        // AHORA GUARDAMOS EL AVATAR TAMBIÉN
+        db.ref(`comments/${playlist[currentIndex].id}`).push({ 
+            text: input.value, 
+            userName: fanName, 
+            avatar: fanAvatar, 
+            likes: 0 
+        });
         input.value = "";
     }
 };
 
+// --- AQUÍ MOSTRAMOS EL CHAT CON FOTO ---
 db.ref('messages').limitToLast(1).on('child_added', s => {
     const d = s.val(); const isVIP = d.text.startsWith('*');
     if(isVIP && !document.getElementById('p-videos').classList.contains('active')) {
         const badge = document.getElementById('live-badge');
         if(badge) badge.style.display = 'block';
     }
+    
+    const avatarUrl = d.avatar || "https://i.imgur.com/6VBx3io.png";
+
     const div = document.createElement('div');
     div.className = isVIP ? 'msg artista-vip' : 'msg';
     div.style.padding = "10px"; div.style.marginBottom = "8px"; div.style.borderRadius = "8px"; div.style.background = "rgba(255,255,255,0.05)";
-    div.innerHTML = `<b style="color:var(--accent); font-size:0.75rem;">${isVIP ? '👑 LA POTRA' : (d.userName || 'Fan')}:</b> <span style="font-size:0.9rem;">${isVIP ? d.text.substring(1) : d.text}</span>`;
+    
+    // ESTRUCTURA CON FOTO
+    div.innerHTML = `
+        <div class="msg-content">
+            <img src="${isVIP ? 'assets/shot 1.jpeg' : avatarUrl}" class="chat-mini-avatar">
+            <div>
+                <b style="color:var(--accent); font-size:0.75rem;">${isVIP ? '👑 LA POTRA' : (d.userName || 'Fan')}:</b> 
+                <span style="font-size:0.9rem; display:block;">${isVIP ? d.text.substring(1) : d.text}</span>
+            </div>
+        </div>
+    `;
+    
     document.getElementById('chat-box').appendChild(div);
     document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
     if(isVIP) document.getElementById('ding-sound').play().catch(()=>{});
@@ -221,7 +241,12 @@ window.enviarMsg = () => {
     const input = document.getElementById('user-msg');
     if (input.value.trim()) {
         if (!auth.currentUser) { alert("Inicia sesión para chatear"); window.loginGoogle(); return; }
-        db.ref('messages').push({ text: input.value, userName: input.value.startsWith('*') ? "LA POTRA" : fanName });
+        // GUARDAMOS EL AVATAR
+        db.ref('messages').push({ 
+            text: input.value, 
+            userName: input.value.startsWith('*') ? "LA POTRA" : fanName,
+            avatar: fanAvatar
+        });
         input.value = "";
     }
 };
