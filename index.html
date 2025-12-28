@@ -51,12 +51,23 @@
         <main class="vscode-main">
             
             <header class="vscode-header">
-                <h1>ABRAHAM HORUS</h1>
-                <p>Plataforma Oficial v2.0</p>
+                <div class="header-left">
+                    <h1>ABRAHAM HORUS</h1>
+                    <p>Plataforma Oficial v2.0</p>
+                </div>
+                
+                <div class="header-right">
+                    <div class="subs-counter-box">
+                        <span class="subs-label">SUSCRIPTORES</span>
+                        <span id="global-subs-count" class="subs-number">...</span>
+                    </div>
+                    <button id="btn-subscribe" class="btn-subscribe" onclick="window.toggleSub()">
+                        SUSCRIBIRSE
+                    </button>
+                </div>
             </header>
 
             <div id="p-videos" class="app-page active">
-                
                 <div class="integrated-player-box">
                     <div class="video-frame">
                         <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
@@ -85,13 +96,11 @@
 
                     <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
                         <div class="term-head">COMENTARIOS DE LA COMUNIDAD</div>
-                        
                         <div class="term-input">
                             <span class="prompt">➜</span>
                             <input id="comment-text" placeholder="Escribe un comentario...">
                             <button onclick="window.enviarComentario()">PUBLICAR</button>
                         </div>
-
                         <div id="comments-list" class="term-body-fixed"></div>
                     </div>
                 </div>
@@ -110,7 +119,6 @@
                             <p>Video Oficial</p>
                         </div>
                     </div>
-
                     <div class="code-card" onclick="window.loadVideo(1)">
                         <div class="card-thumb">
                             <img src="assets/shot 2.jpeg" style="filter:grayscale(1);">
@@ -148,37 +156,37 @@
                 </div>
                 <div class="protected-content">
                     <h2 class="section-label">Galería VIP</h2>
+                    <p style="color:#666; font-family: var(--font-tech);">[SYSTEM]: Cargando módulos visuales...</p>
                     </div>
             </div>
 
             <div id="p-events" class="app-page">
                 <h2 class="section-label">Próximos Eventos</h2>
-                <div id="events-list" class="events-container">
-                    </div>
+                <div id="events-list" class="events-container"></div>
             </div>
 
             <div id="p-profile" class="app-page">
                 <div class="profile-panel">
                     <div class="profile-header">
                         <img id="profile-preview" src="https://via.placeholder.com/100" alt="Avatar">
-                        <h3 id="display-name" style="color:#fff;">INVITADO</h3>
+                        <h3 id="display-name" style="color:var(--accent); font-family: var(--font-tech);">INVITADO</h3>
                         <p style="font-size: 0.7rem; color: #666; font-family: 'Fira Code', monospace; margin-top: 5px;">ID: <span id="user-uid">NO_AUTH</span></p>
                     </div>
 
                     <div class="divider-line" style="margin: 20px 0;"></div>
 
-                    <div class="user-stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; font-family: 'Fira Code', monospace; font-size: 0.8rem; text-align: left;">
+                    <div class="user-stats-grid">
                         <div style="background: #111; padding: 10px; border: 1px solid #333;">
                             <span style="color: #666;">RANK:</span> <br>
-                            <span style="color: #fff;">USER</span>
+                            <span id="user-rank" style="color: #fff;">GUEST</span>
                         </div>
                         <div style="background: #111; padding: 10px; border: 1px solid #333;">
                             <span style="color: #666;">STATUS:</span> <br>
-                            <span style="color: #00ff88;">● ONLINE</span>
+                            <span style="color: var(--accent);">● ONLINE</span>
                         </div>
                     </div>
 
-                    <button class="btn-green-glow" onclick="window.cerrarSesion()" style="background:transparent; border:1px solid #ff5555; color:#ff5555;">CERRAR SESIÓN</button>
+                    <button class="btn-green-glow" onclick="window.cerrarSesion()" style="width:100%; background:transparent; border:1px solid #ff5555; color:#ff5555;">EXIT SESSION</button>
                 </div>
             </div>
 
@@ -190,12 +198,14 @@
     </div>
     
     <div id="live-chat-window" class="chat-window">
-        <div class="chat-header">Comunidad <span onclick="window.toggleLiveChat()" style="cursor:pointer">x</span></div>
+        <div class="chat-header">
+            <span>🔴 SALA COMÚN</span> 
+            <span onclick="window.toggleLiveChat()" style="cursor:pointer; color:#888;">✖</span>
+        </div>
         <div id="chat-global-msgs" class="chat-body"></div>
         <div class="chat-input-container">
-            <span class="prompt">➜</span>
-            <input id="chat-input-msg" placeholder="Escribe un mensaje..." autocomplete="off">
-            <button onclick="window.enviarMensajeChat()">ENVIAR</button>
+            <input id="chat-input-msg" placeholder="Enviar mensaje..." autocomplete="off">
+            <button onclick="window.enviarMensajeChat()">➤</button>
         </div>
     </div>
 
