@@ -1,3 +1,6 @@
+// ==========================================
+// 1. CONFIGURACIÓN DE FIREBASE (NO TOCAR)
+// ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA",
   authDomain: "abrahamhorus1996.firebaseapp.com",
@@ -9,126 +12,246 @@ const firebaseConfig = {
   measurementId: "G-PEYW3V3GSB"
 };
 
+// Inicializar Firebase si no existe
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-// CONFIGURACIÓN PATRÓN
-const ADMIN_EMAIL = "abrahorus@gmail.com"; 
+console.log("%c SYSTEM ONLINE ", "background: #00ff88; color: #000; font-weight: bold; padding: 5px;");
+console.log("Conectando con la base de datos del Patrón...");
 
-const musicPlaylist = [
-    { id: "m1", title: "DESPIERTO (Original Mix)", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1734200000/tu-musica.mp3", cover: "assets/cover-despierto.jpg" },
-    { id: "m2", title: "PRÓXIMO HIT", url: "", cover: "assets/shot 1.jpeg" }
+// ==========================================
+// 2. BASE DE DATOS LOCAL (Tus Archivos)
+// ==========================================
+
+// --- LISTA DE VIDEOS ---
+const playlist = [
+    {
+        id: "despierto",
+        title: "DESPIERTO",
+        desc: "Video Oficial - 4K Release",
+        url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4",
+        poster: "assets/shot 1.jpeg"
+    },
+    // Puedes agregar más videos aquí
+    {
+        id: "v2",
+        title: "PRÓXIMAMENTE",
+        desc: "Loading assets...",
+        url: "", // Dejar vacío si no está listo
+        poster: "assets/shot 1.jpeg"
+    }
 ];
 
-let fanName = localStorage.getItem('fanName') || "Fan";
-let fanAvatar = localStorage.getItem('fanAvatar') || "https://i.imgur.com/6VBx3io.png";
+// --- LISTA DE MÚSICA ---
+const musicPlaylist = [
+    {
+        title: "DESPIERTO (Original Mix)",
+        artist: "Abraham Horus",
+        url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1734200000/tu-musica.mp3",
+        cover: "assets/cover-despierto.jpg"
+    },
+    {
+        title: "SYSTEM OVERRIDE (Demo)",
+        artist: "Abraham Horus",
+        url: "", // Sin URL para probar
+        cover: "assets/shot 1.jpeg"
+    }
+];
 
-// PRESENCIA REAL
-db.ref(".info/connected").on("value", (snap) => {
-  if (snap.val() === true) { const con = db.ref("connections").push(); con.onDisconnect().remove(); con.set(true); }
-});
-db.ref("connections").on("value", (snap) => {
-  const count = snap.numChildren();
-  if(document.getElementById('btn-live-count')) document.getElementById('btn-live-count').innerText = "● " + count;
-  if(document.getElementById('desk-live-count')) document.getElementById('desk-live-count').innerText = "● " + count;
-});
+// ==========================================
+// 3. SISTEMA DE USUARIOS Y AUTH
+// ==========================================
+let fanName = "Guest User";
+let fanAvatar = "https://i.imgur.com/6VBx3io.png";
 
-// SUBS
-db.ref('siteStats/subscribers').on('value', snap => {
-    document.getElementById('total-subs').innerText = (snap.val() || 1000).toLocaleString();
-});
-
-// SESIÓN
+// Escuchar cambios de sesión (Login/Logout)
 auth.onAuthStateChanged(user => {
-    if (user) { 
-        document.body.classList.add('is-vip');
+    if (user) {
+        // --- USUARIO LOGUEADO (VIP) ---
+        document.body.classList.add('is-vip'); // Esto oculta las terminales de bloqueo en CSS
+        console.log(`%c ACCESS GRANTED: ${user.email}`, "color: #00ff88");
+        
         db.ref('users/' + user.uid).once('value').then(snap => {
             if (snap.exists()) {
-                const d = snap.val(); fanName = d.name; fanAvatar = d.avatar;
+                const d = snap.val();
+                fanName = d.name;
+                fanAvatar = d.avatar;
             } else {
-                fanName = user.displayName; fanAvatar = user.photoURL || fanAvatar;
-                db.ref('siteStats/subscribers').transaction(c => (c || 1000) + 1);
-                db.ref('users/' + user.uid).set({ name: fanName, email: user.email, avatar: fanAvatar, joined: Date.now() });
+                // Nuevo usuario
+                fanName = user.displayName;
+                fanAvatar = user.photoURL || fanAvatar;
+                db.ref('users/' + user.uid).set({
+                    name: fanName,
+                    email: user.email,
+                    avatar: fanAvatar,
+                    joined: Date.now()
+                });
             }
-            actualizarUI();
+            actualizarPerfilUI();
         });
-    } else { document.body.classList.remove('is-vip'); actualizarUI(); }
+    } else {
+        // --- USUARIO NO LOGUEADO ---
+        document.body.classList.remove('is-vip');
+        console.warn("ACCESS RESTRICTED: Guest Mode");
+        fanName = "Guest User";
+        fanAvatar = "https://i.imgur.com/6VBx3io.png";
+        actualizarPerfilUI();
+    }
 });
 
-function actualizarUI() {
-    document.getElementById('header-avatar').src = fanAvatar;
+function actualizarPerfilUI() {
+    // Actualiza la tarjeta de perfil
+    if(document.getElementById('display-name')) document.getElementById('display-name').innerText = fanName;
     if(document.getElementById('profile-preview')) document.getElementById('profile-preview').src = fanAvatar;
-    if(document.getElementById('edit-name')) document.getElementById('edit-name').value = fanName;
-    if(document.getElementById('edit-photo')) document.getElementById('edit-photo').value = fanAvatar;
 }
 
-// MÚSICA
-function cargarListaMusica() {
-    const container = document.getElementById('music-list');
-    if(!container) return;
-    container.innerHTML = "";
-    musicPlaylist.forEach((t, i) => {
-        const card = document.createElement('div');
-        card.className = 'music-card';
-        card.innerHTML = `<img src="${t.cover}"><div class="music-info"><h4>${t.title}</h4><p>Abraham Horus</p><button class="play-mini-btn" onclick="window.reproducirTrack(${i})">PLAY</button></div>`;
-        container.appendChild(card);
+// Funciones de Auth
+window.loginGoogle = () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).catch(error => {
+        console.error("Error de autenticación:", error);
+        alert("Error al conectar: " + error.message);
     });
-}
-window.reproducirTrack = (i) => {
-    const t = musicPlaylist[i]; if(!t.url) return alert("Próximamente");
-    const audio = document.getElementById('audio-element');
-    document.getElementById('track-title').innerText = t.title;
-    document.getElementById('track-cover').src = t.cover;
-    audio.src = t.url; audio.play();
 };
 
-// CHAT
-window.enviarMsg = () => {
-    const input = document.getElementById('user-msg');
-    if (input.value.trim() && auth.currentUser) {
-        const isBoss = auth.currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-        db.ref('messages').push({ text: input.value, userName: isBoss ? "👑 EL PATRÓN" : fanName, avatar: fanAvatar, isVIP: isBoss });
-        input.value = "";
+window.cerrarSesion = () => {
+    auth.signOut().then(() => {
+        window.location.reload();
+    });
+};
+
+// ==========================================
+// 4. NAVEGACIÓN (SIDEBAR)
+// ==========================================
+window.showPage = (pageId, elementRef) => {
+    // 1. Ocultar todas las páginas
+    document.querySelectorAll('.app-page').forEach(page => {
+        page.classList.remove('active');
+    });
+
+    // 2. Desactivar todos los items del menú
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    // 3. Mostrar la página seleccionada
+    document.getElementById(pageId).classList.add('active');
+
+    // 4. Activar el item del menú clickeado
+    if (elementRef) {
+        elementRef.classList.add('active');
+    }
+
+    // Si entramos a música, cargar la lista
+    if(pageId === 'p-musica') {
+        renderMusicList();
     }
 };
-db.ref('messages').limitToLast(1).on('child_added', s => {
-    const d = s.val(); const isVIP = d.isVIP;
-    const div = document.createElement('div'); div.className = isVIP ? 'msg artista-vip' : 'msg'; div.style.marginBottom = "10px";
-    div.innerHTML = `<div class="msg-content"><img src="${isVIP ? 'assets/shot 1.jpeg' : d.avatar}" class="chat-mini-avatar"><div><b style="color:var(--accent); font-size:0.7rem;">${d.userName}:</b><br><span style="font-size:0.9rem;">${d.text}</span></div></div>`;
-    document.getElementById('chat-box').appendChild(div);
-    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+
+// ==========================================
+// 5. VIDEO PLAYER (OVERLAY FLOTANTE)
+// ==========================================
+window.loadVideo = (index) => {
+    const videoData = playlist[index];
+    
+    if (!videoData.url) {
+        alert("⚠️ ARCHIVO NO ENCONTRADO O ENCRIPTADO.");
+        return;
+    }
+
+    const overlay = document.getElementById('video-overlay');
+    const videoTag = document.getElementById('main-video');
+    const sourceTag = document.getElementById('video-source');
+
+    // Cargar video
+    sourceTag.src = videoData.url;
+    videoTag.load();
+    
+    // Mostrar overlay y reproducir
+    overlay.style.display = 'flex';
+    videoTag.play().catch(e => console.log("Autoplay bloqueado por navegador"));
+
+    console.log(`Reproduciendo: ${videoData.title}`);
+};
+
+// Cerrar video al hacer click fuera del video o en la X
+document.getElementById('video-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'video-overlay' || e.target.classList.contains('close-video')) {
+        const overlay = document.getElementById('video-overlay');
+        const videoTag = document.getElementById('main-video');
+        
+        videoTag.pause();
+        overlay.style.display = 'none';
+    }
 });
 
-// VIDEO
-const playlist = [{ id: "despierto", title: "DESPIERTO", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", poster: "assets/shot 1.jpeg", desc: "Primer video oficial." }];
-let currentIndex = 0;
-window.loadVideo = (i) => {
-    const v = playlist[i];
-    document.getElementById('video-source').src = v.url;
-    document.getElementById('main-video').load();
-    document.getElementById('v-title').innerText = v.title;
-    document.getElementById('v-desc').innerText = v.desc;
-    vincularData(v.id);
-};
-function vincularData(vid) {
-    db.ref(`stats/${vid}/likes`).on('value', s => document.getElementById('likes-count').innerText = s.val() || 0);
-    db.ref(`stats/${vid}/views`).on('value', s => document.getElementById('total-views').innerText = s.val() || 0);
-    db.ref(`comments/${vid}`).on('value', s => document.getElementById('comments-count').innerText = s.numChildren());
+// ==========================================
+// 6. REPRODUCTOR DE MÚSICA (HACKER CONSOLE)
+// ==========================================
+function renderMusicList() {
+    const container = document.getElementById('music-list');
+    if (!container) return;
+    
+    container.innerHTML = ""; // Limpiar lista
+
+    musicPlaylist.forEach((track, index) => {
+        // Crear elemento HTML puro para la lista
+        const item = document.createElement('div');
+        item.className = 'nav-item'; // Reusamos el estilo del nav para que parezca lista
+        item.style.marginBottom = "10px";
+        item.style.background = "#1a1a1a";
+        item.style.border = "1px solid #333";
+        
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; width:100%; justify-content:space-between;">
+                <div style="display:flex; align-items:center;">
+                    <span style="color:var(--accent); margin-right:15px; font-family:'Fira Code'">[${index + 1}]</span>
+                    <div>
+                        <div style="font-weight:bold; color:#fff;">${track.title}</div>
+                        <div style="font-size:0.8rem; color:#666;">${track.artist}</div>
+                    </div>
+                </div>
+                <button onclick="window.playTrack(${index})" style="background:transparent; border:1px solid var(--accent); color:var(--accent); padding:5px 15px; cursor:pointer; font-family:'Fira Code'">RUN ></button>
+            </div>
+        `;
+        
+        container.appendChild(item);
+    });
 }
-window.darLike = () => db.ref(`stats/${playlist[currentIndex].id}/likes`).transaction(c => (c || 0) + 1);
 
-// NAVEGACIÓN
-window.showPage = (id, el) => {
-    document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    if(el) el.classList.add('active');
-    if(id === 'p-musica') cargarListaMusica();
+// Variable global para el audio
+let currentAudio = new Audio();
+
+window.playTrack = (index) => {
+    const track = musicPlaylist[index];
+    
+    if (!track.url) {
+        alert("⚠️ ERROR: AUDIO_FILE_MISSING");
+        return;
+    }
+
+    // Detener audio anterior
+    currentAudio.pause();
+    
+    // Cargar nuevo
+    currentAudio.src = track.url;
+    currentAudio.play();
+    
+    // Actualizar título en la sección (efecto visual)
+    const titleHeader = document.querySelector('#p-musica .section-title');
+    if(titleHeader) {
+        titleHeader.innerHTML = `console.play(<span style="color:var(--accent)">'${track.title}'</span>)`;
+    }
 };
-window.toggleChat = () => document.getElementById('chat-sidebar').classList.toggle('open');
-window.abrirPerfil = () => auth.currentUser ? window.showPage('p-profile') : window.loginGoogle();
-window.cerrarSesion = () => auth.signOut().then(() => location.reload());
-window.loginGoogle = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
 
-window.loadVideo(0);
+// ==========================================
+// 7. PWA (INSTALACIÓN DE APP)
+// ==========================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker registrado:', reg.scope))
+            .catch(err => console.log('Service Worker falló:', err));
+    });
+}

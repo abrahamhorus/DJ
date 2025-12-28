@@ -3,185 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abraham Horus | VIP App</title>
+    <title>Abraham Horus | Dev Platform</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00ff88">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="assets/logo192.png">
-
+    
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
-<body class="not-logged">
+<body>
 
-    <header class="top-bar">
-        <div class="logo">HORUS</div>
+    <div class="layout-container">
         
-        <div class="stats-bar">
-            <div class="stat-item">
-                👥 <span id="total-subs">0</span>
-            </div>
-        </div>
-
-        <div class="user-area" onclick="window.abrirPerfil()">
-            <img id="header-avatar" src="https://i.imgur.com/6VBx3io.png" alt="User">
-        </div>
-    </header>
-
-    <main class="app-container">
-        <button id="mobile-chat-toggle" onclick="window.toggleChat()">
-            💬 <span id="btn-live-count" class="live-count-badge">● 0</span>
-        </button>
-
-        <div id="p-videos" class="app-page active">
-            <div class="video-main-wrapper">
-                <div class="video-carousel">
-                    <button class="carousel-btn prev" onclick="window.changeVideo(-1)">❮</button>
-                    <div class="video-container">
-                        <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
-                            <source id="video-source" src="" type="video/mp4">
-                        </video>
-                    </div>
-                    <button class="carousel-btn next" onclick="window.changeVideo(1)">❯</button>
-                </div>
-                
-                <div class="video-actions-v2">
-                    <div class="action-stats">
-                        <div class="likes-btn" onclick="window.darLike()">❤️ <span id="likes-count">0</span></div>
-                        <div class="views-display">👁️ <span id="total-views">0</span></div>
-                        <div class="likes-btn" onclick="window.toggleComments()">💬 <span id="comments-count">0</span></div>
-                    </div>
-                    <div class="video-description-box">
-                        <h1 id="v-title" class="video-title">Cargando...</h1>
-                        <p id="v-desc" class="video-text">Cargando descripción...</p>
-                    </div>
-                </div>
-
-                <div id="comments-wrapper" class="comments-section" style="display: none;">
-                    <div class="comment-input-block">
-                        <input type="text" id="comment-text" placeholder="Escribe un comentario...">
-                        <button onclick="window.enviarComentario()">POST</button>
-                    </div>
-                    <div id="comments-list"></div>
-                </div>
-            </div>
-
-            <div id="chat-sidebar" class="chat-section-wrapper">
-                <div class="chat-header">
-                    <span>LIVE CHAT <span id="desk-live-count" style="color:red; margin-left:5px;">● 0</span></span>
-                    <button class="close-chat" onclick="window.toggleChat()">✕</button>
-                </div>
-                <div id="chat-box" class="chat-messages"></div>
-                <div class="chat-input-area">
-                    <input type="text" id="user-msg" placeholder="Habla con El Patrón...">
-                    <button id="send-msg" onclick="window.enviarMsg()">ENVIAR</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="p-musica" class="app-page">
-            <div class="lock-overlay">
-                <h2>💎 MÚSICA EXCLUSIVA</h2>
-                <p>Acceso solo para la familia VIP.</p>
-                <button onclick="window.loginGoogle()" class="btn-premium">ENTRAR CON GOOGLE</button>
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="assets/logo192.png" alt="Logo" class="brand-logo">
             </div>
             
-            <div class="music-container">
-                <h2 class="section-title">AUDIO PLAYER</h2>
-                <div class="main-audio-player">
-                    <div class="now-playing-info">
-                        <img id="track-cover" src="assets/cover-despierto.jpg" alt="Cover">
-                        <div class="track-text">
-                            <h3 id="track-title">Selecciona un tema</h3>
-                            <p id="track-artist">Abraham Horus</p>
+            <nav class="side-nav">
+                <div class="nav-item active" onclick="window.showPage('p-videos', this)">
+                    <span class="icon">★</span> <span class="label">videos</span>
+                </div>
+                <div class="nav-item" onclick="window.showPage('p-musica', this)">
+                    <span class="icon">▶</span> <span class="label">musica</span>
+                </div>
+                <div class="nav-item" onclick="window.showPage('p-photos', this)">
+                    <span class="icon">🔒</span> <span class="label">fotos</span>
+                </div>
+                <div class="nav-item" onclick="window.showPage('p-profile', this)">
+                    <span class="icon">📄</span> <span class="label">profile</span>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h1>h1 - Abraham Horus</h1>
+                <p>el portal oficial, <span class="highlight">console.log('bienvenido')</span> al sistema.</p>
+            </header>
+
+            <div id="p-videos" class="app-page active">
+                <div class="grid-container">
+                    
+                    <div class="card active-card" onclick="window.loadVideo(0)">
+                        <div class="card-image">
+                            <img src="assets/shot 1.jpeg" alt="Video">
+                            <div class="play-overlay">▶</div>
+                        </div>
+                        <div class="card-info">
+                            <h3>DESPIERTO</h3>
+                            <p>Video Oficial</p>
                         </div>
                     </div>
-                    <audio id="audio-element" controls style="width: 100%; margin-top: 20px; filter: invert(1); opacity: 0.8;"></audio>
+
+                    <div class="card" onclick="alert('Próximamente')">
+                        <div class="card-image">
+                            <img src="assets/shot 1.jpeg" alt="Video" style="filter: grayscale(1);">
+                        </div>
+                        <div class="card-info">
+                            <h3>PRÓXIMAMENTE</h3>
+                            <p>Loading...</p>
+                        </div>
+                    </div>
                 </div>
 
-                <h3 class="section-subtitle" style="margin: 30px 0 15px; color: var(--accent); font-size: 0.8rem; letter-spacing: 3px;">TRACKLIST EXCLUSIVO</h3>
-                <div id="music-list" class="music-grid"></div>
-            </div>
-        </div>
-
-        <div id="p-photos" class="app-page">
-             <div class="lock-overlay">
-                <h2>📸 GALERÍA PRIVADA</h2>
-                <p>Contenido exclusivo del Patrón.</p>
-                <button onclick="window.loginGoogle()" class="btn-premium">ENTRAR CON GOOGLE</button>
-            </div>
-            <div class="events-container">
-                <h2 class="section-title">Galería</h2>
-            </div>
-        </div>
-
-        <div id="p-eventos" class="app-page">
-            <div class="lock-overlay">
-                <h2>🗓️ PRÓXIMAS FECHAS</h2>
-                <button onclick="window.loginGoogle()" class="btn-premium">ENTRAR CON GOOGLE</button>
-            </div>
-            <div class="events-container">
-                <h2 class="section-title">Tour & Eventos</h2>
-            </div>
-        </div>
-
-        <div id="p-profile" class="app-page">
-            <div class="profile-container">
-                <h2 class="section-title">CONFIGURACIÓN</h2>
-                <div class="profile-card">
-                    <img id="profile-preview" src="https://i.imgur.com/6VBx3io.png" class="big-avatar">
-                    <div class="input-group">
-                        <label>Tu Apodo</label>
-                        <input type="text" id="edit-name" placeholder="Tu nombre en el chat">
+                <div class="hacker-terminal">
+                    <div class="terminal-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="terminal-title">lock-overlay.js — AbrahamHorus</span>
                     </div>
-                    <div class="input-group">
-                        <label>Foto de Perfil (URL)</label>
-                        <input type="text" id="edit-photo" placeholder="Link de tu imagen">
-                    </div>
-                    <button class="btn-save" onclick="window.guardarPerfil()">GUARDAR CAMBIOS</button>
-                    <div style="margin-top: 20px; width: 100%; border-top: 1px solid #222; padding-top: 20px;">
-                        <button class="btn-logout" onclick="window.cerrarSesion()">CERRAR SESIÓN</button>
+                    <div class="terminal-body">
+                        <div class="line-numbers">
+                            15<br>16<br>17<br>18<br>19<br>20<br>21
+                        </div>
+                        <div class="code-content">
+                            <p><span class="c-purple">if</span> (<span class="c-blue">user</span>.status !== <span class="c-orange">'VIP'</span>) {</p>
+                            <p>&nbsp;&nbsp;<span class="c-green">// Acceso denegado al sistema</span></p>
+                            <p>&nbsp;&nbsp;<span class="c-blue">System</span>.lock(<span class="c-orange">'Contenido Exclusivo'</span>);</p>
+                            <p>&nbsp;&nbsp;<span class="c-purple">return</span> <span class="c-yellow">LoginWithGoogle</span>();</p>
+                            <p>}</p>
+                            <br>
+                            <button onclick="window.loginGoogle()" class="btn-terminal">ENTRAR CON GOOGLE</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-    </main>
+            <div id="p-musica" class="app-page">
+                <h2 class="section-title">console.play(music)</h2>
+                <div class="hacker-player">
+                    <p style="color:#666;">// Selecciona un track para iniciar...</p>
+                    <div id="music-list" class="music-grid"></div>
+                </div>
+            </div>
 
-    <nav class="bottom-nav">
-        <div id="nav-live" class="nav-item active" onclick="window.showPage('p-videos', this)">
-            📺<span>Live</span>
-            <div id="live-badge" class="badge-live">!</div>
-        </div>
-        <div id="nav-music" class="nav-item" onclick="window.showPage('p-musica', this)">
-            🎵<span>Música</span>
-        </div>
-        <div id="nav-photos" class="nav-item" onclick="window.showPage('p-photos', this)">
-            📸<span>Fotos</span>
-        </div>
-        <div id="nav-events" class="nav-item" onclick="window.showPage('p-eventos', this)">
-            🗓️<span>Eventos</span>
-        </div>
-    </nav>
+            <div id="p-photos" class="app-page">
+                <div class="hacker-terminal">
+                    <div class="terminal-header"><span class="terminal-title">secret-gallery.jpg</span></div>
+                    <div class="terminal-body" style="justify-content:center; align-items:center; height: 300px;">
+                        <button onclick="window.loginGoogle()" class="btn-terminal">DESENCRIPTAR FOTOS</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="p-profile" class="app-page">
+                <div class="card profile-card-hacker">
+                    <img id="profile-preview" src="https://i.imgur.com/6VBx3io.png">
+                    <h3 id="display-name">Guest User</h3>
+                    <button class="btn-terminal" onclick="window.cerrarSesion()">LOGOUT();</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="app.js"></script>
+    
+    <div id="video-overlay" class="video-overlay" style="display:none;">
+        <button class="close-video" onclick="document.getElementById('video-overlay').style.display='none'">✕</button>
+        <video id="main-video" controls playsinline>
+             <source id="video-source" src="" type="video/mp4">
+        </video>
+    </div>
 
-    <audio id="ding-sound" src="assets/Gemido de tortuga.mp3" preload="auto"></audio>
-
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('App lista para instalar!', reg))
-            .catch(err => console.log('Error en PWA', err));
-        });
-      }
-    </script>
 </body>
 </html>
