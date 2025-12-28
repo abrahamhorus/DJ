@@ -16,7 +16,28 @@ const auth = firebase.auth();
 let fanName = localStorage.getItem('fanName') || "Fan";
 let fanAvatar = localStorage.getItem('fanAvatar') || "https://i.imgur.com/6VBx3io.png";
 
-// ESCUCHAR SUBS
+// --- SISTEMA DE PRESENCIA REAL (GENTE CONECTADA) ---
+// Esto sustituye al contador falso. Ahora cuenta conexiones reales.
+const connectedRef = db.ref(".info/connected");
+const conRef = db.ref("connections");
+
+connectedRef.on("value", (snap) => {
+  if (snap.val() === true) {
+    const con = conRef.push();
+    con.onDisconnect().remove();
+    con.set(true);
+  }
+});
+
+conRef.on("value", (snap) => {
+  const realUsers = snap.numChildren(); 
+  // Actualizamos el numerito en el header
+  const liveEl = document.getElementById('live-views');
+  if(liveEl) liveEl.innerText = realUsers;
+});
+// ----------------------------------------------------
+
+// ESCUCHAR SUBSCRIPTORES TOTALES
 db.ref('siteStats/subscribers').on('value', snapshot => {
     const count = snapshot.val() || 1000; 
     document.getElementById('total-subs').innerText = count.toLocaleString();
@@ -129,14 +150,6 @@ const playlist = [
 ];
 let currentIndex = 0;
 
-setInterval(() => {
-    const liveEl = document.getElementById('live-views');
-    if(liveEl) {
-        const viewers = Math.floor(Math.random() * (1000 - 200 + 1)) + 100;
-        liveEl.innerText = viewers.toLocaleString();
-    }
-}, 5000);
-
 window.toggleComments = () => {
     const wrapper = document.getElementById('comments-wrapper');
     if (wrapper.style.display === "none") {
@@ -170,7 +183,6 @@ function vincularData(videoId) {
     db.ref(`stats/${videoId}/views`).on('value', s => document.getElementById('total-views').innerText = s.val() || 0);
     db.ref(`comments/${videoId}`).on('value', s => document.getElementById('comments-count').innerText = s.numChildren());
     
-    // --- COMENTARIOS CON FOTO Y RESPUESTAS RESTAURADAS ---
     db.ref(`comments/${videoId}`).on('child_added', snap => {
         const c = snap.val(); const id = snap.key;
         const avatarUrl = c.avatar || "https://i.imgur.com/6VBx3io.png"; 
@@ -193,22 +205,16 @@ function vincularData(videoId) {
             
         document.getElementById('comments-list').prepend(div);
         
-        // Listener de Likes
         db.ref(`comments/${videoId}/${id}/likes`).on('value', ls => {
             const countSpan = document.getElementById(`lc-${id}`);
             if(countSpan) countSpan.innerText = ls.val() || 0;
         });
 
-        // Listener de Respuestas (RESTORED)
         db.ref(`replies/${id}`).on('child_added', rs => {
             const r = rs.val();
             const rAvatar = r.avatar || "https://i.imgur.com/6VBx3io.png";
-            
             const rDiv = document.createElement('div');
-            rDiv.style.marginTop = "10px";
-            rDiv.style.display = "flex";
-            rDiv.style.gap = "8px";
-            
+            rDiv.style.marginTop = "10px"; rDiv.style.display = "flex"; rDiv.style.gap = "8px";
             rDiv.innerHTML = `
                 <img src="${rAvatar}" style="width:20px; height:20px; border-radius:50%; object-fit:cover;">
                 <div>
@@ -222,7 +228,6 @@ function vincularData(videoId) {
 
 window.likeComentario = (vId, cId) => db.ref(`comments/${vId}/${cId}/likes`).transaction(c => (c || 0) + 1);
 
-// --- FUNCIONES DE RESPUESTA RESTAURADAS ---
 window.abrirReply = (id) => {
     if (document.getElementById(`ri-${id}`)) return;
     const w = document.createElement('div');
@@ -237,11 +242,10 @@ window.enviarReply = (id) => {
     const input = document.getElementById(`ti-${id}`);
     if (input.value.trim()) {
         if (!auth.currentUser) { alert("Inicia sesión para responder"); window.loginGoogle(); return; }
-        
         db.ref(`replies/${id}`).push({ 
             text: input.value, 
             userName: fanName,
-            avatar: fanAvatar // Guardamos el avatar también
+            avatar: fanAvatar
         });
         document.getElementById(`ri-${id}`).remove();
     }
@@ -267,13 +271,10 @@ db.ref('messages').limitToLast(1).on('child_added', s => {
         const badge = document.getElementById('live-badge');
         if(badge) badge.style.display = 'block';
     }
-    
     const avatarUrl = d.avatar || "https://i.imgur.com/6VBx3io.png";
-
     const div = document.createElement('div');
     div.className = isVIP ? 'msg artista-vip' : 'msg';
     div.style.padding = "10px"; div.style.marginBottom = "8px"; div.style.borderRadius = "8px"; div.style.background = "rgba(255,255,255,0.05)";
-    
     div.innerHTML = `
         <div class="msg-content">
             <img src="${isVIP ? 'assets/shot 1.jpeg' : avatarUrl}" class="chat-mini-avatar">
@@ -283,7 +284,6 @@ db.ref('messages').limitToLast(1).on('child_added', s => {
             </div>
         </div>
     `;
-    
     document.getElementById('chat-box').appendChild(div);
     document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
     if(isVIP) document.getElementById('ding-sound').play().catch(()=>{});
