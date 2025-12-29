@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abraham Horus | Plataforma Oficial</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Abraham Horus | OS</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
@@ -21,34 +22,23 @@
             </div>
             
             <nav class="vscode-nav" id="main-nav">
-                <div class="v-item active" onclick="window.showPage('p-videos', this)">
-                    <span>📺</span> Videos
-                </div>
-                <div class="v-item" onclick="window.showPage('p-musica', this)">
-                    <span>♬</span> Música
-                </div>
-                <div class="v-item" onclick="window.showPage('p-photos', this)">
-                    <span>🔓</span> Fotos VIP
-                </div>
-                <div class="v-item" onclick="window.showPage('p-events', this)">
-                    <span>📅</span> Eventos
-                </div>
-                <div class="v-item" onclick="window.showPage('p-profile', this)">
-                    <span>⚙</span> Perfil
-                </div>
+                <div class="v-item active" onclick="window.showPage('p-videos', this)"><span>📺</span> Videos</div>
+                <div class="v-item" onclick="window.showPage('p-musica', this)"><span>♬</span> Música</div>
+                <div class="v-item" onclick="window.showPage('p-photos', this)"><span>📸</span> Fotos</div>
+                <div class="v-item" onclick="window.showPage('p-events', this)"><span>📅</span> Eventos</div>
+                <div class="v-item" onclick="window.showPage('p-profile', this)"><span>⚙</span> Perfil</div>
             </nav>
         </aside>
 
         <main class="vscode-main">
-            
             <header class="vscode-header">
                 <div class="header-left">
                     <h1>ABRAHAM HORUS</h1>
-                    <p>Plataforma Oficial v6.0 (Stable)</p>
+                    <p>Plataforma Oficial v11.0 (Black Edition)</p>
                 </div>
                 <div class="header-right">
                     <div class="subs-counter-box">
-                        <span class="subs-label">SUSCRIPTORES</span>
+                        <span class="subs-label">SUBS</span>
                         <span id="global-subs-count" class="subs-number">0</span>
                     </div>
                     <button id="btn-subscribe" class="btn-subscribe" onclick="window.toggleSub()">SUSCRIBIRSE</button>
@@ -62,7 +52,6 @@
                             <source id="video-source" src="" type="video/mp4">
                         </video>
                     </div>
-                    
                     <div class="video-controls-bar">
                         <div class="info-block">
                             <h2 id="current-title">Cargando...</h2>
@@ -74,52 +63,40 @@
                             <button onclick="window.toggleComments()" class="btn-code">💬 <span id="comments-count-btn">0</span></button>
                         </div>
                     </div>
-
                     <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
                         <div class="term-head">COMENTARIOS</div>
                         <div class="term-input">
-                            <input id="comment-text" placeholder="Escribe un comentario...">
+                            <input id="comment-text" placeholder="Escribe tu opinión...">
                             <button onclick="window.enviarComentario()">ENVIAR</button>
                         </div>
                         <div id="comments-list" class="term-body-fixed"></div>
                     </div>
                 </div>
-
-                <h3 class="section-label">Feed de Videos</h3>
+                <h3 class="section-label">Feed</h3>
                 <div id="videos-grid" class="cards-grid"></div>
             </div>
 
             <div id="p-musica" class="app-page">
-                <div class="code-block-lock">
-                    <h3>🔒 Discografía VIP</h3>
-                    <p>Inicia sesión para escuchar.</p>
-                    <button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button>
-                </div>
+                <div class="code-block-lock"><h3>🔒 Discografía VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
                 <div class="protected-content">
-                    <h2 class="section-label">Música</h2>
+                    <h2 class="section-label">Tracks</h2>
                     <div id="music-list"></div>
                 </div>
             </div>
 
             <div id="p-photos" class="app-page">
-                <div class="code-block-lock">
-                    <h3>🔒 Galería Secreta</h3>
-                    <button onclick="window.loginGoogle()" class="btn-green-glow">DESBLOQUEAR</button>
-                </div>
+                <div class="code-block-lock"><h3>🔒 Galería VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
                 <div class="protected-content">
-                    <h2 class="section-label">Fotos</h2>
-                    <div id="photos-grid" class="cards-grid"><p style="color:#666">No hay fotos disponibles.</p></div>
+                    <h2 class="section-label">Galería</h2>
+                    <div id="photos-grid" class="cards-grid"></div>
                 </div>
             </div>
 
             <div id="p-events" class="app-page">
-                <div class="code-block-lock">
-                    <h3>🔒 Calendario</h3>
-                    <button onclick="window.loginGoogle()" class="btn-green-glow">VER FECHAS</button>
-                </div>
+                <div class="code-block-lock"><h3>🔒 Calendario VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
                 <div class="protected-content">
-                    <h2 class="section-label">Próximos Shows</h2>
-                    <div id="events-list" class="events-container"></div>
+                    <h2 class="section-label">Shows</h2>
+                    <div id="events-list" class="cards-grid"></div>
                 </div>
             </div>
 
@@ -129,46 +106,37 @@
                     <h3 id="display-name">INVITADO</h3>
                     <p id="user-rank">GUEST</p>
                     <button id="btn-login-profile" onclick="window.loginGoogle()" class="btn-green-glow">INICIAR SESIÓN</button>
-                    <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; background:#ff4444;">CERRAR SESIÓN</button>
+                    <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; border-color:red; color:red;">CERRAR SESIÓN</button>
+                    
+                    <div id="profile-editor" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
+                        <input id="edit-name" placeholder="Nuevo Nombre" class="admin-input">
+                        <input id="edit-photo" placeholder="URL Foto Perfil" class="admin-input">
+                        <button onclick="window.guardarPerfil()" class="btn-green-glow">GUARDAR CAMBIOS</button>
+                    </div>
                 </div>
             </div>
 
             <div id="p-admin" class="app-page">
                 <div class="profile-panel" style="text-align:left; max-width:600px;">
                     <h2 style="color:#ff00ff; border-bottom:1px solid #333; padding-bottom:10px;">SISTEMA HORUS</h2>
-                    
-                    <label style="color:#888; font-size:0.8rem;">Título</label>
-                    <input type="text" id="adm-v-title" class="admin-input">
-                    
-                    <label style="color:#888; font-size:0.8rem;">Descripción</label>
-                    <textarea id="adm-v-desc" class="admin-input" style="height:80px;"></textarea>
-                    
-                    <label style="color:#888; font-size:0.8rem;">URL del Archivo</label>
-                    <input type="text" id="adm-v-url" class="admin-input" placeholder="https://...">
-                    
-                    <label style="color:#888; font-size:0.8rem;">URL de la Imagen (Poster)</label>
-                    <input type="text" id="adm-v-thumb" class="admin-input">
-                    
-                    <div style="display:flex; gap:10px; margin-top:15px;">
-                        <button onclick="window.adminUpload('video')" class="btn-green-glow" style="flex:1; background:#ff00ff; color:#fff;">SUBIR VIDEO</button>
-                        <button onclick="window.adminUpload('music')" class="btn-green-glow" style="flex:1; background:#00ffff; color:#000;">SUBIR MÚSICA</button>
-                    </div>
+                    <label style="color:#888;">Tipo:</label>
+                    <select id="adm-type" class="admin-input"><option value="video">VIDEO</option><option value="music">MÚSICA</option><option value="photo">FOTO</option><option value="event">EVENTO</option></select>
+                    <input type="text" id="adm-title" placeholder="Título" class="admin-input">
+                    <textarea id="adm-desc" placeholder="Descripción" class="admin-input" style="height:60px;"></textarea>
+                    <input type="text" id="adm-url" placeholder="URL Archivo" class="admin-input">
+                    <input type="text" id="adm-thumb" placeholder="URL Poster" class="admin-input">
+                    <button onclick="window.adminUpload()" class="btn-green-glow" style="background:#ff00ff !important; color:#fff !important;">PUBLICAR</button>
                 </div>
             </div>
-
         </main>
     </div>
 
     <div class="chat-launcher" onclick="window.toggleLiveChat()">Chat Global</div>
-    
     <div id="live-chat-window" class="chat-window">
-        <div class="chat-header">
-            <span>SALA PÚBLICA</span>
-            <span onclick="window.toggleLiveChat()" style="cursor:pointer;">✖</span>
-        </div>
+        <div class="chat-header">SALA PÚBLICA <span onclick="window.toggleLiveChat()" style="cursor:pointer;">✖</span></div>
         <div id="chat-global-msgs" class="chat-body"></div>
         <div class="chat-input-container">
-            <input id="chat-input-msg" placeholder="Escribe algo...">
+            <input id="chat-input-msg" placeholder="Escribe..." autocomplete="off">
             <button onclick="window.enviarMensajeChat()">➤</button>
         </div>
     </div>
