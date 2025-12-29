@@ -1,318 +1,205 @@
-/* =========================================
-   1. RESET NUCLEAR (ADIÓS ESTILOS BLANCOS)
-   ========================================= */
+/* ================= RESET NUCLEAR ================= */
 :root {
-    --bg-main: #050505;       /* Fondo Negro Profundo */
-    --bg-panel: #111111;      /* Paneles */
-    --accent: #00ff88;        /* Verde Horus */
-    --accent-dim: rgba(0, 255, 136, 0.1);
-    --text-main: #eeeeee;
-    --text-dim: #888888;
-    --border: #333333;
-    --font-ui: 'Inter', sans-serif;
-    --font-code: 'Fira Code', monospace;
+    --bg-main: #050505; --bg-panel: #111111; --accent: #00ff88;
+    --text-main: #eeeeee; --border: #333333; --font-ui: 'Inter', sans-serif; --font-code: 'Fira Code', monospace;
 }
-
 * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg-main); color: var(--text-main); font-family: var(--font-ui); margin: 0; padding: 0; overflow-x: hidden; }
 
-body {
-    background: var(--bg-main);
-    color: var(--text-main);
-    font-family: var(--font-ui);
-    margin: 0; padding: 0;
-    overflow-x: hidden;
-}
+/* INPUTS OSCUROS FORZADOS */
+input, textarea, select, button { font-family: var(--font-ui); border-radius: 4px; }
+input, textarea, select { background-color: #000000 !important; color: #ffffff !important; border: 1px solid #333 !important; padding: 12px; }
+input:focus, textarea:focus { border-color: var(--accent) !important; box-shadow: 0 0 8px rgba(0,255,136,0.2); }
+::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg-main); } ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
 
-/* --- REGLA DE ORO: FORZAR MODO OSCURO EN INPUTS --- */
-input, textarea, select, button {
-    font-family: var(--font-ui);
-    font-size: 0.9rem;
-    border-radius: 4px;
-}
-
-/* Inputs siempre negros */
-input, textarea, select {
-    background-color: #000 !important; 
-    color: #fff !important;
-    border: 1px solid var(--border) !important;
-    padding: 12px;
-}
-input:focus, textarea:focus {
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 8px var(--accent-dim);
-}
-input::placeholder, textarea::placeholder { color: #555; }
-
-/* Scrollbar Personalizado (Para que no salga la barra blanca) */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-main); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
-/* =========================================
-   2. ESTRUCTURA (LAYOUT FIJO Y SEGURO)
-   ========================================= */
+/* LAYOUT */
 .layout-wrapper { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+.vscode-sidebar { width: 260px; height: 100%; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; z-index: 100; }
+.vscode-main { flex-grow: 1; height: 100%; overflow-y: auto; padding: 30px; background: radial-gradient(circle at top right, #1a1a1a 0%, #000 80%); position: relative; }
 
-/* Sidebar Fija a la Izquierda */
-.vscode-sidebar {
-    width: 260px;
-    height: 100%;
-    background: var(--bg-panel);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    flex-shrink: 0; 
-    z-index: 100;
-}
-
-/* Contenido Principal */
-.vscode-main {
-    flex-grow: 1;
-    height: 100%;
-    overflow-y: auto;
-    padding: 30px;
-    background: radial-gradient(circle at top right, #1a1a1a 0%, #000 80%);
-    position: relative;
-}
-
-/* Header */
-.vscode-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 30px;
-}
-.header-left h1 { font-size: 1.5rem; letter-spacing: -1px; margin: 0; color: #fff; text-transform: uppercase; }
-.header-left p { color: var(--text-dim); font-size: 0.8rem; margin: 5px 0 0 0; font-family: var(--font-code); }
-
-.header-right { display: flex; align-items: center; gap: 20px; }
-.subs-counter-box { text-align: right; }
-.subs-label { font-size: 0.6rem; color: #666; display: block; letter-spacing: 1px; }
-.subs-number { font-family: var(--font-code); color: var(--accent); font-weight: bold; }
-
-/* Botón Suscribirse (Rojo YouTube) */
-.btn-subscribe {
-    background: #cc0000 !important;
-    color: #fff !important;
-    padding: 10px 20px;
-    font-weight: bold;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    cursor: pointer;
-}
-.btn-subscribe:hover { background: #ff0000 !important; }
-
-/* Navegación */
+/* HEADER & NAV */
+.vscode-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+.header-left h1 { font-size: 1.5rem; letter-spacing: -1px; margin: 0; color: #fff; }
+.header-left p { color: #888; font-size: 0.8rem; margin: 5px 0 0 0; font-family: var(--font-code); }
+.btn-subscribe { background: #cc0000 !important; color: #fff !important; padding: 10px 20px; font-weight: bold; text-transform: uppercase; cursor: pointer; }
 .brand-box { padding: 25px; text-align: center; border-bottom: 1px solid var(--border); }
-.brand-img { width: 60px; filter: drop-shadow(0 0 5px var(--accent-dim)); }
-.v-item {
-    padding: 15px 25px; color: #888; cursor: pointer;
-    display: flex; gap: 15px; border-left: 3px solid transparent;
-    font-weight: 500; transition: 0.2s; align-items: center;
-}
+.brand-img { width: 60px; }
+.v-item { padding: 15px 25px; color: #888; cursor: pointer; display: flex; gap: 15px; border-left: 3px solid transparent; font-weight: 500; align-items: center; transition: 0.2s; }
 .v-item:hover, .v-item.active { background: #181818; color: #fff; border-left-color: var(--accent); }
-.v-item span { font-size: 1.1rem; }
 
-/* =========================================
-   3. REPRODUCTOR DE VIDEO (ESTILO NEÓN)
-   ========================================= */
-.integrated-player-box {
-    background: #000;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 40px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-}
-
-.video-frame { background: #000; display: flex; justify-content: center; }
-.video-frame video { width: 100%; aspect-ratio: 16/9; max-height: 80vh; }
-
-.video-controls-bar {
-    padding: 20px; background: #0a0a0a; border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;
-}
-.info-block h2 { margin: 0 0 5px 0; font-size: 1.2rem; color: #fff; }
-.desc-text { color: #888; font-size: 0.9rem; margin: 0; line-height: 1.5; }
-
-/* Botones de Acción (Likes, Vistas) */
-.actions-row { display: flex; gap: 10px; }
-.btn-code {
-    background: #151515 !important;
-    color: #ccc !important;
-    border: 1px solid #333 !important;
-    padding: 8px 16px;
-    font-family: var(--font-code);
-    cursor: pointer;
-    display: flex; align-items: center; gap: 8px;
-}
+/* SECCIONES */
+.integrated-player-box { background: #000; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 40px; }
+.video-frame video { width: 100%; aspect-ratio: 16/9; max-height: 80vh; background:#000; display:block; }
+.video-controls-bar { padding: 20px; background: #0a0a0a; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.btn-code { background: #151515 !important; color: #ccc !important; border: 1px solid #333 !important; padding: 8px 16px; font-family: var(--font-code); cursor: pointer; }
 .btn-code:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
 
-/* =========================================
-   4. COMENTARIOS (ESTILO TERMINAL)
-   ========================================= */
+/* COMENTARIOS */
 .terminal-comments-integrated { background: #080808; border-top: 1px solid var(--border); }
-.term-head {
-    padding: 10px 20px; background: #111; color: #666;
-    font-size: 0.7rem; font-family: var(--font-code); letter-spacing: 1px;
-    border-bottom: 1px solid var(--border);
-}
-
+.term-head { padding: 10px 20px; background: #111; color: #666; font-size: 0.7rem; border-bottom: 1px solid var(--border); }
 .term-input { display: flex; padding: 0; border-bottom: 1px solid var(--border); }
-.term-input input {
-    flex: 1;
-    background: #000 !important;
-    border: none !important;
-    padding: 15px;
-    font-size: 0.9rem;
-    color: #fff !important;
-}
-.term-input button {
-    background: #222 !important;
-    color: #fff !important;
-    padding: 0 25px;
-    font-weight: bold;
-    border-left: 1px solid #333 !important;
-    cursor: pointer;
-}
-.term-input button:hover { background: var(--accent) !important; color: #000 !important; }
-
+.term-input input { border: none !important; }
+.term-input button { background: #222 !important; color: #fff !important; padding: 0 25px; border-left: 1px solid #333 !important; font-weight: bold; }
 .term-body-fixed { max-height: 300px; overflow-y: auto; padding: 20px; }
 .comment-block { margin-bottom: 15px; border-bottom: 1px solid #1a1a1a; padding-bottom: 10px; }
-.comment-actions { margin-top: 5px; display: flex; gap: 15px; }
-.btn-action-mini { background: none !important; border: none !important; color: #666 !important; font-size: 0.75rem; padding: 0; cursor: pointer; }
-.btn-action-mini:hover { color: var(--accent) !important; }
-
-/* Respuestas Anidadas */
-.sub-reply { margin-left: 20px; padding-left: 10px; border-left: 2px solid #333; margin-top: 8px; font-size: 0.85rem; color: #ccc; }
-.reply-input-box { display: none; margin-top: 10px; gap: 5px; }
-.reply-input-box input { flex: 1; background: #111 !important; }
-.reply-input-box button { background: var(--accent) !important; color: #000 !important; font-weight: bold; width: 40px; }
 
 /* =========================================
-   5. MÚSICA, FOTOS Y EVENTOS
+   NUEVO CHAT (REDONDO Y FLOTANTE)
    ========================================= */
+.chat-launcher {
+    position: fixed; bottom: 30px; right: 30px;
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 255, 136, 0.4);
+    transition: transform 0.2s;
+    z-index: 2000;
+    color: #000;
+}
+.chat-launcher:hover { transform: scale(1.1); }
+
+.chat-window {
+    position: fixed; bottom: 100px; right: 30px;
+    width: 360px; height: 500px;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid #333;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    display: none; flex-direction: column;
+    z-index: 1999;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.chat-header {
+    padding: 15px 20px; background: #111;
+    color: #fff; font-weight: bold; font-size: 0.9rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #222;
+}
+.chat-body { 
+    flex: 1; overflow-y: auto; padding: 20px; 
+    display: flex; flex-direction: column; gap: 12px; 
+    background-color: #0a0a0a;
+}
+
+/* --- BURBUJAS DE CHAT --- */
+.msg-bubble { 
+    max-width: 80%; padding: 12px 16px; border-radius: 12px; 
+    font-size: 0.9rem; line-height: 1.4; position: relative; word-wrap: break-word;
+}
+
+/* Mensajes de Otros (Gris) */
+.msg-other {
+    align-self: flex-start;
+    background: #222;
+    color: #eee;
+    border-bottom-left-radius: 2px;
+}
+.msg-other small { display: block; font-size: 0.7rem; color: var(--accent); margin-bottom: 4px; font-weight: bold; }
+
+/* Mis Mensajes (Verde Normales) */
+.msg-self {
+    align-self: flex-end;
+    background: var(--accent);
+    color: #000;
+    border-bottom-right-radius: 2px;
+}
+.msg-self small { display: none; }
+
+/* --- EFECTO GLOSS / MODO DIOS --- */
+.msg-artist {
+    align-self: flex-end; /* Siempre a la derecha */
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 0, 0, 0.8)) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 255, 136, 0.5);
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+    position: relative;
+    overflow: hidden; /* IMPORTANTE para el brillo */
+}
+
+/* El Rayo de Luz (Shine Animation) */
+.msg-artist::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transform: skewX(-20deg);
+    animation: glossShine 3s infinite;
+    pointer-events: none;
+}
+
+@keyframes glossShine {
+    0% { left: -150%; }
+    20% { left: 150%; } /* Pasa rápido */
+    100% { left: 150%; } /* Pausa */
+}
+
+/* Texto Arcoíris del Nombre */
+.msg-artist small { 
+    display: block !important; 
+    animation: rainbow 3s linear infinite; 
+    font-weight: 900 !important; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    font-size: 0.7rem;
+}
+@keyframes rainbow { 0%{color:red;} 20%{color:yellow;} 40%{color:lime;} 60%{color:cyan;} 80%{color:magenta;} 100%{color:red;} }
+
+/* INPUT CHAT */
+.chat-input-container { padding: 15px; border-top: 1px solid #222; display: flex; gap: 10px; background: #111; }
+.chat-input-container input { 
+    border-radius: 20px !important; background: #222 !important; 
+    border: 1px solid #333 !important; padding: 10px 15px; 
+}
+.chat-input-container button { 
+    border-radius: 50% !important; width: 45px; height: 45px; padding: 0;
+    background: var(--accent) !important; color: #000 !important; 
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+}
+
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* EXTRAS & RESPONSIVE */
 .app-page { display: none !important; animation: fadeIn 0.3s; }
 .app-page.active { display: block !important; }
-.section-label { color: #fff; font-size: 1.2rem; margin: 40px 0 20px 0; border-left: 4px solid var(--accent); padding-left: 15px; text-transform: uppercase; letter-spacing: 1px; }
-
-/* Grid Cards */
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
-.code-card { 
-    background: #111; border: 1px solid #222; border-radius: 6px; 
-    overflow: hidden; cursor: pointer; transition: 0.2s; 
-}
-.code-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+.code-card { background: #111; border: 1px solid #222; border-radius: 6px; cursor: pointer; transition: 0.2s; overflow: hidden; }
+.code-card:hover { border-color: var(--accent); transform: translateY(-5px); }
 .card-thumb img { width: 100%; aspect-ratio: 16/9; object-fit: cover; opacity: 0.9; }
 .card-text { padding: 12px; font-size: 0.9rem; font-weight: 600; color: #ddd; }
-
-/* Música Pro */
-.music-item-pro { 
-    background: #151515; border: 1px solid #2a2a2a; padding: 20px; 
-    border-radius: 8px; margin-bottom: 12px; transition: 0.2s; 
-}
-.music-item-pro:hover { border-color: var(--accent); background: #1a1a1a; }
-.progress-container { width: 100%; height: 4px; background: #000; margin-top: 15px; border-radius: 2px; }
-.progress-bar-fill { height: 100%; width: 0%; background: var(--accent); box-shadow: 0 0 8px var(--accent); transition: width 0.1s linear; }
-
-/* Eventos */
-.event-card {
-    background: #111; padding: 20px; border-left: 4px solid #ff00ff; 
-    margin-bottom: 15px; border-radius: 0 6px 6px 0; border: 1px solid #222;
-}
-.event-date { color: #ff00ff; font-weight: bold; font-family: var(--font-code); display: block; margin-bottom: 5px; }
-
-/* =========================================
-   6. CHAT GLOBAL (FLOTANTE Y TECH)
-   ========================================= */
-.chat-window {
-    position: fixed; bottom: 80px; right: 20px;
-    width: 340px; height: 480px;
-    background: rgba(10, 10, 10, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--accent);
-    border-radius: 12px;
-    z-index: 2000;
-    display: none; flex-direction: column;
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
-}
-.chat-header {
-    padding: 15px; background: rgba(0, 255, 136, 0.05);
-    color: var(--accent); font-weight: bold; letter-spacing: 1px;
-    display: flex; justify-content: space-between; border-bottom: 1px solid #333;
-}
-.chat-body { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-
-.msg-bubble { 
-    background: #1a1a1a; padding: 10px; border-radius: 6px; 
-    border-left: 2px solid #444; font-size: 0.9rem; line-height: 1.4; 
-}
-
-/* Efecto Arcoíris para Admin */
-@keyframes rainbow { 0%{color:red;} 20%{color:yellow;} 40%{color:lime;} 60%{color:cyan;} 80%{color:magenta;} 100%{color:red;} }
-.msg-artist { 
-    border-color: var(--accent); background: #080808; 
-    box-shadow: inset 0 0 10px rgba(0,255,136,0.05); 
-}
-.msg-artist small { animation: rainbow 3s linear infinite; font-weight: 900 !important; text-transform: uppercase; letter-spacing: 1px; }
-
-.chat-input-container { padding: 15px; border-top: 1px solid #333; display: flex; gap: 8px; }
-.chat-input-container input { background: #111 !important; border: 1px solid #333 !important; }
-.chat-input-container button { 
-    background: var(--accent) !important; color: #000 !important; width: 45px; 
-    font-weight: bold; font-size: 1.2rem; padding: 0;
-}
-
-.chat-launcher {
-    position: fixed; bottom: 20px; right: 20px;
-    background: #000; border: 2px solid var(--accent); color: var(--accent);
-    padding: 12px 25px; border-radius: 50px;
-    font-weight: bold; font-family: var(--font-code);
-    cursor: pointer; z-index: 1500;
-    box-shadow: 0 0 15px var(--accent-dim);
-    transition: 0.3s;
-}
-.chat-launcher:hover { background: var(--accent); color: #000; }
-
-/* =========================================
-   7. EXTRAS (PERFIL, VIP, ADMIN)
-   ========================================= */
-.profile-panel { 
-    background: #111; padding: 40px; border-radius: 12px; border: 1px solid #333; 
-    text-align: center; max-width: 450px; margin: 0 auto; 
-}
-.btn-green-glow { 
-    background: transparent !important; border: 1px solid var(--accent) !important; 
-    color: var(--accent) !important; width: 100%; padding: 12px; font-weight: bold; 
-    margin-top: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-}
-.btn-green-glow:hover { background: var(--accent) !important; color: #000 !important; box-shadow: 0 0 20px var(--accent-dim); }
-
-/* VIP Locks */
+.section-label { color: #fff; font-size: 1.2rem; margin: 40px 0 20px 0; border-left: 4px solid var(--accent); padding-left: 15px; }
+.music-item-pro { background: #151515; padding: 20px; border-radius: 8px; border: 1px solid #2a2a2a; margin-bottom: 10px; }
+.progress-container { width: 100%; height: 4px; background: #000; margin-top: 15px; }
+.progress-bar-fill { height: 100%; width: 0%; background: var(--accent); transition: width 0.1s linear; }
 .protected-content { display: none; }
 body.is-vip .protected-content { display: block; }
 body.is-vip .code-block-lock { display: none; }
-.code-block-lock { 
-    padding: 60px; text-align: center; border: 2px dashed #333; 
-    background: #0d0d0d; margin: 20px 0; border-radius: 8px; 
-}
+.code-block-lock { padding: 60px; text-align: center; border: 2px dashed #333; background: #0d0d0d; margin: 20px 0; }
+.btn-green-glow { background: transparent !important; border: 1px solid var(--accent) !important; color: var(--accent) !important; padding: 10px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
+.btn-green-glow:hover { background: var(--accent) !important; color: #000 !important; }
+.profile-panel { background: #111; padding: 40px; border-radius: 12px; border: 1px solid #333; text-align: center; max-width: 450px; margin: 0 auto; }
+.profile-panel img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); }
+.admin-input { width: 100%; margin-bottom: 10px; }
 
-/* RESPONSIVE MÓVIL */
 .mobile-menu-btn, .menu-overlay { display: none; }
 @media (max-width: 900px) {
-    .layout-wrapper { display: block; }
-    .vscode-sidebar { 
-        position: fixed; left: -270px; top: 0; bottom: 0; 
-        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 10px 0 50px #000; 
-    }
+    .vscode-sidebar { left: -260px; transition: 0.3s; }
     .vscode-sidebar.open { left: 0; }
-    .vscode-main { padding-top: 80px; width: 100%; margin: 0; }
-    .mobile-menu-btn { 
-        display: block; position: fixed; top: 15px; left: 15px; z-index: 2000; 
-        background: #000 !important; border: 1px solid var(--accent) !important; 
-        color: var(--accent) !important; font-size: 1.4rem; padding: 5px 12px; cursor: pointer;
-    }
-    .menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 90; backdrop-filter: blur(5px); }
+    .vscode-main { margin-left: 0; padding-top: 80px; }
+    .mobile-menu-btn { display: block; position: fixed; top: 15px; left: 15px; z-index: 2000; background: #000 !important; border: 1px solid var(--accent) !important; color: var(--accent) !important; font-size: 1.2rem; padding: 8px; }
+    .menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 90; }
     .menu-overlay.open { display: block; }
-    .video-controls-bar { flex-direction: column; }
-    .chat-window { width: 90%; right: 5%; bottom: 90px; }
+    .chat-window { width: 90%; right: 5%; bottom: 100px; }
 }
-@keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }

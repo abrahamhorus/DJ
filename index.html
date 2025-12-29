@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Abraham Horus | OS</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -14,13 +13,11 @@
     <div id="mobile-overlay" class="menu-overlay" onclick="window.toggleMenu()"></div>
 
     <div class="layout-wrapper">
-        
         <aside class="vscode-sidebar" id="sidebar">
             <div class="brand-box">
                 <img src="assets/logo192.png" alt="AH" class="brand-img" onerror="this.style.display='none'">
                 <h3 style="color:#fff; font-size:0.8rem; margin-top:10px;">HORUS OS</h3>
             </div>
-            
             <nav class="vscode-nav" id="main-nav">
                 <div class="v-item active" onclick="window.showPage('p-videos', this)"><span>📺</span> Videos</div>
                 <div class="v-item" onclick="window.showPage('p-musica', this)"><span>♬</span> Música</div>
@@ -34,7 +31,7 @@
             <header class="vscode-header">
                 <div class="header-left">
                     <h1>ABRAHAM HORUS</h1>
-                    <p>Plataforma Oficial v11.0 (Black Edition)</p>
+                    <p>Plataforma Oficial v12.0 (Chat Pro)</p>
                 </div>
                 <div class="header-right">
                     <div class="subs-counter-box">
@@ -78,26 +75,17 @@
 
             <div id="p-musica" class="app-page">
                 <div class="code-block-lock"><h3>🔒 Discografía VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
-                <div class="protected-content">
-                    <h2 class="section-label">Tracks</h2>
-                    <div id="music-list"></div>
-                </div>
+                <div class="protected-content"><h2 class="section-label">Tracks</h2><div id="music-list"></div></div>
             </div>
 
             <div id="p-photos" class="app-page">
                 <div class="code-block-lock"><h3>🔒 Galería VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
-                <div class="protected-content">
-                    <h2 class="section-label">Galería</h2>
-                    <div id="photos-grid" class="cards-grid"></div>
-                </div>
+                <div class="protected-content"><h2 class="section-label">Galería</h2><div id="photos-grid" class="cards-grid"></div></div>
             </div>
 
             <div id="p-events" class="app-page">
                 <div class="code-block-lock"><h3>🔒 Calendario VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
-                <div class="protected-content">
-                    <h2 class="section-label">Shows</h2>
-                    <div id="events-list" class="cards-grid"></div>
-                </div>
+                <div class="protected-content"><h2 class="section-label">Shows</h2><div id="events-list" class="cards-grid"></div></div>
             </div>
 
             <div id="p-profile" class="app-page">
@@ -107,7 +95,6 @@
                     <p id="user-rank">GUEST</p>
                     <button id="btn-login-profile" onclick="window.loginGoogle()" class="btn-green-glow">INICIAR SESIÓN</button>
                     <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; border-color:red; color:red;">CERRAR SESIÓN</button>
-                    
                     <div id="profile-editor" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
                         <input id="edit-name" placeholder="Nuevo Nombre" class="admin-input">
                         <input id="edit-photo" placeholder="URL Foto Perfil" class="admin-input">
@@ -131,12 +118,24 @@
         </main>
     </div>
 
-    <div class="chat-launcher" onclick="window.toggleLiveChat()">Chat Global</div>
+    <div class="chat-launcher" onclick="window.toggleLiveChat()">
+        💬
+        <span class="status-dot-online"></span>
+    </div>
+
     <div id="live-chat-window" class="chat-window">
-        <div class="chat-header">SALA PÚBLICA <span onclick="window.toggleLiveChat()" style="cursor:pointer;">✖</span></div>
-        <div id="chat-global-msgs" class="chat-body"></div>
+        <div class="chat-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.2rem;">💬</span>
+                <span>COMUNIDAD</span>
+            </div>
+            <span onclick="window.toggleLiveChat()" class="close-chat-btn">✖</span>
+        </div>
+        <div id="chat-global-msgs" class="chat-body">
+            <div style="text-align:center; color:#666; font-size:0.8rem; margin-top:20px;">Bienvenido al chat global</div>
+        </div>
         <div class="chat-input-container">
-            <input id="chat-input-msg" placeholder="Escribe..." autocomplete="off">
+            <input id="chat-input-msg" placeholder="Escribe aquí..." autocomplete="off">
             <button onclick="window.enviarMensajeChat()">➤</button>
         </div>
     </div>

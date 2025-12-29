@@ -61,14 +61,32 @@ function initApp() {
              g.appendChild(d);
         });
     });
-    // Chat
+    
+    // CHAT MEJORADO
     db.ref('chat_global').limitToLast(30).on('child_added', s => {
-        const m=s.val(), b=document.getElementById('chat-global-msgs');
-        if(b) {
-            const d=document.createElement('div'); d.className="msg-bubble";
-            if(m.email===ADMIN_EMAIL) { d.classList.add('msg-artist'); if(Date.now()-m.timestamp<10000) soundTortuga.play().catch(()=>{}); }
-            d.innerHTML=`<small style="color:var(--accent); font-weight:bold;">${m.user}</small><br>${m.text}`;
-            b.appendChild(d); b.scrollTop=b.scrollHeight;
+        const m = s.val();
+        const box = document.getElementById('chat-global-msgs');
+        if(box) {
+            const div = document.createElement('div');
+            div.className = "msg-bubble";
+            
+            // Determinar si es mi mensaje o de otro
+            const isMe = currentUser && (m.user === currentUser.displayName);
+            if(isMe) {
+                div.classList.add('msg-self');
+            } else {
+                div.classList.add('msg-other');
+            }
+
+            // Si es Admin
+            if(m.email === ADMIN_EMAIL) { 
+                div.classList.add('msg-artist'); 
+                if(Date.now() - m.timestamp < 10000) soundTortuga.play().catch(()=>{}); 
+            }
+            
+            div.innerHTML = `<small>${m.user}</small>${m.text}`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
         }
     });
 }
