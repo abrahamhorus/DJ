@@ -30,7 +30,7 @@
         <header class="vscode-header">
             <div class="header-left">
                 <h1>ABRAHAM HORUS</h1>
-                <p>Plataforma Oficial v16.0 (Social Fix)</p>
+                <p>Plataforma Oficial v21.0 (King Mode)</p>
             </div>
             <div class="header-right">
                 <div class="subs-counter-box">
@@ -48,7 +48,6 @@
                         <source id="video-source" src="" type="video/mp4">
                     </video>
                 </div>
-                
                 <div class="video-controls-bar">
                     <div class="info-block">
                         <h2 id="current-title">Cargando...</h2>
@@ -60,7 +59,6 @@
                         <button onclick="window.toggleComments()" class="btn-code">💬 <span id="comments-count-btn">0</span></button>
                     </div>
                 </div>
-
                 <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
                     <div class="term-head">COMENTARIOS</div>
                     <div class="term-input">
@@ -90,7 +88,6 @@
             <div class="profile-panel">
                 <img id="profile-preview" src="assets/logo192.png">
                 <h3 id="display-name">INVITADO</h3>
-                <p id="user-rank">GUEST</p>
                 <button id="btn-login-profile" onclick="window.loginGoogle()" class="btn-green-glow">INICIAR SESIÓN</button>
                 <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; border-color:red; color:red;">CERRAR SESIÓN</button>
                 <div id="profile-editor" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
@@ -115,10 +112,7 @@
 
     <div class="chat-launcher" onclick="window.toggleLiveChat()">💬</div>
     <div id="live-chat-window" class="chat-window">
-        <div class="chat-header">
-            <span>COMUNIDAD</span>
-            <span onclick="window.toggleLiveChat()" style="cursor:pointer; font-size:1.2rem;">✖</span>
-        </div>
+        <div class="chat-header"><span>COMUNIDAD</span><span onclick="window.toggleLiveChat()" style="cursor:pointer;">✖</span></div>
         <div id="chat-global-msgs" class="chat-body"></div>
         <div class="chat-input-container">
             <input id="chat-input-msg" placeholder="Escribe..." autocomplete="off">
