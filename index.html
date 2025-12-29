@@ -30,24 +30,19 @@
                 <div class="v-item active" onclick="window.showPage('p-videos', this)">
                     <span class="v-icon">📺</span> Videos
                 </div>
-                
                 <div class="v-item" onclick="window.showPage('p-musica', this)">
                     <span class="v-icon">♬</span> Música
                 </div>
-                
                 <div class="v-item" onclick="window.showPage('p-photos', this)">
                     <span class="v-icon">🔓</span> Fotos VIP
                 </div>
-
                 <div class="v-item" onclick="window.showPage('p-events', this)">
                     <span class="v-icon">📅</span> Eventos
                 </div>
-
                 <div class="v-item" onclick="window.showPage('p-profile', this)">
                     <span class="v-icon">⚙</span> Perfil
                 </div>
-                
-                </nav>
+            </nav>
         </aside>
 
         <main class="vscode-main">
@@ -55,13 +50,12 @@
             <header class="vscode-header">
                 <div class="header-left">
                     <h1>ABRAHAM HORUS</h1>
-                    <p>Plataforma Oficial v3.0</p>
+                    <p>Plataforma Oficial v4.0</p>
                 </div>
-                
                 <div class="header-right">
                     <div class="subs-counter-box">
                         <span class="subs-label">SUSCRIPTORES</span>
-                        <span id="global-subs-count" class="subs-number">Cargando...</span>
+                        <span id="global-subs-count" class="subs-number">0</span>
                     </div>
                     <button id="btn-subscribe" class="btn-subscribe" onclick="window.toggleSub()">
                         SUSCRIBIRSE
@@ -79,8 +73,8 @@
                     
                     <div class="video-controls-bar">
                         <div class="info-block">
-                            <h2 id="current-title">Esperando selección...</h2>
-                            <p id="video-description" class="desc-text">Selecciona un video de la lista inferior.</p>
+                            <h2 id="current-title">Bienvenido</h2>
+                            <p id="video-description" class="desc-text">Selecciona un video del feed...</p>
                         </div>
 
                         <div class="actions-row">
@@ -108,10 +102,9 @@
                 </div>
 
                 <div class="divider-line"></div>
-
                 <h3 class="section-label">Feed de Videos</h3>
                 <div id="videos-grid" class="cards-grid">
-                    <p style="color:#666; padding:10px;">Cargando feed...</p>
+                    <p style="color:#666; padding:10px;">Cargando contenido...</p>
                 </div>
             </div>
 
@@ -124,34 +117,29 @@
                 <div class="code-block-lock">
                     <div class="code-text" style="text-align: center;">
                         <h3 style="color: #fff; margin-bottom: 10px;">🔒 Fotos Secretas</h3>
-                        <p style="color: #bbb; margin-bottom: 20px;">Acceso restringido a personal autorizado.</p>
+                        <p style="color: #bbb; margin-bottom: 20px;">Acceso restringido.</p>
                         <button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER CON GOOGLE</button>
                     </div>
                 </div>
                 <div class="protected-content">
                     <h2 class="section-label">Galería VIP</h2>
-                    <div id="photos-grid" class="cards-grid">
-                        <p style="color:#888;">No hay fotos publicadas aún.</p>
-                    </div>
+                    <div id="photos-grid" class="cards-grid"><p style="color:#888;">Próximamente.</p></div>
                 </div>
             </div>
 
             <div id="p-events" class="app-page">
                 <h2 class="section-label">Próximos Eventos</h2>
-                <div id="events-list" class="events-container">
-                    </div>
+                <div id="events-list" class="events-container"></div>
             </div>
 
             <div id="p-profile" class="app-page">
                 <div class="profile-panel">
                     <div class="profile-header">
                         <img id="profile-preview" src="https://via.placeholder.com/100" alt="Avatar">
-                        <h3 id="display-name" style="color:var(--accent); font-family: var(--font-tech);">INVITADO</h3>
+                        <h3 id="display-name" style="color:var(--accent);">INVITADO</h3>
                         <p style="font-size: 0.7rem; color: #666; font-family: 'Fira Code', monospace; margin-top: 5px;">ID: <span id="user-uid">NO_AUTH</span></p>
                     </div>
-
                     <div class="divider-line" style="margin: 20px 0;"></div>
-
                     <div class="user-stats-grid">
                         <div style="background: #111; padding: 10px; border: 1px solid #333;">
                             <span style="color: #666;">RANGO:</span> <br>
@@ -162,7 +150,6 @@
                             <span style="color: var(--accent);">● ONLINE</span>
                         </div>
                     </div>
-
                     <button class="btn-green-glow" id="btn-login-profile" onclick="window.loginGoogle()">INICIAR SESIÓN</button>
                     <button class="btn-green-glow" id="btn-logout-profile" onclick="window.cerrarSesion()" style="display:none; background:transparent; border:1px solid #ff5555; color:#ff5555;">CERRAR SESIÓN</button>
                 </div>
@@ -174,9 +161,12 @@
                     
                     <div class="profile-panel" style="text-align:left;">
                         <h3>📺 Publicar Video</h3>
-                        <p style="font-size:0.7rem; color:#888; margin-bottom:10px;">Pega los enlaces directos (YouTube/Cloudinary)</p>
+                        <p style="font-size:0.7rem; color:#888; margin-bottom:10px;">Pega los enlaces (Cloudinary/YouTube/Drive)</p>
+                        
                         <input type="text" id="adm-v-title" placeholder="Título del Video" class="admin-input">
-                        <textarea id="adm-v-desc" placeholder="Descripción..." class="admin-input"></textarea>
+                        
+                        <textarea id="adm-v-desc" placeholder="Descripción completa del video..." class="admin-input" style="height: 100px; resize: vertical;"></textarea>
+                        
                         <input type="text" id="adm-v-url" placeholder="URL del Video (MP4)" class="admin-input">
                         <input type="text" id="adm-v-thumb" placeholder="URL Miniatura (JPG)" class="admin-input">
                         <button onclick="window.adminUpload('video')" class="btn-green-glow" style="width:100%; background:#ff00ff; color:white;">PUBLICAR VIDEO</button>
@@ -197,7 +187,6 @@
                         <input type="text" id="adm-e-loc" placeholder="Ubicación" class="admin-input">
                         <button onclick="window.adminUpload('event')" class="btn-green-glow" style="width:100%;">CREAR EVENTO</button>
                     </div>
-
                 </div>
             </div>
 
