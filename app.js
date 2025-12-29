@@ -114,21 +114,61 @@ window.controlAudio = (url,bId,pId,tId) => {
 };
 function updTime(bar,txt) { if(audioGlobal.duration) { bar.style.width=((audioGlobal.currentTime/audioGlobal.duration)*100)+"%"; txt.innerText=Math.floor(audioGlobal.currentTime)+"s"; } }
 
-// COMENTARIOS
+// COMENTARIOS (CON LIKES Y RESPUESTAS)
 function loadComments(vidId) {
-    const l=document.getElementById('comments-list');
+    const list = document.getElementById('comments-list');
     db.ref(`comments/${vidId}`).on('value', s => {
-        if(!l) return; l.innerHTML=""; document.getElementById('comments-count-btn').innerText=s.numChildren();
-        if(s.val()) Object.values(s.val()).reverse().forEach(v => {
-            const d=document.createElement('div'); d.className="comment-block";
-            d.innerHTML=`<b style="color:var(--accent)">${v.user}:</b> <span style="color:#ddd">${v.text}</span>`;
-            l.appendChild(d);
-        });
+        if(!list) return;
+        list.innerHTML = "";
+        document.getElementById('comments-count-btn').innerText = s.numChildren();
+        if(s.val()) {
+            Object.entries(s.val()).reverse().forEach(([key, val]) => {
+                let repliesHTML = "";
+                if(val.replies) Object.values(val.replies).forEach(r => { 
+                    repliesHTML += `<div class="sub-reply"><b>${r.user}:</b> ${r.text}</div>`; 
+                });
+
+                const div = document.createElement('div');
+                div.className = "comment-block";
+                div.innerHTML = `
+                    <div><b style="color:var(--accent)">${val.user}:</b> ${val.text}</div>
+                    
+                    <div class="comment-actions">
+                        <button class="btn-action-mini" onclick="window.darLikeComentario('${key}')">❤️ ${val.likes || 0}</button>
+                        <button class="btn-action-mini" onclick="window.mostrarReply('${key}')">Responder</button>
+                    </div>
+
+                    <div id="replies-${key}">${repliesHTML}</div>
+
+                    <div id="reply-box-${key}" class="reply-input-box">
+                        <input type="text" id="input-${key}" placeholder="Responder...">
+                        <button onclick="window.enviarRespuesta('${key}')">></button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
     });
 }
+
+// FUNCIONES DE INTERACCIÓN
 window.enviarComentario = () => {
     const i=document.getElementById('comment-text'); if(!currentUser||!i.value) return alert("Inicia sesión");
-    db.ref(`comments/${currentVideoId}`).push({user:currentUser.displayName, text:i.value}); i.value="";
+    db.ref(`comments/${currentVideoId}`).push({user:currentUser.displayName, text:i.value, likes:0}); i.value="";
+};
+window.darLikeComentario = (key) => {
+    if(!currentUser) return alert("Inicia sesión");
+    db.ref(`comments/${currentVideoId}/${key}/likes`).transaction(c => (c||0)+1);
+};
+window.mostrarReply = (key) => {
+    const b = document.getElementById(`reply-box-${key}`);
+    b.style.display = (b.style.display === 'flex') ? 'none' : 'flex';
+};
+window.enviarRespuesta = (key) => {
+    const i = document.getElementById(`input-${key}`);
+    if(!currentUser || !i.value.trim()) return alert("Inicia sesión");
+    db.ref(`comments/${currentVideoId}/${key}/replies`).push({ user: currentUser.displayName, text: i.value });
+    i.value = ""; document.getElementById(`reply-box-${key}`).style.display = 'none';
 };
 window.darLike = () => { if(currentVideoId) db.ref(`stats/${currentVideoId}/likes`).transaction(c=>(c||0)+1); };
 
