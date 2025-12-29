@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
     <button class="mobile-menu-btn" onclick="window.toggleMenu()">☰</button>
     <div id="mobile-overlay" class="menu-overlay" onclick="window.toggleMenu()"></div>
 
@@ -29,7 +30,7 @@
         <header class="vscode-header">
             <div class="header-left">
                 <h1>ABRAHAM HORUS</h1>
-                <p>Plataforma Oficial v22.0 (Corregida)</p>
+                <p>Plataforma Oficial v23.0 (Border Rainbow Fix)</p>
             </div>
             <div class="header-right">
                 <div class="subs-counter-box">
@@ -71,30 +72,40 @@
             <div id="videos-grid" class="cards-grid"></div>
         </div>
 
-        <div id="p-musica" class="app-page"><div id="music-list"></div></div>
-        <div id="p-photos" class="app-page"><div id="photos-grid" class="cards-grid"></div></div>
-        <div id="p-events" class="app-page"><div id="events-list" class="cards-grid"></div></div>
+        <div id="p-musica" class="app-page"><div class="code-block-lock"><h3>🔒 Discografía VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div><div class="protected-content"><h2 class="section-label">Tracks</h2><div id="music-list"></div></div></div>
+        <div id="p-photos" class="app-page"><div class="code-block-lock"><h3>🔒 Galería VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div><div class="protected-content"><h2 class="section-label">Galería</h2><div id="photos-grid" class="cards-grid"></div></div></div>
+        <div id="p-events" class="app-page"><div class="code-block-lock"><h3>🔒 Calendario VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div><div class="protected-content"><h2 class="section-label">Shows</h2><div id="events-list" class="cards-grid"></div></div></div>
+        
         <div id="p-profile" class="app-page">
             <div class="profile-panel">
                 <img id="profile-preview" src="assets/logo192.png">
                 <h3 id="display-name">INVITADO</h3>
-                <button onclick="window.loginGoogle()" class="btn-green-glow">LOGIN GOOGLE</button>
+                <button id="btn-login-profile" onclick="window.loginGoogle()" class="btn-green-glow">INICIAR SESIÓN</button>
+                <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; border-color:red; color:red;">CERRAR SESIÓN</button>
+                <div id="profile-editor" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
+                    <input id="edit-name" placeholder="Nuevo Nombre" class="admin-input">
+                    <input id="edit-photo" placeholder="URL Foto Perfil" class="admin-input">
+                    <button onclick="window.guardarPerfil()" class="btn-green-glow">GUARDAR CAMBIOS</button>
+                </div>
             </div>
         </div>
+
         <div id="p-admin" class="app-page">
             <div class="profile-panel" style="text-align:left; max-width:600px;">
                 <h2 style="color:#ff00ff; border-bottom:1px solid #333;">ADMIN</h2>
-                <select id="adm-type" class="admin-input"><option value="video">VIDEO</option></select>
+                <select id="adm-type" class="admin-input"><option value="video">VIDEO</option><option value="music">MÚSICA</option><option value="photo">FOTO</option><option value="event">EVENTO</option></select>
                 <input type="text" id="adm-title" placeholder="Título" class="admin-input">
-                <input type="text" id="adm-url" placeholder="URL" class="admin-input">
-                <button onclick="window.adminUpload()" class="btn-green-glow">SUBIR</button>
+                <textarea id="adm-desc" placeholder="Descripción" class="admin-input" style="height:60px;"></textarea>
+                <input type="text" id="adm-url" placeholder="URL Archivo" class="admin-input">
+                <input type="text" id="adm-thumb" placeholder="URL Poster" class="admin-input">
+                <button onclick="window.adminUpload()" class="btn-green-glow" style="background:#ff00ff !important; color:#fff !important;">PUBLICAR</button>
             </div>
         </div>
     </main>
 
     <div class="chat-launcher" onclick="window.toggleLiveChat()">💬</div>
     <div id="live-chat-window" class="chat-window">
-        <div class="chat-header"><span>CHAT</span><span onclick="window.toggleLiveChat()" style="cursor:pointer;">✖</span></div>
+        <div class="chat-header"><span>COMUNIDAD</span><span onclick="window.toggleLiveChat()" style="cursor:pointer;">✖</span></div>
         <div id="chat-global-msgs" class="chat-body"></div>
         <div class="chat-input-container">
             <input id="chat-input-msg" placeholder="Escribe..." autocomplete="off">
