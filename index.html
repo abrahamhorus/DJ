@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Abraham Horus | OS</title>
+    <title>Abraham Horus | OS v24.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <canvas id="audio-visualizer"></canvas>
+    
+    <div id="toast-container"></div>
 
     <button class="mobile-menu-btn" onclick="window.toggleMenu()">☰</button>
     <div id="mobile-overlay" class="menu-overlay" onclick="window.toggleMenu()"></div>
@@ -15,14 +19,14 @@
     <aside class="vscode-sidebar" id="sidebar">
         <div class="brand-box">
             <img src="assets/logo192.png" alt="AH" class="brand-img" onerror="this.style.display='none'">
-            <h3 style="color:#fff; font-size:0.8rem; margin-top:10px;">HORUS OS</h3>
+            <h3 style="color:#fff; font-size:0.8rem; margin-top:10px;">HORUS OS <span style="color:var(--accent); font-size:0.6rem;">v24.0</span></h3>
         </div>
         <nav class="vscode-nav" id="main-nav">
-            <div class="v-item active" onclick="window.showPage('p-videos', this)"><span>📺</span> Videos</div>
-            <div class="v-item" onclick="window.showPage('p-musica', this)"><span>♬</span> Música</div>
-            <div class="v-item" onclick="window.showPage('p-photos', this)"><span>📸</span> Fotos</div>
-            <div class="v-item" onclick="window.showPage('p-events', this)"><span>📅</span> Eventos</div>
-            <div class="v-item" onclick="window.showPage('p-profile', this)"><span>⚙</span> Perfil</div>
+            <div class="v-item" data-target="p-videos" onclick="window.navigate('p-videos')"><span>📺</span> Videos</div>
+            <div class="v-item" data-target="p-musica" onclick="window.navigate('p-musica')"><span>♬</span> Música</div>
+            <div class="v-item" data-target="p-photos" onclick="window.navigate('p-photos')"><span>📸</span> Fotos</div>
+            <div class="v-item" data-target="p-events" onclick="window.navigate('p-events')"><span>📅</span> Eventos</div>
+            <div class="v-item" data-target="p-profile" onclick="window.navigate('p-profile')"><span>⚙</span> Perfil</div>
         </nav>
     </aside>
 
@@ -30,7 +34,7 @@
         <header class="vscode-header">
             <div class="header-left">
                 <h1>ABRAHAM HORUS</h1>
-                <p>Plataforma Oficial v23.0 (Border Rainbow Fix)</p>
+                <p>Plataforma Oficial <span style="color:var(--accent)">[SECURE]</span></p>
             </div>
             <div class="header-right">
                 <div class="subs-counter-box">
@@ -68,7 +72,7 @@
                     <div id="comments-list" class="term-body-fixed"></div>
                 </div>
             </div>
-            <h3 class="section-label">Feed</h3>
+            <h3 class="section-label">Feed Reciente</h3>
             <div id="videos-grid" class="cards-grid"></div>
         </div>
 
@@ -80,8 +84,18 @@
             <div class="profile-panel">
                 <img id="profile-preview" src="assets/logo192.png">
                 <h3 id="display-name">INVITADO</h3>
+                
+                <div id="xp-container" style="display:none; margin: 15px 0;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
+                        <span>Nivel <span id="user-level" style="color:var(--accent); font-weight:bold;">1</span></span>
+                        <span id="user-xp-text">0 XP</span>
+                    </div>
+                    <div class="xp-bar-bg"><div id="xp-bar-fill" class="xp-bar-fill"></div></div>
+                </div>
+
                 <button id="btn-login-profile" onclick="window.loginGoogle()" class="btn-green-glow">INICIAR SESIÓN</button>
                 <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; border-color:red; color:red;">CERRAR SESIÓN</button>
+                
                 <div id="profile-editor" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
                     <input id="edit-name" placeholder="Nuevo Nombre" class="admin-input">
                     <input id="edit-photo" placeholder="URL Foto Perfil" class="admin-input">
@@ -92,7 +106,7 @@
 
         <div id="p-admin" class="app-page">
             <div class="profile-panel" style="text-align:left; max-width:600px;">
-                <h2 style="color:#ff00ff; border-bottom:1px solid #333;">ADMIN</h2>
+                <h2 style="color:#ff00ff; border-bottom:1px solid #333;">ADMIN CONSOLE</h2>
                 <select id="adm-type" class="admin-input"><option value="video">VIDEO</option><option value="music">MÚSICA</option><option value="photo">FOTO</option><option value="event">EVENTO</option></select>
                 <input type="text" id="adm-title" placeholder="Título" class="admin-input">
                 <textarea id="adm-desc" placeholder="Descripción" class="admin-input" style="height:60px;"></textarea>
