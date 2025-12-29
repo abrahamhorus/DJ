@@ -24,7 +24,6 @@ window.onload = () => {
 };
 
 function initApp() {
-    // Videos
     db.ref('social/videos').on('value', s => {
         const g=document.getElementById('videos-grid'); if(g) g.innerHTML="";
         if(s.val()) Object.entries(s.val()).reverse().forEach(([k,v]) => {
@@ -33,7 +32,6 @@ function initApp() {
             g.appendChild(c);
         });
     });
-    // Música
     db.ref('social/musics').on('value', s => {
         const l=document.getElementById('music-list'); if(l) l.innerHTML="";
         if(s.val()) Object.entries(s.val()).reverse().forEach(([k,m]) => {
@@ -43,7 +41,6 @@ function initApp() {
             l.appendChild(d);
         });
     });
-    // Fotos
     db.ref('social/photos').on('value', s => {
         const g=document.getElementById('photos-grid'); if(g) g.innerHTML="";
         if(s.val()) Object.entries(s.val()).reverse().forEach(([k,p]) => {
@@ -52,7 +49,6 @@ function initApp() {
             g.appendChild(d);
         });
     });
-    // Eventos
     db.ref('social/events').on('value', s => {
         const g=document.getElementById('events-list'); if(g) g.innerHTML="";
         if(s.val()) Object.entries(s.val()).reverse().forEach(([k,e]) => {
@@ -62,31 +58,30 @@ function initApp() {
         });
     });
     
-    // CHAT MEJORADO
+    // CHAT (DETECTAR USUARIO)
     db.ref('chat_global').limitToLast(30).on('child_added', s => {
         const m = s.val();
         const box = document.getElementById('chat-global-msgs');
         if(box) {
             const div = document.createElement('div');
-            div.className = "msg-bubble";
-            
-            // Determinar si es mi mensaje o de otro
-            const isMe = currentUser && (m.user === currentUser.displayName);
-            if(isMe) {
+            div.className = "msg-bubble"; 
+
+            // Si soy yo
+            if (currentUser && m.user === currentUser.displayName) {
                 div.classList.add('msg-self');
             } else {
                 div.classList.add('msg-other');
             }
 
-            // Si es Admin
-            if(m.email === ADMIN_EMAIL) { 
+            // Si es admin
+            if(m.email === ADMIN_EMAIL) {
+                div.classList.remove('msg-self', 'msg-other');
                 div.classList.add('msg-artist'); 
-                if(Date.now() - m.timestamp < 10000) soundTortuga.play().catch(()=>{}); 
+                if(Date.now() - m.timestamp < 10000) soundTortuga.play().catch(()=>{});
             }
-            
+
             div.innerHTML = `<small>${m.user}</small>${m.text}`;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+            box.appendChild(div); box.scrollTop = box.scrollHeight;
         }
     });
 }
@@ -126,7 +121,7 @@ function loadComments(vidId) {
         if(!l) return; l.innerHTML=""; document.getElementById('comments-count-btn').innerText=s.numChildren();
         if(s.val()) Object.values(s.val()).reverse().forEach(v => {
             const d=document.createElement('div'); d.className="comment-block";
-            d.innerHTML=`<b style="color:var(--accent)">${v.user}:</b> ${v.text}`;
+            d.innerHTML=`<b style="color:var(--accent)">${v.user}:</b> <span style="color:#ddd">${v.text}</span>`;
             l.appendChild(d);
         });
     });
@@ -189,6 +184,8 @@ window.toggleLiveChat=()=>{const w=document.getElementById('live-chat-window'); 
 window.toggleComments=()=>{const c=document.getElementById('comments-wrapper'); c.style.display=(c.style.display==='none')?'block':'none';};
 window.enviarMensajeChat=()=>{
     const i=document.getElementById('chat-input-msg'); if(!i.value) return;
-    db.ref('chat_global').push({user:currentUser?currentUser.displayName:"Anon", email:currentUser?currentUser.email:"", text:i.value, timestamp:Date.now()});
+    const email = currentUser ? currentUser.email : "anon";
+    const user = currentUser ? currentUser.displayName : "Anon";
+    db.ref('chat_global').push({user, email, text:i.value, timestamp:Date.now()});
     i.value="";
 };
