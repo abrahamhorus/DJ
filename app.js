@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONFIGURACIÓN FIREBASE (REAL)
+// 1. CONFIGURACIÓN E INICIO
 // ==========================================
 const firebaseConfig = {
     apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA",
@@ -12,474 +12,354 @@ const firebaseConfig = {
     measurementId: "G-PEYW3V3GSB"
 };
 
+// Inicializar solo si no existe
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 
-const ADMIN_EMAIL = "abrahorus@gmail.com"; 
-const soundTortuga = new Audio("assets/tortuga.mp3"); 
-
-// ==========================================
-// 2. DATOS FIJOS (SALVAVIDAS)
-// ==========================================
-let globalPlaylist = [
-    { 
-        id: "despierto_official", 
-        title: "DESPIERTO (Video Oficial)", 
-        desc: "Superación, renacimiento y fuerza de voluntad inquebrantable. 👑",
-        url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4",
-        poster: "assets/shot 1.jpeg"
-    },
-    { 
-        id: "sistema_preview", 
-        title: "SISTEMA (Preview)", 
-        desc: "Un adelanto exclusivo de lo que se viene.", 
-        url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", 
-        poster: "assets/shot 2.jpeg" 
-    }
-];
-
+const ADMIN_EMAIL = "abrahorus@gmail.com";
+const audioGlobal = new Audio(); // Un solo audio para todo el sitio
+let currentSongUrl = "";
+let progressInterval = null;
 let currentUser = null;
 let currentVideoId = null;
 
-// ==========================================
-// 3. INICIO HÍBRIDO
-// ==========================================
-window.onload = () => {
-    // A. Cargar lista fija INMEDIATAMENTE
+// Playlist "Salvavidas" (Local)
+const globalPlaylist = [{ 
+    id: "video_init", 
+    title: "DESPIERTO (Oficial)", 
+    desc: "Video Oficial - Horus OS.", 
+    url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", 
+    poster: "assets/shot 1.jpeg" 
+}];
+
+// Esperar a que el HTML cargue
+window.addEventListener('DOMContentLoaded', () => {
+    // 1. Cargar video por defecto
     renderFeed(globalPlaylist);
     loadVideo(globalPlaylist[0]);
 
-    // B. Conectar a Firebase para traer nuevos videos
+    // 2. Iniciar conexión Firebase
+    initFirebase();
+});
+
+// ==========================================
+// 2. CONEXIÓN FIREBASE (LISTENERS)
+// ==========================================
+function initFirebase() {
+    // Videos
     db.ref('social/videos').on('value', snap => {
         const data = snap.val();
-        if(data) {
-            // Convertir y unir con la lista fija
-            const firebaseVideos = Object.entries(data).map(([key, v]) => ({
-                id: key,
-                title: v.title,
-                desc: v.desc,
-                url: v.url,
-                poster: v.poster
-            }));
-            
-            // Unir: Videos de Firebase primero, luego los fijos
-            const combined = [...firebaseVideos.reverse(), ...globalPlaylist];
-            renderFeed(combined);
+        if (data) {
+            const fbVideos = Object.entries(data).map(([key, v]) => ({ id: key, ...v }));
+            renderFeed([...fbVideos.reverse(), ...globalPlaylist]);
         }
     });
 
-    initExtras();
-};
-
-function renderFeed(videos) {
-    const grid = document.getElementById('videos-grid');
-    if(!grid) return;
-    grid.innerHTML = "";
-    
-    videos.forEach((v) => {
-        const card = document.createElement('div');
-        card.className = "code-card";
-        card.onclick = () => loadVideo(v);
-        card.innerHTML = `
-            <div class="card-thumb"><img src="${v.poster}" onerror="this.src='assets/logo192.png'"></div>
-            <div class="card-text"><h4>${v.title}</h4></div>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-function initExtras() {
-    // Música
+    // Música (Con barra de progreso)
     db.ref('social/musics').on('value', snap => {
         const list = document.getElementById('music-list');
-        if(!list) return;
-        list.innerHTML = "";
+        if (!list) return;
+        list.innerHTML = ""; // Limpiar lista
+        
         const data = snap.val();
-        if(data) {
-            Object.values(data).reverse().forEach(m => {
+        if (data) {
+            Object.entries(data).reverse().forEach(([key, m]) => {
+                const bId = `btn-m-${key}`;
+                const pId = `bar-m-${key}`;
+                const tId = `time-m-${key}`;
+                
                 const div = document.createElement('div');
-                div.style = "padding:15px; background:#252526; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border-radius:4px;";
-                div.innerHTML = `<span>${m.title}</span> <button onclick="new Audio('${m.url}').play()" class="btn-subscribe" style="background:var(--accent); color:#000;">PLAY</button>`;
-                list.appendChild(div);
-            });
-        }
-    });
-
-    // Eventos
-    db.ref('social/events').on('value', snap => {
-        const list = document.getElementById('events-list');
-        if(!list) return;
-        list.innerHTML = "";
-        const data = snap.val();
-        if(data) {
-            Object.values(data).forEach(e => {
-                const div = document.createElement('div');
-                div.className = 'event-card';
+                div.className = "music-item-pro";
                 div.innerHTML = `
-                    <div class="event-date-box"><span class="event-day">${e.day}</span><span class="event-month">${e.month}</span></div>
-                    <div class="event-info"><h3>${e.title}</h3><p>📍 ${e.loc}</p></div>
-                    <button class="btn-ticket">TICKETS</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="display:block; font-weight:bold; color:#fff;">${m.title}</span>
+                            <small style="color:#666;">High Quality Audio</small>
+                        </div>
+                        <button id="${bId}" onclick="window.controlAudio('${m.url}','${bId}','${pId}','${tId}')" class="btn-code">▶ PLAY</button>
+                    </div>
+                    <div class="progress-container">
+                        <div id="${pId}" class="progress-bar-fill"></div>
+                    </div>
+                    <span id="${tId}" class="time-display">0:00 / 0:00</span>
                 `;
                 list.appendChild(div);
             });
         }
     });
+
+    // Chat
+    db.ref('chat_global').limitToLast(20).on('child_added', snap => {
+        const m = snap.val();
+        const box = document.getElementById('chat-global-msgs');
+        if(box) {
+            const div = document.createElement('div');
+            div.className = "msg-bubble";
+            div.innerHTML = `<small style="color:var(--accent); font-weight:bold;">${m.user}</small><br>${m.text}`;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+    });
+
+    // Suscriptores
+    db.ref('stats/general/subscribers').on('value', s => {
+        const el = document.getElementById('global-subs-count');
+        if(el) el.innerText = (s.val() || 0).toLocaleString();
+    });
 }
 
 // ==========================================
-// 4. REPRODUCTOR Y CONEXIÓN
+// 3. REPRODUCTOR DE VIDEO (LÓGICA)
 // ==========================================
 window.loadVideo = (v) => {
-    // ID único (si es de Firebase usa key, si es fijo usa id)
-    const vidId = v.id || v.title.replace(/\s+/g, '_');
-    currentVideoId = vidId;
+    // 1. Limpiar listeners del video anterior
+    if(currentVideoId) {
+        db.ref(`stats/${currentVideoId}/likes`).off();
+        db.ref(`stats/${currentVideoId}/views`).off();
+        db.ref(`comments/${currentVideoId}`).off();
+    }
 
-    const vid = document.getElementById('main-video');
-    document.getElementById('video-source').src = v.url;
-    document.getElementById('current-title').innerText = v.title;
-    document.getElementById('video-description').innerText = v.desc || "";
+    currentVideoId = v.id || "default_id";
     
-    vid.load();
-    vid.play().catch(() => {});
+    // 2. Cargar en el DOM
+    const videoEl = document.getElementById('main-video');
+    const sourceEl = document.getElementById('video-source');
+    
+    if(videoEl && sourceEl) {
+        sourceEl.src = v.url;
+        document.getElementById('current-title').innerText = v.title;
+        document.getElementById('video-description').innerText = v.desc || "Sin descripción.";
+        videoEl.load();
+        videoEl.play().catch(() => {}); // Evitar error autoplay
+    }
 
-    // Reset visual
-    document.getElementById('likes-count').innerText = "...";
-    document.getElementById('total-views').innerText = "...";
-
-    // Conectar Stats Reales
-    const viewsRef = db.ref(`stats/${vidId}/views`);
-    viewsRef.transaction(current => (current || 0) + 1); // +1 Vista
-    viewsRef.on('value', s => {
-        if(document.getElementById('total-views')) document.getElementById('total-views').innerText = s.val() || 0;
+    // 3. Conectar Stats del Nuevo Video
+    db.ref(`stats/${currentVideoId}/views`).transaction(c => (c || 0) + 1);
+    
+    db.ref(`stats/${currentVideoId}/likes`).on('value', s => {
+        document.getElementById('likes-count').innerText = s.val() || 0;
+    });
+    db.ref(`stats/${currentVideoId}/views`).on('value', s => {
+        document.getElementById('total-views').innerText = s.val() || 0;
     });
 
-    db.ref(`stats/${vidId}/likes`).on('value', s => {
-        if(document.getElementById('likes-count')) document.getElementById('likes-count').innerText = s.val() || 0;
-    });
-
-    loadComments(vidId);
+    loadComments(currentVideoId);
 };
 
+function renderFeed(vids) {
+    const grid = document.getElementById('videos-grid');
+    if (!grid) return;
+    grid.innerHTML = "";
+    vids.forEach(v => {
+        const card = document.createElement('div');
+        card.className = "code-card";
+        card.onclick = () => window.loadVideo(v);
+        card.innerHTML = `
+            <div class="card-thumb"><img src="${v.poster}" onerror="this.src='assets/logo192.png'"></div>
+            <div class="card-text">${v.title}</div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// ==========================================
+// 4. CONTROL DE AUDIO (INTELIGENTE)
+// ==========================================
+window.controlAudio = (url, btnId, barId, timeId) => {
+    const btn = document.getElementById(btnId);
+    const bar = document.getElementById(barId);
+    const txt = document.getElementById(timeId);
+
+    // Formateador de tiempo
+    const fmt = (s) => {
+        const m = Math.floor(s/60);
+        const sec = Math.floor(s%60);
+        return `${m}:${sec<10?'0':''}${sec}`;
+    };
+
+    // Actualizador UI
+    const tick = () => {
+        if(audioGlobal.duration) {
+            const pct = (audioGlobal.currentTime / audioGlobal.duration) * 100;
+            if(bar) bar.style.width = pct + "%";
+            if(txt) txt.innerText = `${fmt(audioGlobal.currentTime)} / ${fmt(audioGlobal.duration)}`;
+        }
+    };
+
+    // Lógica Play/Pause
+    if (currentSongUrl === url) {
+        // Misma canción: Pausar/Reanudar
+        if (!audioGlobal.paused) {
+            audioGlobal.pause();
+            btn.innerText = "▶ PLAY";
+            btn.style.borderColor = "#333";
+            clearInterval(progressInterval);
+        } else {
+            audioGlobal.play();
+            btn.innerText = "⏸ PAUSA";
+            btn.style.borderColor = "var(--accent)";
+            progressInterval = setInterval(tick, 500);
+        }
+        return;
+    }
+
+    // Nueva canción: Resetear todo
+    clearInterval(progressInterval);
+    document.querySelectorAll('[id^="btn-m-"]').forEach(b => {
+        b.innerText = "▶ PLAY";
+        b.style.borderColor = "#333";
+    });
+    document.querySelectorAll('.progress-bar-fill').forEach(b => b.style.width = "0%");
+
+    audioGlobal.src = url;
+    audioGlobal.play();
+    currentSongUrl = url;
+    
+    btn.innerText = "⏸ PAUSA";
+    btn.style.borderColor = "var(--accent)";
+    progressInterval = setInterval(tick, 500);
+
+    // Al terminar
+    audioGlobal.onended = () => {
+        btn.innerText = "▶ PLAY";
+        if(bar) bar.style.width = "0%";
+        clearInterval(progressInterval);
+    };
+};
+
+// ==========================================
+// 5. AUTH Y SISTEMA
+// ==========================================
+auth.onAuthStateChanged(user => {
+    currentUser = user;
+    document.body.classList.toggle('is-vip', !!user); // CLASE MÁGICA DEL VIP
+    
+    const loginBtn = document.getElementById('btn-login-profile');
+    const logoutBtn = document.getElementById('btn-logout-profile');
+
+    if (user) {
+        document.getElementById('display-name').innerText = user.displayName.toUpperCase();
+        if(loginBtn) loginBtn.style.display = 'none';
+        if(logoutBtn) logoutBtn.style.display = 'block';
+
+        if (user.email === ADMIN_EMAIL) {
+            document.getElementById('user-rank').innerText = "👑 ADMIN";
+            const nav = document.getElementById('main-nav');
+            if (!document.getElementById('nav-admin')) {
+                const d = document.createElement('div');
+                d.id = "nav-admin"; d.className = "v-item"; d.style.color = "#ff00ff";
+                d.innerHTML = "<span>⚡</span> SISTEMA";
+                d.onclick = () => window.showPage('p-admin', d);
+                nav.appendChild(d);
+            }
+        } else {
+            document.getElementById('user-rank').innerText = "MIEMBRO VIP";
+        }
+    } else {
+        document.getElementById('display-name').innerText = "INVITADO";
+        if(loginBtn) loginBtn.style.display = 'block';
+        if(logoutBtn) logoutBtn.style.display = 'none';
+    }
+});
+
+// Botones de Auth
+window.loginGoogle = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+window.cerrarSesion = () => auth.signOut().then(() => location.reload());
+
+// Admin Upload
+window.adminUpload = (type) => {
+    if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
+    
+    const title = document.getElementById('adm-v-title').value;
+    const desc = document.getElementById('adm-v-desc').value;
+    const url = document.getElementById('adm-v-url').value;
+    const thumb = document.getElementById('adm-v-thumb').value;
+
+    if (!title || !url) return alert("Faltan datos");
+
+    const path = (type === 'video') ? 'social/videos' : 'social/musics';
+    
+    db.ref(path).push({ 
+        title, 
+        desc, 
+        url, 
+        poster: thumb, 
+        timestamp: Date.now() 
+    }).then(() => {
+        alert("Contenido Publicado");
+        document.querySelectorAll('.admin-input').forEach(i => i.value = "");
+    });
+};
+
+// ==========================================
+// 6. UTILIDADES Y NAVEGACIÓN
+// ==========================================
+window.showPage = (id, el) => {
+    document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.v-item').forEach(v => v.classList.remove('active'));
+    
+    document.getElementById(id).classList.add('active');
+    if (el) el.classList.add('active');
+    
+    // Cerrar menú móvil si está abierto
+    if (window.innerWidth < 768) {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('mobile-overlay').classList.remove('open');
+    }
+};
+
+window.toggleMenu = () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('mobile-overlay').classList.toggle('open');
+};
+
+window.toggleComments = () => {
+    const c = document.getElementById('comments-wrapper');
+    c.style.display = (c.style.display === 'none') ? 'block' : 'none';
+};
+
+window.toggleLiveChat = () => {
+    const w = document.getElementById('live-chat-window');
+    w.style.display = (w.style.display === 'flex') ? 'none' : 'flex';
+};
+
+// Comentarios y Chat
 function loadComments(vidId) {
     const list = document.getElementById('comments-list');
-    db.ref(`comments/${vidId}`).off(); // Limpiar anterior
-    
     db.ref(`comments/${vidId}`).on('value', s => {
         if(!list) return;
         list.innerHTML = "";
-        const data = s.val();
+        document.getElementById('comments-count-btn').innerText = s.numChildren();
         
-        if(document.getElementById('comments-count-btn')) {
-            document.getElementById('comments-count-btn').innerText = s.numChildren();
-        }
-        
-        if(data){
-            Object.entries(data).reverse().forEach(([key, val]) => {
-                const div = document.createElement('div');
-                div.className = 'comment-block';
-                const userName = val.user || 'Anónimo';
-                
-                let repliesHTML = "";
-                if (val.replies) {
-                    Object.values(val.replies).forEach(r => {
-                        repliesHTML += `<div class="sub-reply"><span style="color:#00ff88">${r.user}:</span> ${r.text}</div>`;
-                    });
-                }
-                
-                div.innerHTML = `
-                    <div style="margin-bottom:5px;">
-                        <span class="user-tag">${userName}</span>
-                        <span style="color:#ddd">${val.text}</span>
-                    </div>
-                    <div class="comment-actions-row">
-                        <button class="btn-comment-action" onclick="window.darLikeComentario('${key}')">❤️ ${val.likes || 0}</button>
-                        <button class="btn-comment-action" onclick="window.mostrarCajaRespuesta('${key}')">Responder</button>
-                    </div>
-                    <div class="replies-container">
-                        ${repliesHTML}
-                        <div id="reply-box-${key}" class="reply-input-box" style="display:none;">
-                            <input type="text" id="input-${key}" placeholder="Responder...">
-                            <button onclick="window.enviarRespuesta('${key}')">></button>
-                        </div>
-                    </div>`;
-                list.appendChild(div);
+        if(s.val()) {
+            Object.entries(s.val()).reverse().forEach(([k, v]) => {
+                const d = document.createElement('div');
+                d.style.marginBottom = "8px";
+                d.style.borderBottom = "1px solid #222";
+                d.style.paddingBottom = "5px";
+                d.innerHTML = `<b style="color:var(--accent); font-size:0.8rem;">${v.user}:</b> <span style="font-size:0.9rem; color:#ccc;">${v.text}</span>`;
+                list.appendChild(d);
             });
         }
     });
 }
 
-// ==========================================
-// 5. AUTH Y PERFIL
-// ==========================================
-auth.onAuthStateChanged(user => {
-    currentUser = user;
-    document.body.classList.toggle('is-vip', !!user);
-    
-    const nameEl = document.getElementById('display-name');
-    const photoEl = document.getElementById('profile-preview');
-    const uidEl = document.getElementById('user-uid');
-    const rankEl = document.getElementById('user-rank');
-    const loginBtn = document.getElementById('btn-login-profile');
-    const logoutBtn = document.getElementById('btn-logout-profile');
-
-    if (user) {
-        if(nameEl) nameEl.innerText = user.displayName ? user.displayName.toUpperCase() : "USUARIO";
-        if(photoEl) photoEl.src = user.photoURL || "assets/logo192.png";
-        if(uidEl) uidEl.innerText = user.uid.substring(0, 8);
-        
-        if(loginBtn) loginBtn.style.display = 'none';
-        if(logoutBtn) logoutBtn.style.display = 'block';
-
-        if(user.email === ADMIN_EMAIL) {
-            if(rankEl) {
-                rankEl.innerText = "👑 MODO ARTISTA";
-                rankEl.style.color = "#ff00ff";
-                rankEl.style.textShadow = "0 0 5px #ff00ff";
-            }
-            const nav = document.getElementById('main-nav');
-            if(nav && !document.getElementById('nav-admin-btn')){
-                const div = document.createElement('div');
-                div.id = 'nav-admin-btn';
-                div.className = "v-item";
-                div.style.color = "#ff00ff";
-                div.innerHTML = `<span class="v-icon">⚡</span> SISTEMA`;
-                div.onclick = () => window.showPage('p-admin', div);
-                nav.appendChild(div);
-            }
-        } else {
-            if(rankEl) {
-                rankEl.innerText = "VERIFIED USER";
-                rankEl.style.color = "#fff";
-            }
-        }
-        checkSubscription(user.uid);
-    } else {
-        if(nameEl) nameEl.innerText = "INVITADO";
-        if(photoEl) photoEl.src = "assets/logo192.png";
-        if(uidEl) uidEl.innerText = "NO_AUTH";
-        if(rankEl) rankEl.innerText = "GUEST";
-        if(loginBtn) loginBtn.style.display = 'block';
-        if(logoutBtn) logoutBtn.style.display = 'none';
-        
-        const btnAdmin = document.getElementById('nav-admin-btn');
-        if(btnAdmin) btnAdmin.remove();
-        resetSubscriptionUI();
-    }
-});
-
-window.loginGoogle = () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-window.cerrarSesion = () => auth.signOut().then(() => location.reload());
-
-// ==========================================
-// 6. ACCIONES (Likes, Comentarios, Subs)
-// ==========================================
-window.darLike = () => {
-    if(!currentVideoId) return;
-    db.ref(`stats/${currentVideoId}/likes`).transaction(c => (c || 0) + 1);
-};
-
-window.toggleComments = () => {
-    const box = document.getElementById('comments-wrapper');
-    if(box) box.style.display = (box.style.display === 'none') ? 'block' : 'none';
-};
-
 window.enviarComentario = () => {
-    const txtEl = document.getElementById('comment-text');
-    const txt = txtEl.value.trim();
-    if(!currentUser) return alert("⚠️ Inicia sesión para comentar.");
-    if(!txt) return;
-    db.ref(`comments/${currentVideoId}`).push({ text: txt, user: currentUser.displayName, uid: currentUser.uid, likes: 0 });
-    txtEl.value = "";
-};
-
-window.mostrarCajaRespuesta = (id) => {
-    const box = document.getElementById(`reply-box-${id}`);
-    if(box) box.style.display = (box.style.display === 'none') ? 'flex' : 'none';
-};
-
-window.enviarRespuesta = (commentId) => {
-    const input = document.getElementById(`input-${commentId}`);
-    const text = input.value.trim();
-    if(!currentUser) return alert("Inicia sesión.");
-    if(!text) return;
-    db.ref(`comments/${currentVideoId}/${commentId}/replies`).push({ text: text, user: currentUser.displayName });
+    const input = document.getElementById('comment-text');
+    if(!currentUser || !input.value.trim()) return alert("Inicia sesión.");
+    db.ref(`comments/${currentVideoId}`).push({ user: currentUser.displayName, text: input.value });
     input.value = "";
-};
-
-window.darLikeComentario = (id) => {
-    if(!currentUser) return alert("Inicia sesión.");
-    db.ref(`comments/${currentVideoId}/${id}/likes`).transaction(c => (c || 0) + 1);
-};
-
-// Subs Globales
-db.ref('stats/general/subscribers').on('value', snapshot => {
-    const count = snapshot.val() || 0;
-    const el = document.getElementById('global-subs-count');
-    if(el) el.innerText = count.toLocaleString();
-});
-
-function checkSubscription(uid) {
-    db.ref(`users/${uid}/isSubscribed`).on('value', snap => {
-        const btn = document.getElementById('btn-subscribe');
-        if(!btn) return;
-        if (snap.val() === true) {
-            btn.innerText = "SUSCRITO";
-            btn.classList.add('subscribed');
-        } else {
-            btn.innerText = "SUSCRIBIRSE";
-            btn.classList.remove('subscribed');
-        }
-    });
-}
-
-function resetSubscriptionUI() {
-    const btn = document.getElementById('btn-subscribe');
-    if(btn) {
-        btn.innerText = "SUSCRIBIRSE";
-        btn.classList.remove('subscribed');
-    }
-}
-
-window.toggleSub = () => {
-    if (!currentUser) return alert("⚠️ Inicia sesión para suscribirte.");
-    const userSubRef = db.ref(`users/${currentUser.uid}/isSubscribed`);
-    const globalCountRef = db.ref('stats/general/subscribers');
-    userSubRef.once('value', snapshot => {
-        const isSubscribed = snapshot.val();
-        if (isSubscribed) {
-            userSubRef.set(false);
-            globalCountRef.transaction(c => (c || 0) - 1);
-        } else {
-            userSubRef.set(true);
-            globalCountRef.transaction(c => (c || 0) + 1);
-        }
-    });
-};
-
-// ==========================================
-// 7. SISTEMA ADMIN (Subida)
-// ==========================================
-window.adminUpload = async (type) => {
-    if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
-
-    let data = {};
-    if (type === 'video') {
-        data = {
-            title: document.getElementById('adm-v-title').value,
-            desc: document.getElementById('adm-v-desc').value,
-            url: document.getElementById('adm-v-url').value,
-            poster: document.getElementById('adm-v-thumb').value,
-            timestamp: Date.now()
-        };
-    } else if (type === 'music') {
-        data = {
-            title: document.getElementById('adm-m-title').value,
-            url: document.getElementById('adm-m-url').value,
-            timestamp: Date.now()
-        };
-    } else if (type === 'event') {
-        data = {
-            title: document.getElementById('adm-e-title').value,
-            day: document.getElementById('adm-e-day').value,
-            month: document.getElementById('adm-e-month').value,
-            loc: document.getElementById('adm-e-loc').value
-        };
-    }
-
-    if (!data.title) return alert("⚠️ Faltan datos.");
-
-    try {
-        await db.ref(`social/${type}s`).push(data);
-        alert("✅ ¡Publicado!");
-        document.querySelectorAll('.admin-input').forEach(i => i.value = "");
-    } catch (e) {
-        alert("Error: " + e.message);
-    }
-};
-
-// ==========================================
-// 8. CHAT GLOBAL
-// ==========================================
-window.toggleLiveChat = () => {
-    const w = document.getElementById('live-chat-window');
-    if(w) {
-        w.style.display = (w.style.display === 'flex') ? 'none' : 'flex';
-        if(w.style.display === 'flex') {
-            const body = document.getElementById('chat-global-msgs');
-            body.scrollTop = body.scrollHeight;
-        }
-    }
 };
 
 window.enviarMensajeChat = () => {
     const input = document.getElementById('chat-input-msg');
-    const txt = input.value.trim();
-    if(!txt) return;
-    
-    let userName = "Invitado";
-    let userEmail = "anonimo";
-    let isArtist = false;
-
-    if (currentUser) {
-        userName = currentUser.displayName;
-        userEmail = currentUser.email;
-        isArtist = (currentUser.email === ADMIN_EMAIL);
-    }
-    
-    db.ref('chat_global').push({ 
-        text: txt, 
-        user: userName, 
-        email: userEmail,
-        isAdmin: isArtist,
-        timestamp: Date.now() 
-    });
+    if(!input.value.trim()) return;
+    const user = currentUser ? currentUser.displayName : "Invitado";
+    db.ref('chat_global').push({ user, text: input.value });
     input.value = "";
 };
 
-db.ref('chat_global').limitToLast(50).on('child_added', snapshot => {
-    const m = snapshot.val();
-    const chatBody = document.getElementById('chat-global-msgs');
-    if(!chatBody) return;
-
-    const div = document.createElement('div');
-    div.className = "msg-bubble";
-    
-    if (m.isAdmin === true || m.email === ADMIN_EMAIL) {
-        div.classList.add('msg-artist');
-        div.innerHTML = `<span class="msg-user-name">${m.user}</span>${m.text}`;
-        if (Date.now() - m.timestamp < 10000) soundTortuga.play().catch(()=>{});
-
-    } else if (m.email === "anonimo") {
-        div.style.backgroundColor = "#2a2a2a"; 
-        div.style.borderLeft = "3px solid #666";
-        div.style.color = "#ccc";
-        div.innerHTML = `<span class="msg-user-name" style="color:#aaa;">👻 ${m.user}</span>${m.text}`;
-
-    } else {
-        const colors = ['#1a1a2e', '#16213e', '#1f4068', '#2d1b2e', '#2c003e', '#0f3057'];
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        div.style.backgroundColor = randomColor;
-        div.style.borderLeft = "3px solid #00ff88"; 
-        div.innerHTML = `<span class="msg-user-name" style="color:#00ff88;">${m.user}</span>${m.text}`;
-    }
-    
-    chatBody.appendChild(div);
-    chatBody.scrollTop = chatBody.scrollHeight;
-});
-
-// NAVEGACIÓN
-window.showPage = (id, el) => {
-    document.querySelectorAll('.app-page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.v-item').forEach(v => v.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if(el) el.classList.add('active');
-    if(window.innerWidth <= 768) window.toggleMenu();
-};
-
-window.toggleMenu = () => {
-    const sb = document.getElementById('sidebar');
-    const ov = document.getElementById('mobile-overlay');
-    if(sb) sb.classList.toggle('open');
-    if(ov) ov.classList.toggle('open');
+window.darLike = () => {
+    if(currentVideoId) db.ref(`stats/${currentVideoId}/likes`).transaction(c => (c||0)+1);
 };
