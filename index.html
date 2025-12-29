@@ -50,7 +50,7 @@
             <header class="vscode-header">
                 <div class="header-left">
                     <h1>ABRAHAM HORUS</h1>
-                    <p>Plataforma Oficial v4.5 (Hybrid)</p>
+                    <p>Plataforma Oficial v4.6 (VIP)</p>
                 </div>
                 <div class="header-right">
                     <div class="subs-counter-box">
@@ -103,23 +103,33 @@
 
                 <div class="divider-line"></div>
                 <h3 class="section-label">Feed de Videos</h3>
-                <div id="videos-grid" class="cards-grid">
-                    </div>
+                <div id="videos-grid" class="cards-grid"></div>
             </div>
 
             <div id="p-musica" class="app-page">
-                <h2 class="section-label">Discografía</h2>
-                <div id="music-list" class="simple-list"></div>
+                <div class="code-block-lock">
+                    <div class="code-text" style="text-align: center;">
+                        <h3 style="color: #fff; margin-bottom: 10px;">🔒 Discografía Exclusiva</h3>
+                        <p style="color: #bbb; margin-bottom: 20px;">Inicia sesión para escuchar los tracks.</p>
+                        <button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER CON GOOGLE</button>
+                    </div>
+                </div>
+                
+                <div class="protected-content">
+                    <h2 class="section-label">Discografía</h2>
+                    <div id="music-list" class="simple-list"></div>
+                </div>
             </div>
 
             <div id="p-photos" class="app-page">
                 <div class="code-block-lock">
                     <div class="code-text" style="text-align: center;">
                         <h3 style="color: #fff; margin-bottom: 10px;">🔒 Fotos Secretas</h3>
-                        <p style="color: #bbb; margin-bottom: 20px;">Acceso restringido.</p>
+                        <p style="color: #bbb; margin-bottom: 20px;">Acceso restringido a VIPs.</p>
                         <button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER CON GOOGLE</button>
                     </div>
                 </div>
+                
                 <div class="protected-content">
                     <h2 class="section-label">Galería VIP</h2>
                     <div id="photos-grid" class="cards-grid"><p style="color:#888;">Próximamente.</p></div>
@@ -127,8 +137,18 @@
             </div>
 
             <div id="p-events" class="app-page">
-                <h2 class="section-label">Próximos Eventos</h2>
-                <div id="events-list" class="events-container"></div>
+                <div class="code-block-lock">
+                    <div class="code-text" style="text-align: center;">
+                        <h3 style="color: #fff; margin-bottom: 10px;">🔒 Calendario de Shows</h3>
+                        <p style="color: #bbb; margin-bottom: 20px;">Regístrate para ver las fechas.</p>
+                        <button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER CON GOOGLE</button>
+                    </div>
+                </div>
+
+                <div class="protected-content">
+                    <h2 class="section-label">Próximos Eventos</h2>
+                    <div id="events-list" class="events-container"></div>
+                </div>
             </div>
 
             <div id="p-profile" class="app-page">
@@ -161,11 +181,8 @@
                     <div class="profile-panel" style="text-align:left;">
                         <h3>📺 Publicar Video</h3>
                         <p style="font-size:0.7rem; color:#888; margin-bottom:10px;">Pega los enlaces (Cloudinary/YouTube/Drive)</p>
-                        
                         <input type="text" id="adm-v-title" placeholder="Título del Video" class="admin-input">
-                        
                         <textarea id="adm-v-desc" placeholder="Descripción completa del video..." class="admin-input" style="height: 100px; resize: vertical;"></textarea>
-                        
                         <input type="text" id="adm-v-url" placeholder="URL del Video (MP4)" class="admin-input">
                         <input type="text" id="adm-v-thumb" placeholder="URL Miniatura (JPG)" class="admin-input">
                         <button onclick="window.adminUpload('video')" class="btn-green-glow" style="width:100%; background:#ff00ff; color:white;">PUBLICAR VIDEO</button>
