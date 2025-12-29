@@ -2,7 +2,7 @@ const firebaseConfig = { apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA", auth
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const db = firebase.database(), auth = firebase.auth();
 const ADMIN_EMAIL = "abrahorus@gmail.com";
-let currentVideoId="default", currentUser=null;
+let currentVideoId="default", currentUser=null, currentSongUrl="", audioGlobal=new Audio();
 
 window.onload = () => {
     loadVideo({ id: "v_init", title: "DESPIERTO (Oficial)", desc: "Video Oficial", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", poster: "assets/shot 1.jpeg" });
@@ -14,29 +14,30 @@ function initApp() {
         const g=document.getElementById('videos-grid'); if(g) g.innerHTML="";
         if(s.val()) Object.entries(s.val()).reverse().forEach(([k,v]) => {
             const c=document.createElement('div'); c.className="code-card"; c.onclick=()=>loadVideo({id:k,...v});
-            c.innerHTML=`<div class="card-thumb"><img src="${v.poster}" onerror="this.src='assets/logo192.png'"></div><div class="card-text">${v.title}</div>`;
+            c.innerHTML=`<div class="card-thumb"><img src="${v.poster}"></div><div class="card-text">${v.title}</div>`;
             g.appendChild(c);
         });
     });
+    
+    // CHAT MEJORADO
     db.ref('chat_global').limitToLast(30).on('child_added', s => {
         const m = s.val(), box = document.getElementById('chat-global-msgs');
         if(box) {
             const div = document.createElement('div');
-            // LÓGICA DE CLASES Y CORONA
-            let className = "msg-bubble ";
-            let crown = "";
-            
+            let userClass = "msg-other";
+            let crownIcon = "";
+
+            // Lógica: Si es Admin, usa la clase Rainbow. Si soy yo normal, usa Self. Si es otro, Other.
             if (m.email === ADMIN_EMAIL) {
-                className += "msg-artist"; // Rainbow
-                crown = "👑 "; // Corona
+                userClass = "msg-artist"; // Esta clase tiene el Rainbow CSS
+                crownIcon = "👑 "; 
             } else if (currentUser && m.user === currentUser.displayName) {
-                className += "msg-self"; // Verde
-            } else {
-                className += "msg-other"; // Gris
+                userClass = "msg-self";
             }
 
-            div.className = className;
-            div.innerHTML = `<small>${crown}${m.user}</small>${m.text}`;
+            div.className = `msg-bubble ${userClass}`;
+            // IMPORTANTE: user-name está separado del mensaje en un span bloque
+            div.innerHTML = `<span class="user-name">${crownIcon}${m.user}</span>${m.text}`;
             box.appendChild(div); box.scrollTop = box.scrollHeight;
         }
     });
@@ -53,9 +54,9 @@ window.loadVideo = (v) => {
 };
 
 function loadComments(vidId) {
-    const list = document.getElementById('comments-list');
+    const l=document.getElementById('comments-list');
     db.ref(`comments/${vidId}`).on('value', s => {
-        if(!list) return; list.innerHTML = ""; document.getElementById('comments-count-btn').innerText = s.numChildren();
+        if(!l) return; l.innerHTML=""; document.getElementById('comments-count-btn').innerText=s.numChildren();
         if(s.val()) Object.entries(s.val()).reverse().forEach(([key, val]) => {
             let reps = ""; if(val.replies) Object.values(val.replies).forEach(r => reps += `<div class="sub-reply"><b>${r.user}:</b> ${r.text}</div>`);
             const div = document.createElement('div'); div.className = "comment-block";
@@ -63,7 +64,7 @@ function loadComments(vidId) {
                 <div class="comment-actions"><button class="btn-action-mini" onclick="window.darLikeComentario('${key}')">❤️ ${val.likes || 0}</button><button class="btn-action-mini" onclick="window.mostrarReply('${key}')">Responder</button></div>
                 <div id="replies-${key}">${reps}</div>
                 <div id="reply-box-${key}" class="reply-input-box"><input type="text" id="input-${key}"><button onclick="window.enviarRespuesta('${key}')">></button></div>`;
-            list.appendChild(div);
+            l.appendChild(div);
         });
     });
 }
@@ -84,8 +85,11 @@ window.toggleLiveChat=()=>{const w=document.getElementById('live-chat-window'); 
 window.toggleComments=()=>{const c=document.getElementById('comments-wrapper'); c.style.display=(c.style.display==='none')?'block':'none';};
 window.enviarMensajeChat=()=>{
     const i=document.getElementById('chat-input-msg'); if(!i.value) return;
-    const email = currentUser ? currentUser.email : "anon";
-    db.ref('chat_global').push({user:currentUser?currentUser.displayName:"Anon", email: email, text:i.value, timestamp:Date.now()}); i.value="";
+    // Envía email para verificar admin
+    const email = currentUser ? currentUser.email : "";
+    const user = currentUser ? currentUser.displayName : "Anon";
+    db.ref('chat_global').push({user, email, text:i.value, timestamp:Date.now()}); 
+    i.value="";
 };
 auth.onAuthStateChanged(u => {
     currentUser=u; document.body.classList.toggle('is-vip', !!u);
