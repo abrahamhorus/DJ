@@ -129,7 +129,7 @@ const playSound = (type) => {
 };
 window.onload = () => {
     // Carga inicial
-    loadVideo({ id: "v_init", title: "DESPIERTO (Oficial)", desc: "Video Oficial", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", poster: "assets/shot 1.jpeg" });
+    loadVideo({ id: "v_init", title: "Despierto (Video Musical Oficial)", desc: "Primer video oficial del artista Abraham Horus, superación de una crisis, llegando a la muerte y renaciendo con una fuerza de voluntad inquebrantable logrando la iluminación de cuerpo y alma. 👑", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", poster: "assets/shot 1.jpeg" });
     initApp();
     handleHash(); 
 

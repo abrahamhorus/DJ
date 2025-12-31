@@ -338,17 +338,19 @@ body.is-vip .code-block-lock { display: none; }
 
 /* El Player Principal */
 .ytm-player-card {
-    background: linear-gradient(180deg, rgba(30,30,30,0.9) 0%, rgba(10,10,10,0.95) 100%);
+    background: linear-gradient(180deg, rgba(22, 22, 24, 0.562) 0%, rgba(23, 30, 32, 0.507) 100%);
     backdrop-filter: blur(20px);
-    border: 1px solid #333;
+    border: 1px solid #23fcfc7a;
     border-radius: 20px;
     padding: 30px;
     width: 100%;
     text-align: center;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    margin-bottom: 30px;
+    box-shadow: 0 20px 50px rgba(8, 112, 209, 0.781);
+    margin-top: 15%;
+    
+   
 }
 
 /* Carátula */
@@ -390,15 +392,22 @@ body.is-vip .code-block-lock { display: none; }
     width: 70px;
     height: 70px;
     background: #fff !important;
-    color: #000 !important;
+    color: #000000cb !important;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
     box-shadow: 0 0 20px rgba(255,255,255,0.3);
+    padding-left: 5px; /* Ajuste visual para centrar el icono de Play */
+    padding-bottom: 5px;
 }
 .btn-play-big:hover { transform: scale(1.1); background: var(--accent) !important; }
+
+/* Cuando está en pausa (icono simétrico), quitamos el padding */
+.ytm-player-card.playing .btn-play-big {
+    padding-left: 0;
+}
 
 /* Barra de progreso */
 .ytm-progress-area { width: 100%; margin-top: 25px; cursor: pointer; }
@@ -418,6 +427,7 @@ body.is-vip .code-block-lock { display: none; }
     line-height: 1.6;
     color: #ddd;
     z-index: 10;
+    text-align: center;
 }
 .ytm-lyrics-overlay.show { top: 0; }
 .btn-lyrics-toggle {
@@ -430,6 +440,17 @@ body.is-vip .code-block-lock { display: none; }
     border-radius: 20px;
     z-index: 20;
 }
+.btn-lyrics-close {
+    position: absolute;
+    top: 15px; right: 15px;
+    background: transparent !important;
+    color: #fff !important;
+    font-size: 1.5rem;
+    border: none !important;
+    cursor: pointer;
+    z-index: 20;
+}
+.btn-lyrics-close:hover { color: var(--accent) !important; transform: scale(1.1); }
 
 /* La lista de abajo (Cola) */
 .ytm-queue { width: 100%; }
