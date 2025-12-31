@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Abraham Horus | OS v24.0</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050505">
+    <meta property="og:title" content="Abraham Horus | Official OS">
+    <meta property="og:description" content="Plataforma interactiva, música exclusiva y comunidad VIP.">
+    <meta property="og:image" content="assets/shot 1.jpeg">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <body>
+    <canvas id="galaxy-canvas"></canvas>
+
+    <canvas id="audio-visualizer"></canvas>
+    
+    <div id="toast-container"></div>
+
+    <main class="mac-desktop">
+        
+        <!-- VENTANA VIDEOS -->
+        <div id="p-videos" class="app-view active">
+            <div class="window-content">
+                <div class="header-hero">
+                    <div class="hero-top-row">
+                        <h1 class="glitch-effect" data-text="ABRAHAM HORUS">ABRAHAM HORUS</h1>
+                        <button id="btn-subscribe" class="subs-unified-btn" onclick="window.toggleSub()">
+                            <div class="live-dot"></div>
+                            <span id="subs-label" class="subs-label">SUSCRIBIRSE</span>
+                            <span id="global-subs-count" class="subs-number">0</span>
+                        </button>
+                    </div>
+                    <p>Plataforma Oficial <span style="color:var(--accent)">[Programador y Artista]</span></p>
+                </div>
+            <div class="integrated-player-box">
+                <div class="video-frame">
+                    <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
+                        <source id="video-source" src="" type="video/mp4">
+                    </video>
+                </div>
+                <div class="video-controls-bar">
+                    <div class="info-block">
+                        <h2 id="current-title">Cargando...</h2>
+                        <p id="video-description" class="desc-text">...</p>
+                    </div>
+                    <div class="actions-row"> 
+                        <button onclick="window.darLike()" class="btn-code" id="video-like-btn">❤️ <span id="likes-count">0</span></button>
+                        <button class="btn-code no-click">👁️ <span id="total-views">0</span></button>
+                        <button onclick="window.toggleComments()" class="btn-code">💬 <span id="comments-count-btn">0</span></button>
+                    </div>
+                </div>
+                <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
+                    <div class="term-head" style="font-size: 14px;">COMENTARIOS DE LA COMUNIDAD</div>
+                    <div class="term-input">
+                        <input id="comment-input-main" placeholder="Escribe tu opinión...">
+                        <button onclick="window.publicarComentario()">ENVIAR</button>
+                    </div>
+                    <div id="comments-list" class="term-body-fixed"></div>
+                </div>
+            </div>
+            <h3 class="section-label">Feed Reciente</h3>
+            <div id="videos-grid" class="cards-grid"></div>
+            </div>
+        </div>
+
+       <!-- VENTANA MÚSICA -->
+       <div id="p-musica" class="app-view">
+            <div class="window-content">
+    <div class="code-block-lock"><h3>🔒 Discografía VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
+    
+    <div class="protected-content">
+        <div class="ytm-container">
+            
+           <div class="ytm-player-card" id="ytm-card">
+    
+    <div id="ytm-lyrics" class="ytm-lyrics-overlay">
+        <h3 style="color:var(--accent); margin-bottom:20px;">Letra / Info</h3>
+        <p id="lyrics-text">Selecciona una canción...</p>
+        <button onclick="window.toggleLyrics()" style="margin-top:20px; width:100%; border:1px solid #333;">CERRAR</button>
+    </div>
+
+    <img id="ytm-cover" src="assets/logo192.png" class="ytm-cover">
+    
+    <div class="ytm-info">
+        <h2 id="ytm-title">HORUS MUSIC</h2>
+        <p id="ytm-artist">Selecciona un track</p>
+    </div>
+
+    <div class="ytm-action-row">
+        <button class="btn-ytm-action" onclick="window.likeCurrentTrack()">
+            ❤️ <span id="ytm-like-count">0</span>
+        </button>
+        <button class="btn-ytm-action" onclick="window.toggleLyrics()">
+            📝 LETRA
+        </button>
+        <button class="btn-ytm-action" onclick="window.shareCurrentTrack()">
+            🚀 COMPARTIR
+        </button>
+    </div>
+
+    <div class="ytm-progress-area" onclick="window.seekAudio(event)">
+        <div class="xp-bar-bg"><div id="ytm-progress" class="xp-bar-fill" style="width:0%"></div></div>
+        <div class="ytm-time-row">
+            <span id="ytm-curr-time">0:00</span>
+            <span id="ytm-dur-time">0:00</span>
+        </div>
+    </div>
+
+    <div class="ytm-controls">
+        <button class="btn-control" onclick="window.prevTrack()">⏮</button>
+        <button class="btn-control btn-play-big" id="ytm-play-btn" onclick="window.togglePlay()">▶</button>
+        <button class="btn-control" onclick="window.nextTrack()">⏭</button>
+    </div>
+</div>
+
+            <h3 class="section-label" style="align-self: flex-start;">Siguientes</h3>
+            <div id="ytm-queue-list" class="ytm-queue"></div>
+        </div>
+    </div>
+            </div>
+</div>
+        
+        <!-- VENTANA FOTOS -->
+        <div id="p-photos" class="app-view">
+            <div class="window-content">
+            <div class="code-block-lock"><h3>🔒 Galería VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
+            <div class="protected-content">
+                <h2 class="section-label">Galería Privada</h2>
+                <div id="photos-grid" class="cards-grid"></div>
+            </div>
+            </div>
+        </div>
+        
+        <!-- VENTANA EVENTOS -->
+        <div id="p-events" class="app-view">
+            <div class="window-content">
+            <div class="code-block-lock"><h3>🔒 Calendario VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
+            <div class="protected-content">
+                <h2 class="section-label">Próximos Shows</h2>
+                <div id="events-list" class="cards-grid"></div>
+            </div>
+            </div>
+        </div>
+        
+        <!-- VENTANA PERFIL -->
+        <div id="p-profile" class="app-view">
+            <div class="window-content">
+            <div class="profile-panel">
+                <img id="profile-preview" src="assets/logo192.png">
+                <h3 id="display-name">INVITADO</h3>
+                
+                <div id="xp-container" style="display:none; margin: 15px 0;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
+                        <span>Nivel <span id="user-level" style="color:var(--accent); font-weight:bold;">1</span></span>
+                        <span id="user-xp-text">0 XP</span>
+                    </div>
+                    <div class="xp-bar-bg"><div id="xp-bar-fill" class="xp-bar-fill"></div></div>
+                </div>
+
+                <button id="btn-login-profile" onclick="window.loginGoogle()" class="btn-green-glow">INICIAR SESIÓN CON GOOGLE</button>
+                <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; border-color:red; color:red;">CERRAR SESIÓN</button>
+                
+                <div id="profile-editor" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
+                    <input id="edit-name" placeholder="Nuevo Nombre" class="admin-input">
+                    <input id="edit-photo" placeholder="URL Foto Perfil" class="admin-input">
+                    <button onclick="window.guardarPerfil()" class="btn-green-glow">GUARDAR CAMBIOS</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- VENTANA ADMIN -->
+        <div id="p-admin" class="app-view">
+            <div class="window-content">
+            <div class="profile-panel" style="text-align:left; max-width:600px; border-color:#ff00ff; box-shadow: 0 0 20px rgba(255,0,255,0.2);">
+                <h2 style="color:#ff00ff; border-bottom:1px solid #333; margin-bottom:20px; padding-bottom:10px;">
+                    <span class="glitch-effect" data-text="ADMIN CONSOLE">ADMIN CONSOLE</span>
+                </h2>
+
+                <label style="color:#666; font-size:0.8rem;">TIPO DE CONTENIDO</label>
+                <select id="adm-type" class="admin-input" onchange="window.updateAdminForm()">
+                    <option value="video">📺 Video</option>
+                    <option value="music">♬ Música</option>
+                    <option value="photo">📸 Foto</option>
+                    <option value="event">📅 Evento</option>
+                </select>
+
+                <input type="text" id="adm-title" placeholder="Título Principal" class="admin-input">
+                <textarea id="adm-desc" placeholder="Descripción / Letra / Detalles" class="admin-input" style="height:80px;"></textarea>
+                
+                <div id="field-url-container">
+                    <input type="text" id="adm-url" placeholder="URL del Archivo (MP4, MP3, JPG)" class="admin-input">
+                </div>
+                <div id="field-poster-container">
+                    <input type="text" id="adm-thumb" placeholder="URL de la Portada/Poster" class="admin-input">
+                </div>
+                <div id="field-date-container" style="display:none;">
+                    <input type="date" id="adm-date" class="admin-input">
+                </div>
+
+                <button onclick="window.adminUpload()" class="btn-green-glow" style="background:#ff00ff !important; color:#fff !important; border:none !important; margin-top:20px;">
+                    SUBIR A LA NUBE ☁
+                </button>
+            </div>
+            </div>
+        </div>
+
+    <!-- VENTANA CHAT (INTEGRADA COMO VENTANA) -->
+    <div id="p-chat" class="app-view">
+        <div class="window-content" style="display:flex; flex-direction:column; padding:0;">
+        <div id="chat-global-msgs" class="chat-body"></div>
+        <div class="chat-input-container">
+            <input id="chat-input-msg" placeholder="Escribe..." autocomplete="off">
+            <button onclick="window.enviarMensajeChat()">➤</button>
+        </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- MAC DOCK UNIFICADO -->
+    <div class="mac-dock-container">
+        <div class="mac-dock">
+            <div class="dock-item" onclick="window.navigate('p-videos')">📺<span class="dock-label">Videos</span></div>
+            <div class="dock-item" onclick="window.navigate('p-musica')">🎵<span class="dock-label">Música</span></div>
+            <div class="dock-item" onclick="window.navigate('p-photos')">📸<span class="dock-label">Fotos</span></div>
+            <div class="dock-item" onclick="window.navigate('p-events')">📅<span class="dock-label">Eventos</span></div>
+            <div class="dock-item" onclick="window.navigate('p-profile')">⚙️<span class="dock-label">Perfil</span></div>
+            <div class="dock-separator"></div>
+            <div class="dock-item" onclick="window.navigate('p-chat')">💬<span class="dock-label">Chat</span></div>
+            <div id="dock-admin" class="dock-item" onclick="window.navigate('p-admin')" style="display:none;">👑<span class="dock-label">Admin</span></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
