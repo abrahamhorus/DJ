@@ -817,3 +817,57 @@ body.is-vip .code-block-lock { display: none; }
 .btn-reacted-haha { color: #ffd700 !important; border-color: #ffd700 !important; }
 .btn-reacted-wow { color: #ff00ff !important; border-color: #ff00ff !important; }
 .btn-reacted-angry { color: #ff4444 !important; border-color: #ff4444 !important; }
+
+/* === TERMINAL WINDOW === */
+.terminal-window {
+    background-color: #000;
+    color: #0f0; /* Neon green text */
+    font-family: var(--font-code), 'Courier New', monospace;
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+    border: 1px solid #0f0;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+#terminal-output {
+    flex-grow: 1;
+    white-space: pre-wrap; /* Allows text to wrap */
+    word-break: break-all;
+}
+
+#terminal-output .terminal-line {
+    margin-bottom: 5px;
+}
+
+.terminal-prompt {
+    display: flex;
+    align-items: center;
+}
+
+.terminal-prompt .prompt-user {
+    color: #0f0;
+}
+
+.terminal-prompt .prompt-symbol {
+    color: #0f0;
+    margin-right: 5px;
+}
+
+#terminal-input {
+    flex-grow: 1;
+    background: transparent !important;
+    border: none !important;
+    color: #0f0 !important;
+    font-family: var(--font-code), 'Courier New', monospace;
+    padding: 0;
+    font-size: 1rem;
+    caret-color: #0f0;
+}
+
+#terminal-input:focus {
+    outline: none;
+    box-shadow: none !important;
+}

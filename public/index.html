@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <body>
     <canvas id="galaxy-canvas"></canvas>
 
     <canvas id="audio-visualizer"></canvas>
@@ -255,6 +254,19 @@
             </div>
         </div>
 
+        <!-- VENTANA TERMINAL -->
+        <div id="p-terminal" class="app-view">
+            <div class="window-content">
+                <div class="terminal-window">
+                    <div id="terminal-output"></div>
+                    <div class="terminal-prompt">
+                        <span class="prompt-user">horus@root:</span><span class="prompt-symbol">~$</span>
+                        <input type="text" id="terminal-input" autocomplete="off" autofocus>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     <!-- VENTANA CHAT (INTEGRADA COMO VENTANA) -->
     <div id="p-chat" class="app-view">
         <div class="window-content" style="display:flex; flex-direction:column; padding:0;">
@@ -265,6 +277,8 @@
         </div>
         </div>
     </div>
+
+    
     </main>
 
     <!-- PHOTO VIEWER MODAL (CAROUSEL) -->
@@ -325,6 +339,8 @@
             <div class="dock-item" onclick="window.navigate('p-photos')">📸<span class="dock-label">Fotos</span></div>
             <div class="dock-item" onclick="window.navigate('p-events')">📅<span class="dock-label">Eventos</span></div>
             <div class="dock-item" onclick="window.navigate('p-profile')">⚙️<span class="dock-label">Perfil</span></div>
+            <div class="dock-item" onclick="window.navigate('p-terminal')">>_<span class="dock-label">Terminal</span></div>
+            
             <div class="dock-separator"></div>
             <div class="dock-item" onclick="window.navigate('p-chat')">💬<span class="dock-label">Chat</span></div>
             <div id="dock-admin" class="dock-item" onclick="window.navigate('p-admin')" style="display:none;">👑<span class="dock-label">Admin</span></div>

@@ -158,6 +158,7 @@ window.onload = () => {
     loadVideo({ id: "v_init", title: "Despierto (Video Musical Oficial)", desc: "Primer video oficial del artista Abraham Horus, superación de una crisis, llegando a la muerte y renaciendo con una fuerza de voluntad inquebrantable logrando la iluminación de cuerpo y alma. 👑", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", poster: "assets/shot 1.jpeg" });
     initApp();
     handleHash(); 
+    initializeDock(); 
 
     // === LÓGICA PARA CONTAR VIEWS AL REPRODUCIR VIDEO ===
     const mainVideo = document.getElementById('main-video');
@@ -323,6 +324,88 @@ function initApp() {
         const el = document.getElementById('global-subs-count');
         if(el) animateValue("global-subs-count", parseInt(el.innerText) || 0, target, 1500);
     });
+
+    // 7. TERMINAL LOGIC
+    const terminalInput = document.getElementById('terminal-input');
+    const terminalOutput = document.getElementById('terminal-output');
+
+    const printToTerminal = (text, isCommand) => {
+        if (!terminalOutput) return;
+        const line = document.createElement('div');
+        line.className = 'terminal-line';
+        if (isCommand) {
+            line.innerHTML = `<span class="prompt-user">horus@root:</span><span class="prompt-symbol">~$</span> ${text}`;
+        } else {
+            line.innerHTML = text;
+        }
+        terminalOutput.appendChild(line);
+        // Scroll to bottom
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    };
+
+    const handleTerminalCommand = (command) => {
+        printToTerminal(command, true);
+        const args = command.toLowerCase().split(' ');
+        const cmd = args[0];
+
+        switch (cmd) {
+            case 'help':
+                printToTerminal(`Comandos disponibles:
+- <span style="color: var(--accent);">help</span>: Muestra esta lista de comandos.
+- <span style="color: var(--accent);">about</span>: Muestra información sobre el creador.
+- <span style="color: var(--accent);">social</span>: Muestra las redes sociales.
+- <span style="color: var(--accent);">subs</span>: Muestra el número de suscriptores.
+- <span style="color: var(--accent);">matrix</span>: Activa el modo Matrix.
+- <span style="color: var(--accent);">clear</span>: Limpia la terminal.
+`);
+                break;
+            case 'about':
+                printToTerminal('Abraham Horus: Ingeniero de Software, Productor Musical y Artista Digital. Esta plataforma es mi creación, uniendo código y arte. 🚀');
+                break;
+            case 'clear':
+                terminalOutput.innerHTML = '';
+                break;
+            case 'matrix':
+                activarModoMatrix();
+                printToTerminal('Modo Matrix activado.');
+                break;
+            case 'subs':
+                const subsCount = document.getElementById('global-subs-count').innerText;
+                printToTerminal(`Suscriptores actuales: ${subsCount}`);
+                break;
+            case 'social':
+                let socialLinks = 'Redes Sociales:\n';
+                appsData.forEach(app => {
+                    socialLinks += `- ${app.name}: <a href="${app.url}" target="_blank">${app.url}</a>\n`;
+                });
+                printToTerminal(socialLinks);
+                break;
+            default:
+                printToTerminal(`<span style="color: red;">Comando no reconocido:</span> ${command}. Escribe 'help' para ver la lista de comandos.`);
+                break;
+        }
+    };
+    
+    if (terminalInput) {
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value.trim();
+                if (command) {
+                    handleTerminalCommand(command);
+                    terminalInput.value = '';
+                }
+            }
+        });
+
+        const terminalWindow = document.querySelector('.terminal-window');
+        if (terminalWindow) {
+            terminalWindow.addEventListener('click', () => {
+                terminalInput.focus();
+            });
+        }
+        
+        printToTerminal("Bienvenido a HorusOS Terminal. Escribe 'help' para comenzar.", false);
+    }
 }
 
 // === LOGICA REPRODUCTOR YOUTUBE MUSIC ===
@@ -1259,3 +1342,40 @@ window.publicarComentarioFoto = () => {
 window.deletePhotoComment = (photoId, key) => {
     if(confirm("¿Borrar comentario?")) db.ref(`comments/${photoId}/${key}`).remove();
 };
+
+// === HORUS APPS ===
+const appsData = [
+    { id: 'facebook', name: 'Facebook', icon: '📘', type: 'link', url: 'https://www.facebook.com/TU_PERFIL' },
+    { id: 'instagram', name: 'Instagram', icon: '📸', type: 'link', url: 'https://www.instagram.com/TU_PERFIL' },
+    { id: 'tiktok', name: 'TikTok', icon: '🎵', type: 'link', url: 'https://www.tiktok.com/@TU_PERFIL' }
+];
+
+function initializeDock() {
+    const dock = document.querySelector('.mac-dock');
+    if (!dock) return;
+    const separator = dock.querySelector('.dock-separator');
+    
+    appsData.forEach(app => {
+        const dockIcon = document.createElement('div');
+        dockIcon.className = 'dock-item';
+        dockIcon.id = `dock-item-${app.id}`;
+        dockIcon.setAttribute('onclick', `openApp('${app.id}')`);
+        dockIcon.innerHTML = `
+            <span class="dock-icon">${app.icon}</span>
+            <span class="dock-label">${app.name}</span>
+        `;
+        if (separator) {
+            dock.insertBefore(dockIcon, separator);
+        } else {
+            dock.appendChild(dockIcon);
+        }
+    });
+}
+
+function openApp(appId) {
+    const app = appsData.find(a => a.id === appId);
+    if (!app) return;
+
+    showToast(`🚀 Viajando a ${app.name}...`);
+    window.open(app.url, '_blank');
+}
