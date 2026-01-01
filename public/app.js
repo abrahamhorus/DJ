@@ -1,3 +1,18 @@
+console.log(
+  "%c ¡ALTO AHÍ, VIAJERO! 🛑",
+  "color: #ff0033; font-size: 24px; font-weight: bold; text-shadow: 2px 2px #000;"
+);
+
+console.log(
+  "%c ¿Te gustó el código? Esta página fue construida con sudor, lágrimas y mucho café por el Dr. Abraham Horus. 🧬💻",
+  "color: #00d9ff; font-size: 14px; font-weight: bold;"
+);
+
+console.log(
+  "%c Si eres reclutador de Google (o traes buen presupuesto): ¡Hablemos! 📩 contacto@abrahamhorus.com",
+  "background: #222; color: #bada55; padding: 10px; border-radius: 5px; font-size: 12px;"
+);
+
 const firebaseConfig = { apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA", 
     authDomain: "abrahamhorus1996.firebaseapp.com", 
     databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com", 
@@ -17,6 +32,17 @@ let progressInterval; // Intervalo de la barra
 let isAudioInit = false; // Estado de interacción
 let currentVideoRefs = []; // Referencias activas de Firebase para limpieza
 let currentCommentRefs = []; // Referencias de comentarios para limpieza independiente
+let photoList = []; // Lista de fotos para el carrusel
+let currentPhotoIndex = -1; // Índice de foto actual
+let currentPhotoCommentsRef = null; // Ref para limpiar listener de comentarios de fotos
+
+// === CONSTANTES DE REACCIONES ===
+const REACTION_ICONS = {
+    love: '❤️',
+    haha: '😆',
+    wow: '😮',
+    angry: '😡'
+};
 
 // Global AudioContext instance
 let audioCtx = null;
@@ -235,7 +261,7 @@ function initApp() {
             });
 
             // Actualizar contador de likes en tiempo real si hay una canción sonando
-            if (currentTrackIndex !== -1 && playlist[currentTrackIndex]) {
+            if (currentTrackIndex !== -1 && playlist[currentTrackIndex] && !isAudioInit) {
                 const currentTrack = playlist[currentTrackIndex];
                 const likeCountEl = document.getElementById('ytm-like-count');
                 if (likeCountEl) likeCountEl.innerText = currentTrack.likes || 0;
@@ -246,13 +272,19 @@ function initApp() {
     // 3. CARGAR FOTOS
     db.ref('social/photos').on('value', s => {
         const g = document.getElementById('photos-grid'); if(!g) return;
+        photoList = []; // Reiniciar lista
         g.innerHTML = "";
-        if(s.val()) Object.entries(s.val()).reverse().forEach(([k,v]) => {
-            const c = document.createElement('div'); c.className = "code-card";
-            c.innerHTML = `<div class="card-thumb"><img src="${v.poster || v.url}" loading="lazy" onerror="this.src='assets/logo192.png'"></div>
-                           <div class="card-text">${v.title}</div>`;
-            g.appendChild(c);
-        });
+        if(s.val()) {
+            Object.entries(s.val()).reverse().forEach(([k,v]) => {
+                photoList.push({id: k, ...v}); // Guardar en array para carrusel
+                const index = photoList.length - 1;
+                const c = document.createElement('div'); c.className = "code-card";
+                c.onclick = () => window.openPhotoViewer(index); // Abrir carrusel al click
+                c.innerHTML = `<div class="card-thumb"><img src="${v.poster || v.url}" loading="lazy" onerror="this.src='assets/logo192.png'"></div>
+                               <div class="card-text">${v.title}</div>`;
+                g.appendChild(c);
+            });
+        }
     });
 
     // 4. CARGAR EVENTOS
@@ -275,7 +307,12 @@ function initApp() {
             if(m.email === ADMIN_EMAIL) { cssClass = "msg-artist"; icon = "👑 "; } 
             else if (currentUser && m.user === currentUser.displayName) { cssClass = "msg-self"; }
             div.className = "msg-bubble " + cssClass;
-            div.innerHTML = `<small>${icon}${m.user}</small>${m.text}`;
+            // Header del mensaje con botón de responder (se oculta solo si es msg-self gracias al CSS existente)
+            div.innerHTML = `<small style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                                <span>${icon}${m.user}</span>
+                                <button onclick="window.replyChat('${m.user}')" class="btn-reply-chat">↩</button>
+                             </small>
+                             ${m.text}`;
             box.appendChild(div); box.scrollTop = box.scrollHeight;
         }
     });
@@ -303,7 +340,7 @@ window.playTrackIndex = (index) => {
     document.getElementById('ytm-artist').innerText = "Abraham Horus";
     
     // Cargar Likes y Letra
-    document.getElementById('ytm-like-count').innerText = track.likes || 0;
+    updateReactionUI('music', track.id); // Usar nueva función de UI
     const lyricsBox = document.getElementById('lyrics-text');
     if(lyricsBox) lyricsBox.innerText = track.desc || "No hay letra disponible.";
     
@@ -313,7 +350,6 @@ window.playTrackIndex = (index) => {
     });
 
     playAudioFile(track.url);
-    updateMusicLikeButtonState(); // ¡NUEVO! Actualizar el estado del botón de like de música
 };
 
 function playAudioFile(url) {
@@ -405,6 +441,15 @@ window.enviarMensajeChat=()=>{
     const email = currentUser ? currentUser.email : "anon";
     db.ref('chat_global').push({user:currentUser?currentUser.displayName:"Anon", email:email, text:i.value, timestamp:Date.now()}); i.value="";
 };
+
+window.replyChat = (user) => {
+    const input = document.getElementById('chat-input-msg');
+    if(input) {
+        input.value = `@${user} ` + input.value;
+        input.focus();
+    }
+};
+
 window.showToast = (msg) => {
     const c = document.getElementById('toast-container');
     const t = document.createElement('div'); t.className = 'toast-msg';
@@ -421,27 +466,11 @@ auth.onAuthStateChanged(u => {
     const adminDock = document.getElementById('dock-admin');
     if(adminDock) adminDock.style.display = 'none';
 
-    const videoLikeButton = document.getElementById('video-like-btn');
-    if (videoLikeButton) {
-        if (u && currentVideoId && currentVideoId !== "default") {
-            db.ref(`userLikes/${u.uid}/${currentVideoId}`).once('value')
-                .then(snapshot => {
-                    if (snapshot.val()) {
-                        console.log("onAuthStateChanged: Usuario ya dio like, aplicando clase 'liked'.");
-                        videoLikeButton.classList.add('liked');
-                    } else {
-                        videoLikeButton.classList.remove('liked');
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al verificar estado del like en onAuthStateChanged:", error);
-                    videoLikeButton.classList.remove('liked'); // Por defecto, no marcado como gustado en caso de error
-                });
-        } else {
-            videoLikeButton.classList.remove('liked');
-        }
-        updateMusicLikeButtonState(); // Asegurar que el botón de like de música también se actualice
-    }
+    // Actualizar estados de reacciones al loguearse/desloguearse
+    if (currentVideoId && currentVideoId !== "default") updateReactionUI('video', currentVideoId);
+    if (currentTrackIndex !== -1 && playlist[currentTrackIndex]) updateReactionUI('music', playlist[currentTrackIndex].id);
+    if (currentPhotoIndex !== -1 && photoList[currentPhotoIndex]) updateReactionUI('photo', photoList[currentPhotoIndex].id);
+    if (currentVideoId && currentVideoId !== "default") loadComments(currentVideoId); // Recargar comentarios para ver reacciones propias
 
     // Verificar estado de suscripción
     if (u) {
@@ -513,7 +542,11 @@ window.toggleSub = () => {
         } else {
             // SUSCRIBIRSE
             Promise.all([
-                subRef.set(true),
+                db.ref(`users/${currentUser.uid}`).update({
+                    isSubscribed: true,
+                    email: currentUser.email,
+                    displayName: currentUser.displayName
+                }),
                 globalSubsRef.transaction(c => (c || 0) + 1)
             ]).then(() => {
                 if (btn) {
@@ -629,7 +662,6 @@ window.loadVideo = (v) => {
     currentVideoId=v.id||"default";
     const mainVideoElement = document.getElementById('main-video');
     const videoSourceElement = document.getElementById('video-source');
-    const videoLikeButton = document.getElementById('video-like-btn'); // Obtenemos el botón de like
 
     if (videoSourceElement) videoSourceElement.src = v.url;
     const titleEl = document.getElementById('current-title');
@@ -639,37 +671,12 @@ window.loadVideo = (v) => {
     
     if (mainVideoElement) mainVideoElement.load(); // Carga la nueva fuente del video
 
-    // Carga y muestra los likes
-    const likesRef = db.ref(`stats/${currentVideoId}/likes`);
-    likesRef.on('value', s => { const el = document.getElementById('likes-count'); if(el) el.innerText = s.val() || 0; });
-    currentVideoRefs.push(likesRef);
+    // Cargar Reacciones y Vistas
+    updateReactionUI('video', currentVideoId);
 
-    // Carga y muestra las vistas (se actualizará en tiempo real si cambian)
     const viewsRef = db.ref(`stats/${currentVideoId}/views`);
     viewsRef.on('value', s => { const el = document.getElementById('total-views'); if(el) el.innerText = s.val() || 0; });
     currentVideoRefs.push(viewsRef);
-
-    if (videoLikeButton) {
-        if (currentUser && currentVideoId && currentVideoId !== "default") {
-            db.ref(`userLikes/${currentUser.uid}/${currentVideoId}`).once('value')
-                .then(snapshot => {
-                    if (snapshot.val()) {
-                        console.log("loadVideo: Usuario ya dio like, aplicando clase 'liked'.");
-                        videoLikeButton.classList.add('liked');
-                    } else {
-                        videoLikeButton.classList.remove('liked');
-                    }
-                    updateMusicLikeButtonState(); // Actualizar también el botón de like de música
-                })
-                .catch(error => {
-                    console.error("Error al verificar estado del like en loadVideo:", error);
-                    videoLikeButton.classList.remove('liked'); // Por defecto, no marcado como gustado en caso de error
-                });
-        } else {
-            videoLikeButton.classList.remove('liked'); // Si no hay usuario o no hay video, asegurar que no esté marcado
-        }
-        updateMusicLikeButtonState(); // Asegurar que el botón de like de música también se actualice
-    }
 
     loadComments(currentVideoId);
     window.scrollTo({top:0, behavior:'smooth'});
@@ -750,7 +757,7 @@ function loadComments(videoId) {
                     repliesHtml = '<div class="sub-reply">';
                     Object.entries(comment.replies).forEach(([rKey, r]) => {
                         const isReplyOwner = currentUser && (r.uid === currentUser.uid || r.user === currentUser.displayName || currentUser.email === ADMIN_EMAIL);
-                        const isReplyLiked = userReplyLikesData[rKey] ? 'liked' : '';
+                        const myReaction = userReplyLikesData[rKey]; // string type or null
                         const rLikes = Number(r.likes) || 0;
                         const rAvatar = r.photoURL || 'assets/logo192.png';
 
@@ -761,7 +768,29 @@ function loadComments(videoId) {
                                     <div class="reply-header"><strong>${r.user}</strong> <small>${new Date(r.timestamp).toLocaleDateString()}</small></div>
                                     <div class="reply-text">${r.text}</div>
                                     <div class="comment-actions">
-                                        <button onclick="window.likeReply('${key}', '${rKey}')" class="btn-action-mini ${isReplyLiked}">❤️ ${rLikes}</button>
+                                        <div class="reaction-wrapper">
+                                            <button onclick="window.toggleReaction('reply', '${rKey}', '${key}')" class="btn-action-mini ${myReaction ? 'btn-reacted-'+myReaction : ''}">
+                                                ${myReaction ? REACTION_ICONS[myReaction] : '❤️'} ${rLikes}
+                                            </button>
+                                            <div class="reaction-picker">
+                                                <div class="reaction-option" onclick="window.setReaction('reply', 'love', '${rKey}', '${key}')">
+                                                    <span class="reaction-emoji">❤️</span>
+                                                    <span class="reaction-count">${(r.reactions && r.reactions.love) || 0}</span>
+                                                </div>
+                                                <div class="reaction-option" onclick="window.setReaction('reply', 'haha', '${rKey}', '${key}')">
+                                                    <span class="reaction-emoji">😆</span>
+                                                    <span class="reaction-count">${(r.reactions && r.reactions.haha) || 0}</span>
+                                                </div>
+                                                <div class="reaction-option" onclick="window.setReaction('reply', 'wow', '${rKey}', '${key}')">
+                                                    <span class="reaction-emoji">😮</span>
+                                                    <span class="reaction-count">${(r.reactions && r.reactions.wow) || 0}</span>
+                                                </div>
+                                                <div class="reaction-option" onclick="window.setReaction('reply', 'angry', '${rKey}', '${key}')">
+                                                    <span class="reaction-emoji">😡</span>
+                                                    <span class="reaction-count">${(r.reactions && r.reactions.angry) || 0}</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <button onclick="window.prepararRespuesta('${key}', '${r.user}')" class="btn-action-mini">Responder</button>
                                         ${isReplyOwner ? `<button onclick="window.deleteReply('${key}', '${rKey}')" class="btn-delete-mini">🗑️</button>` : ''}
                                     </div>
@@ -773,7 +802,7 @@ function loadComments(videoId) {
 
                 const isOwner = currentUser && (comment.uid === currentUser.uid || comment.user === currentUser.displayName || currentUser.email === ADMIN_EMAIL);
                 const likesCount = Number(comment.likes) || 0;
-                const isLiked = userLikesData[key] ? 'liked' : ''; // Verificar si el usuario dio like
+                const myReaction = userLikesData[key]; // string type or null
                 const avatar = comment.photoURL || 'assets/logo192.png';
 
                 div.className = "comment-block"; // Corregido para coincidir con styles.css
@@ -786,7 +815,29 @@ function loadComments(videoId) {
                             </div>
                             <div class="comment-body">${comment.text}</div>
                             <div class="comment-actions">
-                                <button onclick="window.likeComment('${key}')" class="btn-action-mini ${isLiked}">❤️ ${likesCount}</button>
+                                <div class="reaction-wrapper">
+                                    <button onclick="window.toggleReaction('comment', '${key}')" class="btn-action-mini ${myReaction ? 'btn-reacted-'+myReaction : ''}">
+                                        ${myReaction ? REACTION_ICONS[myReaction] : '❤️'} ${likesCount}
+                                    </button>
+                                    <div class="reaction-picker">
+                                        <div class="reaction-option" onclick="window.setReaction('comment', 'love', '${key}')">
+                                            <span class="reaction-emoji">❤️</span>
+                                            <span class="reaction-count">${(comment.reactions && comment.reactions.love) || 0}</span>
+                                        </div>
+                                        <div class="reaction-option" onclick="window.setReaction('comment', 'haha', '${key}')">
+                                            <span class="reaction-emoji">😆</span>
+                                            <span class="reaction-count">${(comment.reactions && comment.reactions.haha) || 0}</span>
+                                        </div>
+                                        <div class="reaction-option" onclick="window.setReaction('comment', 'wow', '${key}')">
+                                            <span class="reaction-emoji">😮</span>
+                                            <span class="reaction-count">${(comment.reactions && comment.reactions.wow) || 0}</span>
+                                        </div>
+                                        <div class="reaction-option" onclick="window.setReaction('comment', 'angry', '${key}')">
+                                            <span class="reaction-emoji">😡</span>
+                                            <span class="reaction-count">${(comment.reactions && comment.reactions.angry) || 0}</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <button onclick="window.mostrarReply('${key}')" class="btn-action-mini">Responder</button>
                                 ${isOwner ? `<button onclick="window.deleteComment('${key}')" class="btn-action-mini btn-delete">🗑️</button>` : ''}
                             </div>
@@ -833,55 +884,6 @@ window.enviarReply = (parentKey) => {
 
 window.mostrarReply = (key) => { const b = document.getElementById(`reply-box-${key}`); b.style.display = (b.style.display === 'flex') ? 'none' : 'flex'; };
 
-// === NUEVAS FUNCIONES DE COMENTARIOS ===
-window.likeComment = (key) => {
-    if(!currentUser) return showToast("Inicia sesión");
-    // Usamos una referencia simple para likes de comentarios
-    const ref = db.ref(`comments/${currentVideoId}/${key}/likes`);
-    const userLikeRef = db.ref(`userLikes/${currentUser.uid}/comment_likes/${key}`);
-    
-    userLikeRef.once('value').then(s => {
-        if(s.val()) {
-            userLikeRef.remove().then(() => {
-                ref.transaction(c => (Number(c)||0)-1);
-                addXP(-2);
-                showToast("Like removido (-2 XP)");
-            }).catch(e => showToast("Error: " + e.message));
-        } else {
-            userLikeRef.set(true).then(() => {
-                ref.transaction(c => (Number(c)||0)+1);
-                addXP(2);
-                showToast("❤️ Like al comentario (+2 XP)");
-                // Efecto visual inmediato (opcional, ya que el listener lo hará)
-                const btn = document.querySelector(`button[onclick="window.likeComment('${key}')"]`);
-                if(btn) btn.classList.add('liked');
-            }).catch(e => showToast("Error: " + e.message));
-        }
-    }).catch(e => showToast("Error al dar like: " + e.message));
-};
-
-window.likeReply = (parentKey, replyKey) => {
-    if(!currentUser) return showToast("Inicia sesión");
-    const ref = db.ref(`comments/${currentVideoId}/${parentKey}/replies/${replyKey}/likes`);
-    const userLikeRef = db.ref(`userLikes/${currentUser.uid}/reply_likes/${replyKey}`);
-    
-    userLikeRef.once('value').then(s => {
-        if(s.val()) {
-            userLikeRef.remove().then(() => {
-                ref.transaction(c => (Number(c)||0)-1);
-                addXP(-2);
-                showToast("Like removido (-2 XP)");
-            }).catch(e => showToast("Error: " + e.message));
-        } else {
-            userLikeRef.set(true).then(() => {
-                ref.transaction(c => (Number(c)||0)+1);
-                addXP(2);
-                showToast("❤️ Like a respuesta (+2 XP)");
-            }).catch(e => showToast("Error: " + e.message));
-        }
-    }).catch(e => showToast("Error al dar like: " + e.message));
-};
-
 window.deleteComment = (key) => {
     if(!confirm("¿Eliminar este comentario permanentemente?")) return;
     db.ref(`comments/${currentVideoId}/${key}`).remove()
@@ -905,133 +907,152 @@ window.prepararRespuesta = (commentKey, userName) => {
     }
 };
 
-// === LÓGICA DE LIKES (VIDEO) ===
-window.darLike = () => {
-    if (!currentUser) {
-        return showToast("Inicia sesión para dar like");
-    }
-    if (currentVideoId && currentVideoId !== "default") {
-        const userLikeRef = db.ref(`userLikes/${currentUser.uid}/${currentVideoId}`);
-        const videoLikeButton = document.getElementById('video-like-btn');
-        userLikeRef.once('value').then(snapshot => {
-            if (snapshot.val()) {
-                // UNLIKE: El usuario ya dio like, ahora lo quitamos
-                userLikeRef.remove().then(() => {
-                    db.ref(`stats/${currentVideoId}/likes`).transaction(c => (c || 0) - 1);
-                    addXP(-5);
-                    showToast("Like removido (-5 XP)");
-                    if (videoLikeButton) videoLikeButton.classList.remove('liked');
-                }).catch(error => {
-                    console.error("Error al remover like:", error);
-                    showToast("⚠️ Error al remover like.");
-                });
-            } else {
-                // LIKE: El usuario no ha dado like, lo agregamos
-                db.ref(`stats/${currentVideoId}/likes`).transaction(c => (c || 0) + 1)
-                    .then(() => {
-                        userLikeRef.set(true); // Marca como que el usuario ya dio like
-                        addXP(5);
-                        showToast("Like (+5 XP)");
-                        playSound('success');
-                        spawnGlows(videoLikeButton); // ¡Llamar a la función de resplandores!
-                        
-                        // Efecto de brillo temporal en botón y contenedor de video
-                        const videoContainer = document.querySelector('.integrated-player-box');
-                        if (videoLikeButton) videoLikeButton.classList.add('golden-glow-active');
-                        if (videoContainer) videoContainer.classList.add('golden-glow-active');
-                        
-                        setTimeout(() => {
-                            if (videoLikeButton) videoLikeButton.classList.remove('golden-glow-active');
-                            if (videoContainer) videoContainer.classList.remove('golden-glow-active');
-                        }, 1000);
+// === SISTEMA UNIFICADO DE REACCIONES ===
 
-                        if (videoLikeButton) videoLikeButton.classList.add('liked'); // Añadir la clase después del like
-                    })
-                    .catch(error => {
-                        console.log("darLike: Error en transacción de like.");
-                        console.error("Error al dar like:", error);
-                        showToast("⚠️ Error al dar like. Intenta de nuevo.");
-                    });
-            }
-        }).catch(error => { console.error("Error al verificar like:", error); showToast("⚠️ Error al verificar tu like. Intenta de nuevo."); });
-    } else {
-        showToast("No hay video seleccionado para dar like.");
-    }
-};
-
-// === LÓGICA DE LIKES (MÚSICA) Y ESTADO VISUAL ===
-// Esta función se encargará de verificar si el usuario ya dio like a la canción actual
-// y aplicar la clase 'liked' al botón correspondiente en el reproductor de música.
-function updateMusicLikeButtonState() {
-    const musicLikeButton = document.querySelector('#ytm-card .btn-ytm-action'); // Selecciona el botón de like de música
-    if (musicLikeButton && currentUser && currentTrackIndex !== -1) {
-        const track = playlist[currentTrackIndex];
-        if (track && track.id) {
-            db.ref(`userLikes/${currentUser.uid}/${track.id}`).once('value')
-                .then(snapshot => {
-                    if (snapshot.val()) {
-                        console.log("updateMusicLikeButtonState: Usuario ya dio like a la canción, aplicando clase 'liked'.");
-                        musicLikeButton.classList.add('liked');
-                    } else {
-                        musicLikeButton.classList.remove('liked');
-                    }
-                })
-                .catch(error => {
-                    console.error("Error al verificar estado del like de música:", error);
-                    musicLikeButton.classList.remove('liked');
-                });
-        } else {
-            musicLikeButton.classList.remove('liked');
-        }
-    } else if (musicLikeButton) {
-        musicLikeButton.classList.remove('liked');
-    }
-}
-
-// === LÓGICA DE LIKES (MÚSICA) ===
-window.likeCurrentTrack = () => {
-    if(currentTrackIndex === -1) return showToast("Reproduce algo primero");
-    if(!currentUser) return showToast("Inicia sesión para dar like");
+window.toggleReaction = (context, id, parentId) => {
+    // Si no se pasa ID (ej. video/musica principal), usar variables globales
+    if(context === 'video' && !id) id = currentVideoId;
+    if(context === 'music' && !id) id = playlist[currentTrackIndex]?.id;
+    if(context === 'photo' && !id) id = photoList[currentPhotoIndex]?.id;
     
-    const track = playlist[currentTrackIndex];
-    const userLikeRef = db.ref(`userLikes/${currentUser.uid}/${track.id}`);
-    
-    const musicLikeButton = document.querySelector('#ytm-card .btn-ytm-action'); // Selecciona el botón de like de música
-    userLikeRef.once('value').then(snapshot => {
-        if (snapshot.val()) {
-            // UNLIKE: Quitar like a la canción
-            userLikeRef.remove().then(() => {
-                db.ref(`social/musics/${track.id}/likes`).transaction(c => (c || 0) - 1);
-                addXP(-5);
-                showToast("Like de canción removido (-5 XP)");
-                updateMusicLikeButtonState();
-            }).catch(error => {
-                console.error("Error al remover like de música:", error);
-                showToast("⚠️ Error al remover like.");
-            });
+    if(!id || id === 'default') return showToast("Contenido no válido");
+    if(!currentUser) return showToast("Inicia sesión para reaccionar");
+
+    // Determinar ruta de usuario
+    let userPath = `userLikes/${currentUser.uid}/${id}`;
+    if(context === 'comment') userPath = `userLikes/${currentUser.uid}/comment_likes/${id}`;
+    if(context === 'reply') userPath = `userLikes/${currentUser.uid}/reply_likes/${id}`;
+
+    db.ref(userPath).once('value', s => {
+        if(s.val()) {
+            // Si ya tiene reacción, quitarla (toggle off)
+            window.setReaction(context, null, id, parentId);
         } else {
-            // LIKE: Agregar like a la canción
-            const ref = db.ref(`social/musics/${track.id}/likes`);
-            ref.transaction(likes => (likes || 0) + 1).then(() => {
-                userLikeRef.set(true); // Marca como que el usuario ya dio like a la canción
-                addXP(5);
-                showToast("❤️ Like agregado (+5 XP)");
-                updateMusicLikeButtonState(); // Actualizar el estado visual del botón
-                if (musicLikeButton) {
-                    spawnGlows(musicLikeButton); // ¡Llamar a la función de resplandores!
-                    musicLikeButton.classList.add('golden-glow-active');
-                    setTimeout(() => musicLikeButton.classList.remove('golden-glow-active'), 1000);
-                }
-            }).catch(error => {
-                console.error("Error al dar like a la canción:", error);
-                showToast("⚠️ Error al dar like a la canción. Intenta de nuevo.");
-            });
+            // Si no tiene, poner 'love' por defecto
+            window.setReaction(context, 'love', id, parentId);
         }
-    }).catch(error => {
-        console.error("Error al verificar like de canción:", error);
-        showToast("⚠️ Error al verificar tu like de canción. Intenta de nuevo.");
     });
 };
+
+window.setReaction = (context, type, id, parentId) => {
+    // Normalizar ID si viene de onclick directo
+    if(context === 'video' && !id) id = currentVideoId;
+    if(context === 'music' && !id) id = playlist[currentTrackIndex]?.id;
+    if(context === 'photo' && !id) id = photoList[currentPhotoIndex]?.id;
+
+    if(!id || id === 'default') return;
+    if(!currentUser) return showToast("Inicia sesión");
+
+    // Rutas DB
+    let statsPath = "";
+    let userPath = "";
+    
+    if(context === 'video') { statsPath = `stats/${id}/likes`; userPath = `userLikes/${currentUser.uid}/${id}`; }
+    else if(context === 'music') { statsPath = `social/musics/${id}/likes`; userPath = `userLikes/${currentUser.uid}/${id}`; }
+    else if(context === 'photo') { statsPath = `social/photos/${id}/likes`; userPath = `userLikes/${currentUser.uid}/${id}`; }
+    else if(context === 'comment') { statsPath = `comments/${currentVideoId}/${id}/likes`; userPath = `userLikes/${currentUser.uid}/comment_likes/${id}`; }
+    else if(context === 'reply') { statsPath = `comments/${currentVideoId}/${parentId}/replies/${id}/likes`; userPath = `userLikes/${currentUser.uid}/reply_likes/${id}`; }
+
+    const userLikeRef = db.ref(userPath);
+    const statsRef = db.ref(statsPath);
+    const reactionsRef = db.ref(statsPath.replace('/likes', '/reactions')); // Ruta para conteos específicos
+
+    userLikeRef.once('value').then(snapshot => {
+        const currentReaction = snapshot.val(); // string (tipo) o null
+        
+        if (currentReaction === type) return; // Misma reacción, no hacer nada
+
+        if (type === null) {
+            // REMOVER REACCIÓN
+            userLikeRef.remove().then(() => {
+                statsRef.transaction(c => (c || 0) - 1);
+                reactionsRef.child(currentReaction).transaction(c => (c || 0) - 1); // Restar al específico
+                addXP(-2);
+                if(context !== 'comment' && context !== 'reply') updateReactionUI(context, id);
+            }).catch(err => {
+                console.error("Error removing reaction:", err);
+                showToast("Error al quitar la reacción.");
+            });
+        } else {
+            // NUEVA REACCIÓN O CAMBIO
+            userLikeRef.set(type).then(() => {
+                // Si no tenía reacción antes, incrementar contador global
+                if (!currentReaction) {
+                    statsRef.transaction(c => (c || 0) + 1);
+                    reactionsRef.child(type).transaction(c => (c || 0) + 1); // Sumar al nuevo
+                    addXP(2);
+                    playSound('success');
+                } else {
+                    // Si es un cambio (ej. Love -> Haha)
+                    reactionsRef.child(currentReaction).transaction(c => (c || 0) - 1); // Restar al viejo
+                    reactionsRef.child(type).transaction(c => (c || 0) + 1); // Sumar al nuevo
+                }
+                if(context !== 'comment' && context !== 'reply') updateReactionUI(context, id);
+            }).catch(err => {
+                console.error("Error setting reaction:", err);
+                showToast("Error al guardar la reacción.");
+            });
+        }
+    });
+};
+
+function updateReactionUI(context, id) {
+    let btnId = "";
+    let iconId = "";
+    let countId = "";
+    let statsPath = "";
+
+    if(context === 'video') { btnId = 'video-like-btn'; iconId = 'video-reaction-icon'; countId = 'likes-count'; statsPath = `stats/${id}/likes`; }
+    else if(context === 'music') { btnId = 'music-like-btn'; iconId = 'music-reaction-icon'; countId = 'ytm-like-count'; statsPath = `social/musics/${id}/likes`; }
+    else if(context === 'photo') { btnId = 'pv-like-btn'; iconId = 'photo-reaction-icon'; countId = 'pv-likes-count'; statsPath = `social/photos/${id}/likes`; }
+
+    const btn = document.getElementById(btnId);
+    const icon = document.getElementById(iconId);
+    const count = document.getElementById(countId);
+    if(!btn) return;
+
+    const statsRef = db.ref(statsPath);
+    statsRef.on('value', s => { if(count) count.innerText = s.val() || 0; });
+
+    const reactionsRef = db.ref(statsPath.replace('/likes', '/reactions'));
+    reactionsRef.on('value', s => {
+        const data = s.val() || {};
+        const setTxt = (type) => {
+            const el = document.getElementById(`rc-${context}-${type}`);
+            if(el) el.innerText = data[type] || 0;
+        };
+        ['love', 'haha', 'wow', 'angry'].forEach(setTxt);
+    });
+
+    let userLikesRef = null;
+    if(currentUser) {
+        const userPath = `userLikes/${currentUser.uid}/${id}`;
+        userLikesRef = db.ref(userPath);
+        userLikesRef.on('value', s => {
+            const type = s.val();
+            // Limpiar clases previas
+            btn.classList.remove('btn-reacted-love', 'btn-reacted-haha', 'btn-reacted-wow', 'btn-reacted-angry');
+            
+            if(type && REACTION_ICONS[type]) {
+                if(icon) icon.innerText = REACTION_ICONS[type];
+                btn.classList.add(`btn-reacted-${type}`);
+            } else {
+                if(icon) icon.innerText = '❤️';
+            }
+        });
+    } else {
+        btn.classList.remove('btn-reacted-love', 'btn-reacted-haha', 'btn-reacted-wow', 'btn-reacted-angry');
+        if(icon) icon.innerText = '❤️';
+    }
+
+    if (context === 'video') {
+        currentVideoRefs.push(statsRef);
+        currentVideoRefs.push(reactionsRef);
+        if (userLikesRef) {
+            currentVideoRefs.push(userLikesRef);
+        }
+    }
+}
 
 // === OTRAS FUNCIONES DE MÚSICA ===
 window.toggleLyrics = () => {
@@ -1147,3 +1168,94 @@ document.addEventListener("DOMContentLoaded", function() {
     // Si el usuario cambia el tamaño de la ventana, ajustamos
     window.addEventListener('resize', resizeCanvas);
 });
+
+// === LÓGICA DE CARRUSEL DE FOTOS Y COMENTARIOS ===
+
+window.openPhotoViewer = (index) => {
+    if(index < 0 || index >= photoList.length) return;
+    currentPhotoIndex = index;
+    const modal = document.getElementById('photo-viewer-modal');
+    modal.classList.add('active');
+    loadPhotoDetails(index);
+};
+
+window.closePhotoViewer = () => {
+    document.getElementById('photo-viewer-modal').classList.remove('active');
+    if(currentPhotoCommentsRef) currentPhotoCommentsRef.off(); // Dejar de escuchar comentarios
+};
+
+window.nextPhoto = () => {
+    let next = currentPhotoIndex + 1;
+    if(next >= photoList.length) next = 0;
+    loadPhotoDetails(next);
+};
+
+window.prevPhoto = () => {
+    let prev = currentPhotoIndex - 1;
+    if(prev < 0) prev = photoList.length - 1;
+    loadPhotoDetails(prev);
+};
+
+function loadPhotoDetails(index) {
+    currentPhotoIndex = index;
+    const photo = photoList[index];
+    
+    // UI Update
+    document.getElementById('pv-image').src = photo.poster || photo.url;
+    document.getElementById('pv-title').innerText = photo.title;
+    
+    updateReactionUI('photo', photo.id);
+    // Cargar Comentarios
+    loadPhotoComments(photo.id);
+}
+
+function loadPhotoComments(photoId) {
+    const list = document.getElementById('pv-comments-list');
+    list.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">Cargando...</div>';
+    
+    if(currentPhotoCommentsRef) currentPhotoCommentsRef.off();
+    
+    currentPhotoCommentsRef = db.ref(`comments/${photoId}`);
+    currentPhotoCommentsRef.on('value', s => {
+        list.innerHTML = "";
+        const data = s.val();
+        if(!data) {
+            list.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">Sé el primero en comentar.</div>';
+            return;
+        }
+        
+        Object.entries(data).reverse().forEach(([k, c]) => {
+            const div = document.createElement('div');
+            div.className = "comment-block";
+            div.style.borderBottom = "1px solid #222";
+            const isOwner = currentUser && (c.uid === currentUser.uid || currentUser.email === ADMIN_EMAIL);
+            
+            div.innerHTML = `
+                <div class="comment-row">
+                    <img src="${c.photoURL}" class="comment-avatar-mini">
+                    <div style="width:100%">
+                        <div class="comment-header" style="font-size:0.85rem;"><strong>${c.user}</strong></div>
+                        <div class="comment-body" style="font-size:0.9rem;">${c.text}</div>
+                        ${isOwner ? `<button onclick="window.deletePhotoComment('${photoId}', '${k}')" class="btn-delete-mini">🗑️ Eliminar</button>` : ''}
+                    </div>
+                </div>`;
+            list.appendChild(div);
+        });
+    });
+}
+
+window.publicarComentarioFoto = () => {
+    if(!currentUser) return showToast("Inicia sesión para comentar");
+    const input = document.getElementById('pv-comment-input');
+    if(!input.value.trim()) return;
+    const photo = photoList[currentPhotoIndex];
+    
+    db.ref(`comments/${photo.id}`).push({
+        user: currentUser.displayName, uid: currentUser.uid, photoURL: currentUser.photoURL,
+        text: input.value.trim(), timestamp: Date.now()
+    }).then(() => { input.value = ""; addXP(2); showToast("Comentario enviado"); });
+};
+
+window.deletePhotoComment = (photoId, key) => {
+    if(confirm("¿Borrar comentario?")) db.ref(`comments/${photoId}/${key}`).remove();
+};

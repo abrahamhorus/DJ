@@ -1,0 +1,70 @@
+{
+  "rules": {
+    "stats": {
+      "global": {
+        "subs": {
+          ".read": true,
+          ".write": "auth != null"
+        }
+      },
+      "$videoId": {
+        "views": {
+          ".read": true,
+          ".write": true
+        },
+        "likes": {
+          ".read": true,
+          ".write": "auth != null"
+        },
+        "reactions": {
+          ".read": true,
+          ".write": "auth != null"
+        }
+      }
+    },
+    "userLikes": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "userCommentLikes": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "social": {
+      "$type": {
+        ".read": true,
+        ".write": "auth != null && auth.token.email === 'abrahorus@gmail.com'"
+      }
+    },
+    "chat_global": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "comments": {
+      "$videoId": {
+        ".read": true,
+        "$commentId": {
+          ".write": "auth != null && (!data.exists() || data.child('uid').val() === auth.uid || auth.token.email === 'abrahorus@gmail.com')",
+          "likes": {
+            ".read": true,
+            ".write": "auth != null"
+          },
+          "replies": {
+            ".read": true,
+            ".write": "auth != null"
+          }
+        }
+      }
+    }
+  }
+}

@@ -50,7 +50,30 @@
                         <p id="video-description" class="desc-text">...</p>
                     </div>
                     <div class="actions-row"> 
-                        <button onclick="window.darLike()" class="btn-code" id="video-like-btn">❤️ <span id="likes-count">0</span></button>
+                        <!-- REACTION WRAPPER VIDEO -->
+                        <div class="reaction-wrapper">
+                            <button onclick="window.toggleReaction('video')" class="btn-code" id="video-like-btn">
+                                <span id="video-reaction-icon">❤️</span> <span id="likes-count">0</span>
+                            </button>
+                            <div class="reaction-picker">
+                                <div class="reaction-option" onclick="window.setReaction('video', 'love')">
+                                    <span class="reaction-emoji">❤️</span>
+                                    <span class="reaction-count" id="rc-video-love">0</span>
+                                </div>
+                                <div class="reaction-option" onclick="window.setReaction('video', 'haha')">
+                                    <span class="reaction-emoji">😆</span>
+                                    <span class="reaction-count" id="rc-video-haha">0</span>
+                                </div>
+                                <div class="reaction-option" onclick="window.setReaction('video', 'wow')">
+                                    <span class="reaction-emoji">😮</span>
+                                    <span class="reaction-count" id="rc-video-wow">0</span>
+                                </div>
+                                <div class="reaction-option" onclick="window.setReaction('video', 'angry')">
+                                    <span class="reaction-emoji">😡</span>
+                                    <span class="reaction-count" id="rc-video-angry">0</span>
+                                </div>
+                            </div>
+                        </div>
                         <button class="btn-code no-click">👁️ <span id="total-views">0</span></button>
                         <button onclick="window.toggleComments()" class="btn-code">💬 <span id="comments-count-btn">0</span></button>
                     </div>
@@ -93,9 +116,30 @@
     </div>
 
     <div class="ytm-action-row">
-        <button class="btn-ytm-action" onclick="window.likeCurrentTrack()">
-            ❤️ <span id="ytm-like-count">0</span>
-        </button>
+        <!-- REACTION WRAPPER MUSIC -->
+        <div class="reaction-wrapper">
+            <button class="btn-ytm-action" id="music-like-btn" onclick="window.toggleReaction('music')">
+                <span id="music-reaction-icon">❤️</span> <span id="ytm-like-count">0</span>
+            </button>
+            <div class="reaction-picker">
+                <div class="reaction-option" onclick="window.setReaction('music', 'love')">
+                    <span class="reaction-emoji">❤️</span>
+                    <span class="reaction-count" id="rc-music-love">0</span>
+                </div>
+                <div class="reaction-option" onclick="window.setReaction('music', 'haha')">
+                    <span class="reaction-emoji">😆</span>
+                    <span class="reaction-count" id="rc-music-haha">0</span>
+                </div>
+                <div class="reaction-option" onclick="window.setReaction('music', 'wow')">
+                    <span class="reaction-emoji">😮</span>
+                    <span class="reaction-count" id="rc-music-wow">0</span>
+                </div>
+                <div class="reaction-option" onclick="window.setReaction('music', 'angry')">
+                    <span class="reaction-emoji">😡</span>
+                    <span class="reaction-count" id="rc-music-angry">0</span>
+                </div>
+            </div>
+        </div>
         <button class="btn-ytm-action" onclick="window.toggleLyrics()">
             📝 LETRA
         </button>
@@ -222,6 +266,56 @@
         </div>
     </div>
     </main>
+
+    <!-- PHOTO VIEWER MODAL (CAROUSEL) -->
+    <div id="photo-viewer-modal" class="photo-modal">
+        <button class="photo-modal-close" onclick="window.closePhotoViewer()">✕</button>
+        
+        <div class="photo-modal-content">
+            <div class="photo-viewer-main">
+                <button class="photo-nav-btn prev" onclick="window.prevPhoto()">❮</button>
+                <div class="photo-container">
+                    <img id="pv-image" src="" alt="Photo">
+                </div>
+                <button class="photo-nav-btn next" onclick="window.nextPhoto()">❯</button>
+            </div>
+            
+            <div class="photo-viewer-sidebar">
+                <div class="pv-header">
+                    <h3 id="pv-title">Cargando...</h3>
+                    <!-- REACTION WRAPPER PHOTO -->
+                    <div class="reaction-wrapper" style="width:100%; margin-top:10px;">
+                        <button id="pv-like-btn" onclick="window.toggleReaction('photo')" class="btn-code" style="width:100%; justify-content:center;">
+                            <span id="photo-reaction-icon">❤️</span> <span id="pv-likes-count">0</span>
+                        </button>
+                        <div class="reaction-picker">
+                            <div class="reaction-option" onclick="window.setReaction('photo', 'love')">
+                                <span class="reaction-emoji">❤️</span>
+                                <span class="reaction-count" id="rc-photo-love">0</span>
+                            </div>
+                            <div class="reaction-option" onclick="window.setReaction('photo', 'haha')">
+                                <span class="reaction-emoji">😆</span>
+                                <span class="reaction-count" id="rc-photo-haha">0</span>
+                            </div>
+                            <div class="reaction-option" onclick="window.setReaction('photo', 'wow')">
+                                <span class="reaction-emoji">😮</span>
+                                <span class="reaction-count" id="rc-photo-wow">0</span>
+                            </div>
+                            <div class="reaction-option" onclick="window.setReaction('photo', 'angry')">
+                                <span class="reaction-emoji">😡</span>
+                                <span class="reaction-count" id="rc-photo-angry">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="pv-comments-list" class="pv-comments-list"></div>
+                <div class="pv-input-area">
+                    <input id="pv-comment-input" placeholder="Comenta esta foto...">
+                    <button onclick="window.publicarComentarioFoto()" class="btn-code" style="padding: 0 15px;">➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- MAC DOCK UNIFICADO -->
     <div class="mac-dock-container">
