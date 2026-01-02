@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abraham Horus | OS v24.0</title>
     
     <link rel="manifest" href="manifest.json">
@@ -13,9 +13,81 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Ocultar la barra azul superior de Google */
+        .goog-te-banner-frame.skiptranslate {
+            display: none !important;
+        }
+        body {
+            top: 0px !important;
+        }
+        
+        /* Ocultar el texto "Con la tecnología de..." y el logo */
+        .goog-te-gadget {
+            font-size: 0px !important;
+            color: transparent !important;
+        }
+        .goog-te-gadget span {
+            display: none !important;
+        }
+        
+        /* Restaurar el tamaño del selector de idiomas para que sea visible */
+        .goog-te-gadget .goog-te-combo {
+            font-size: 14px !important;
+            color: #000 !important;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        /* Estilos para el Social Launcher */
+        .launcher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 25px;
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            justify-items: center;
+        }
+        .launcher-menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .launcher-menu-item:hover {
+            transform: scale(1.1);
+        }
+        .launcher-menu-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+            border-radius: 22%; /* Curvatura tipo iOS/macOS */
+        }
+
+        /* Ajuste para que la ventana del launcher sea más chica y centrada */
+        #p-launcher .window-content {
+            max-width: 500px;
+            margin: 10vh auto;
+            background: rgba(15, 15, 15, 0.7);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
 </head>
 <body>
     <canvas id="galaxy-canvas"></canvas>
+    <canvas id="matrix-canvas"></canvas>
 
     <canvas id="audio-visualizer"></canvas>
     
@@ -35,222 +107,248 @@
                             <span id="global-subs-count" class="subs-number">0</span>
                         </button>
                     </div>
-                    <p>Plataforma Oficial <span style="color:var(--accent)">[Programador y Artista]</span></p>
+                    <p id="hero-subtitle">Plataforma Oficial <span style="color:var(--accent)">[Programador y Artista]</span></p>
                 </div>
-            <div class="integrated-player-box">
-                <div class="video-frame">
-                    <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
-                        <source id="video-source" src="" type="video/mp4">
-                    </video>
-                </div>
-                <div class="video-controls-bar">
-                    <div class="info-block">
-                        <h2 id="current-title">Cargando...</h2>
-                        <p id="video-description" class="desc-text">...</p>
+                <div class="integrated-player-box">
+                    <div class="video-frame">
+                        <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
+                            <source id="video-source" src="" type="video/mp4">
+                        </video>
                     </div>
-                    <div class="actions-row"> 
-                        <!-- REACTION WRAPPER VIDEO -->
-                        <div class="reaction-wrapper">
-                            <button onclick="window.toggleReaction('video')" class="btn-code" id="video-like-btn">
-                                <span id="video-reaction-icon">❤️</span> <span id="likes-count">0</span>
-                            </button>
-                            <div class="reaction-picker">
-                                <div class="reaction-option" onclick="window.setReaction('video', 'love')">
-                                    <span class="reaction-emoji">❤️</span>
-                                    <span class="reaction-count" id="rc-video-love">0</span>
-                                </div>
-                                <div class="reaction-option" onclick="window.setReaction('video', 'haha')">
-                                    <span class="reaction-emoji">😆</span>
-                                    <span class="reaction-count" id="rc-video-haha">0</span>
-                                </div>
-                                <div class="reaction-option" onclick="window.setReaction('video', 'wow')">
-                                    <span class="reaction-emoji">😮</span>
-                                    <span class="reaction-count" id="rc-video-wow">0</span>
-                                </div>
-                                <div class="reaction-option" onclick="window.setReaction('video', 'angry')">
-                                    <span class="reaction-emoji">😡</span>
-                                    <span class="reaction-count" id="rc-video-angry">0</span>
+                    <div class="video-controls-bar">
+                        <div class="info-block">
+                            <h2 id="current-title">Cargando...</h2>
+                            <p id="video-description" class="desc-text">...</p>
+                        </div>
+                        <div class="actions-row"> 
+                            <!-- REACTION WRAPPER VIDEO -->
+                            <div class="reaction-wrapper">
+                                <button onclick="window.toggleReaction('video')" class="btn-code" id="video-like-btn">
+                                    <span id="video-reaction-icon">❤️</span> <span id="likes-count">0</span>
+                                </button>
+                                <div class="reaction-picker">
+                                    <div class="reaction-option" onclick="window.setReaction('video', 'love')">
+                                        <span class="reaction-emoji">❤️</span>
+                                        <span class="reaction-count" id="rc-video-love">0</span>
+                                    </div>
+                                    <div class="reaction-option" onclick="window.setReaction('video', 'haha')">
+                                        <span class="reaction-emoji">😆</span>
+                                        <span class="reaction-count" id="rc-video-haha">0</span>
+                                    </div>
+                                    <div class="reaction-option" onclick="window.setReaction('video', 'wow')">
+                                        <span class="reaction-emoji">😮</span>
+                                        <span class="reaction-count" id="rc-video-wow">0</span>
+                                    </div>
+                                    <div class="reaction-option" onclick="window.setReaction('video', 'angry')">
+                                        <span class="reaction-emoji">😡</span>
+                                        <span class="reaction-count" id="rc-video-angry">0</span>
+                                    </div>
                                 </div>
                             </div>
+                            <button class="btn-code no-click">👁️ <span id="total-views">0</span></button>
+                            <button onclick="window.toggleComments()" class="btn-code">💬 <span id="comments-count-btn">0</span></button>
                         </div>
-                        <button class="btn-code no-click">👁️ <span id="total-views">0</span></button>
-                        <button onclick="window.toggleComments()" class="btn-code">💬 <span id="comments-count-btn">0</span></button>
+                    </div>
+                    <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
+                        <div id="comments-header" class="term-head" style="font-size: 14px;">COMENTARIOS DE LA COMUNIDAD</div>
+                        <div class="term-input">
+                            <input id="comment-input-main" placeholder="Escribe tu opinión..." aria-label="Escribe un comentario">
+                            <button id="comment-send-button" onclick="window.publicarComentario()">ENVIAR</button>
+                        </div>
+                        <div id="comments-list" class="term-body-fixed"></div>
                     </div>
                 </div>
-                <div id="comments-wrapper" class="terminal-comments-integrated" style="display: none;">
-                    <div class="term-head" style="font-size: 14px;">COMENTARIOS DE LA COMUNIDAD</div>
-                    <div class="term-input">
-                        <input id="comment-input-main" placeholder="Escribe tu opinión...">
-                        <button onclick="window.publicarComentario()">ENVIAR</button>
-                    </div>
-                    <div id="comments-list" class="term-body-fixed"></div>
-                </div>
-            </div>
-            <h3 class="section-label">Feed Reciente</h3>
-            <div id="videos-grid" class="cards-grid"></div>
+                <h3 class="section-label" id="feed-reciente-label">Feed Reciente</h3>
+                <div id="videos-grid" class="cards-grid"></div>
             </div>
         </div>
 
-       <!-- VENTANA MÚSICA -->
-       <div id="p-musica" class="app-view">
+        <!-- VENTANA MÚSICA -->
+        <div id="p-musica" class="app-view">
             <div class="window-content">
-    <div class="code-block-lock"><h3>🔒 Discografía VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
-    
-    <div class="protected-content">
-        <div class="ytm-container">
-            
-           <div class="ytm-player-card" id="ytm-card">
-    
-    <div id="ytm-lyrics" class="ytm-lyrics-overlay">
-        <h3 style="color:var(--accent);">Letra / Info</h3>
-        <p id="lyrics-text">Selecciona una canción...</p>
-        <button onclick="window.toggleLyrics()" class="btn-lyrics-close">✕</button>
-    </div>
+                <div class="code-block-lock">
+                    <h3 id="music-vip-header">🔒 Discografía VIP</h3>
+                    <button id="music-vip-button" onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button>
+                </div>
+                
+                <div class="protected-content">
+                    <div class="ytm-container">
+                        <div class="ytm-player-card" id="ytm-card">
+                            <div id="ytm-lyrics" class="ytm-lyrics-overlay">
+                                <h3 id="lyrics-header" style="color:var(--accent);">Letra / Info</h3>
+                                <p id="lyrics-text">Selecciona una canción...</p>
+                                <button onclick="window.toggleLyrics()" class="btn-lyrics-close">✕</button>
+                            </div>
 
-    <img id="ytm-cover" src="assets/logo192.png" class="ytm-cover">
-    
-    <div class="ytm-info">
-        <h2 id="ytm-title">HORUS MUSIC</h2>
-        <p id="ytm-artist">Selecciona un track</p>
-    </div>
+                            <img id="ytm-cover" src="assets/logo192.png" class="ytm-cover" alt="Portada del álbum">
+                            
+                            <div class="ytm-info">
+                                <h2 id="ytm-title">HORUS MUSIC</h2>
+                                <p id="ytm-artist">Selecciona un track</p>
+                            </div>
 
-    <div class="ytm-action-row">
-        <!-- REACTION WRAPPER MUSIC -->
-        <div class="reaction-wrapper">
-            <button class="btn-ytm-action" id="music-like-btn" onclick="window.toggleReaction('music')">
-                <span id="music-reaction-icon">❤️</span> <span id="ytm-like-count">0</span>
-            </button>
-            <div class="reaction-picker">
-                <div class="reaction-option" onclick="window.setReaction('music', 'love')">
-                    <span class="reaction-emoji">❤️</span>
-                    <span class="reaction-count" id="rc-music-love">0</span>
-                </div>
-                <div class="reaction-option" onclick="window.setReaction('music', 'haha')">
-                    <span class="reaction-emoji">😆</span>
-                    <span class="reaction-count" id="rc-music-haha">0</span>
-                </div>
-                <div class="reaction-option" onclick="window.setReaction('music', 'wow')">
-                    <span class="reaction-emoji">😮</span>
-                    <span class="reaction-count" id="rc-music-wow">0</span>
-                </div>
-                <div class="reaction-option" onclick="window.setReaction('music', 'angry')">
-                    <span class="reaction-emoji">😡</span>
-                    <span class="reaction-count" id="rc-music-angry">0</span>
+                            <div class="ytm-action-row">
+                                <!-- REACTION WRAPPER MUSIC -->
+                                <div class="reaction-wrapper">
+                                    <button class="btn-ytm-action" id="music-like-btn" onclick="window.toggleReaction('music')">
+                                        <span id="music-reaction-icon">❤️</span> <span id="ytm-like-count">0</span>
+                                    </button>
+                                    <div class="reaction-picker">
+                                        <div class="reaction-option" onclick="window.setReaction('music', 'love')">
+                                            <span class="reaction-emoji">❤️</span>
+                                            <span class="reaction-count" id="rc-music-love">0</span>
+                                        </div>
+                                        <div class="reaction-option" onclick="window.setReaction('music', 'haha')">
+                                            <span class="reaction-emoji">😆</span>
+                                            <span class="reaction-count" id="rc-music-haha">0</span>
+                                        </div>
+                                        <div class="reaction-option" onclick="window.setReaction('music', 'wow')">
+                                            <span class="reaction-emoji">😮</span>
+                                            <span class="reaction-count" id="rc-music-wow">0</span>
+                                        </div>
+                                        <div class="reaction-option" onclick="window.setReaction('music', 'angry')">
+                                            <span class="reaction-emoji">😡</span>
+                                            <span class="reaction-count" id="rc-music-angry">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button id="lyrics-button" class="btn-ytm-action" onclick="window.toggleLyrics()">📝 LETRA</button>
+                                <button id="share-button" class="btn-ytm-action" onclick="window.shareCurrentTrack()">🚀 COMPARTIR</button>
+                            </div>
+
+                            <div class="ytm-progress-area" onclick="window.seekAudio(event)">
+                                <div class="xp-bar-bg"><div id="ytm-progress" class="xp-bar-fill" style="width:0%"></div></div>
+                                <div class="ytm-time-row">
+                                    <span id="ytm-curr-time">0:00</span>
+                                    <span id="ytm-dur-time">0:00</span>
+                                </div>
+                            </div>
+
+                            <div class="ytm-controls">
+                                <button class="btn-control" onclick="window.prevTrack()">⏮</button>
+                                <button class="btn-control btn-play-big" id="ytm-play-btn" onclick="window.togglePlay()">▶</button>
+                                <button class="btn-control" onclick="window.nextTrack()">⏭</button>
+                            </div>
+                        </div>
+
+                        <h3 id="queue-header" class="section-label" style="align-self: flex-start;">Siguientes</h3>
+                        <div id="ytm-queue-list" class="ytm-queue"></div>
+                    </div>
                 </div>
             </div>
         </div>
-        <button class="btn-ytm-action" onclick="window.toggleLyrics()">
-            📝 LETRA
-        </button>
-        <button class="btn-ytm-action" onclick="window.shareCurrentTrack()">
-            🚀 COMPARTIR
-        </button>
-    </div>
-
-    <div class="ytm-progress-area" onclick="window.seekAudio(event)">
-        <div class="xp-bar-bg"><div id="ytm-progress" class="xp-bar-fill" style="width:0%"></div></div>
-        <div class="ytm-time-row">
-            <span id="ytm-curr-time">0:00</span>
-            <span id="ytm-dur-time">0:00</span>
-        </div>
-    </div>
-
-    <div class="ytm-controls">
-        <button class="btn-control" onclick="window.prevTrack()">⏮</button>
-        <button class="btn-control btn-play-big" id="ytm-play-btn" onclick="window.togglePlay()">▶</button>
-        <button class="btn-control" onclick="window.nextTrack()">⏭</button>
-    </div>
-</div>
-
-            <h3 class="section-label" style="align-self: flex-start;">Siguientes</h3>
-            <div id="ytm-queue-list" class="ytm-queue"></div>
-        </div>
-    </div>
-            </div>
-</div>
         
         <!-- VENTANA FOTOS -->
         <div id="p-photos" class="app-view">
             <div class="window-content">
-            <div class="code-block-lock"><h3>🔒 Galería VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
-            <div class="protected-content">
-                <h2 class="section-label">Galería Privada</h2>
-                <div id="photos-grid" class="cards-grid"></div>
-            </div>
+                <div class="code-block-lock">
+                    <h3 id="photos-vip-header">🔒 Galería VIP</h3>
+                    <button id="photos-vip-button" onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button>
+                </div>
+                <div class="protected-content">
+                    <h2 id="photos-header" class="section-label">Galería Privada</h2>
+                    <div id="photos-grid" class="cards-grid"></div>
+                </div>
             </div>
         </div>
         
         <!-- VENTANA EVENTOS -->
         <div id="p-events" class="app-view">
             <div class="window-content">
-            <div class="code-block-lock"><h3>🔒 Calendario VIP</h3><button onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button></div>
-            <div class="protected-content">
-                <h2 class="section-label">Próximos Shows</h2>
-                <div id="events-list" class="cards-grid"></div>
-            </div>
+                <div class="code-block-lock">
+                    <h3 id="events-vip-header">🔒 Calendario VIP</h3>
+                    <button id="events-vip-button" onclick="window.loginGoogle()" class="btn-green-glow">ACCEDER</button>
+                </div>
+                <div class="protected-content">
+                    <h2 id="events-header" class="section-label">Próximos Shows</h2>
+                    <div id="events-list" class="cards-grid"></div>
+                </div>
             </div>
         </div>
         
         <!-- VENTANA PERFIL -->
         <div id="p-profile" class="app-view">
             <div class="window-content">
-            <div class="profile-panel">
-                <img id="profile-preview" src="assets/logo192.png">
-                <h3 id="display-name">INVITADO</h3>
-                
-                <div id="xp-container" style="display:none; margin: 15px 0;">
-                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
-                        <span>Nivel <span id="user-level" style="color:var(--accent); font-weight:bold;">1</span></span>
-                        <span id="user-xp-text">0 XP</span>
-                    </div>
-                    <div class="xp-bar-bg"><div id="xp-bar-fill" class="xp-bar-fill"></div></div>
-                </div>
+                <div class="profile-panel">
+                    <img id="profile-preview" src="assets/logo192.png" alt="Foto de perfil">
+                    <h3 id="display-name">INVITADO</h3>
 
-                <button id="btn-login-profile" onclick="window.loginGoogle()" class="btn-green-glow">INICIAR SESIÓN CON GOOGLE</button>
-                <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; border-color:red; color:red;">CERRAR SESIÓN</button>
-                
-                <div id="profile-editor" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
-                    <input id="edit-name" placeholder="Nuevo Nombre" class="admin-input">
-                    <input id="edit-photo" placeholder="URL Foto Perfil" class="admin-input">
-                    <button onclick="window.guardarPerfil()" class="btn-green-glow">GUARDAR CAMBIOS</button>
+                    <div style="margin: 20px 0; position: relative; z-index: 1000;">
+                        <div id="google_translate_element"></div>
+                    </div>
+                    
+                    <div id="xp-container" style="display:none; margin: 15px 0;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
+                            <span><span id="user-level-label">Nivel</span> <span id="user-level" style="color:var(--accent); font-weight:bold;">1</span></span>
+                            <span id="user-xp-text">0 <span id="user-xp-label">XP</span></span>
+                        </div>
+                        <div class="xp-bar-bg"><div id="xp-bar-fill" class="xp-bar-fill"></div></div>
+                    </div>
+
+                    <button id="btn-login-profile" onclick="window.loginGoogle()" class="btn-green-glow">INICIAR SESIÓN CON GOOGLE</button>
+                    <button id="btn-logout-profile" onclick="window.cerrarSesion()" class="btn-green-glow" style="display:none; border-color:red; color:red;">CERRAR SESIÓN</button>
+                    
+                    <div id="profile-editor" style="display:none; margin-top:20px; border-top:1px solid #333; padding-top:20px;">
+                        <input id="edit-name" placeholder="Nuevo Nombre" class="admin-input" aria-label="Nuevo nombre">
+                        <input id="edit-photo" placeholder="URL Foto Perfil" class="admin-input" aria-label="URL de foto de perfil">
+                        <button id="save-profile-button" onclick="window.guardarPerfil()" class="btn-green-glow">GUARDAR CAMBIOS</button>
+                    </div>
                 </div>
-            </div>
             </div>
         </div>
 
         <!-- VENTANA ADMIN -->
         <div id="p-admin" class="app-view">
             <div class="window-content">
-            <div class="profile-panel" style="text-align:left; max-width:600px; border-color:#ff00ff; box-shadow: 0 0 20px rgba(255,0,255,0.2);">
-                <h2 style="color:#ff00ff; border-bottom:1px solid #333; margin-bottom:20px; padding-bottom:10px;">
-                    <span class="glitch-effect" data-text="ADMIN CONSOLE">ADMIN CONSOLE</span>
-                </h2>
+                <div class="profile-panel" style="text-align:left; max-width:600px; border-color:#ff00ff; box-shadow: 0 0 20px rgba(255,0,255,0.2);">
+                    <h2 style="color:#ff00ff; border-bottom:1px solid #333; margin-bottom:20px; padding-bottom:10px;">
+                        <span id="admin-console" class="glitch-effect" data-text="ADMIN CONSOLE">ADMIN CONSOLE</span>
+                    </h2>
 
-                <label style="color:#666; font-size:0.8rem;">TIPO DE CONTENIDO</label>
-                <select id="adm-type" class="admin-input" onchange="window.updateAdminForm()">
-                    <option value="video">📺 Video</option>
-                    <option value="music">♬ Música</option>
-                    <option value="photo">📸 Foto</option>
-                    <option value="event">📅 Evento</option>
-                </select>
+                    <label id="admin-content-type-label" style="color:#666; font-size:0.8rem;">TIPO DE CONTENIDO</label>
+                    <select id="adm-type" class="admin-input" onchange="window.updateAdminForm()" aria-label="Tipo de contenido">
+                        <option id="admin-type-video" value="video">📺 Video</option>
+                        <option id="admin-type-music" value="music">♬ Música</option>
+                        <option id="admin-type-photo" value="photo">📸 Foto</option>
+                        <option id="admin-type-event" value="event">📅 Evento</option>
+                    </select>
 
-                <input type="text" id="adm-title" placeholder="Título Principal" class="admin-input">
-                <textarea id="adm-desc" placeholder="Descripción / Letra / Detalles" class="admin-input" style="height:80px;"></textarea>
-                
-                <div id="field-url-container">
-                    <input type="text" id="adm-url" placeholder="URL del Archivo (MP4, MP3, JPG)" class="admin-input">
-                </div>
-                <div id="field-poster-container">
-                    <input type="text" id="adm-thumb" placeholder="URL de la Portada/Poster" class="admin-input">
-                </div>
-                <div id="field-date-container" style="display:none;">
-                    <input type="date" id="adm-date" class="admin-input">
-                </div>
+                    <input type="text" id="adm-title" placeholder="Título Principal" class="admin-input" aria-label="Título principal">
+                    <textarea id="adm-desc" placeholder="Descripción / Letra / Detalles" class="admin-input" style="height:80px;" aria-label="Descripción"></textarea>
+                    
+                    <div id="field-url-container">
+                        <input type="text" id="adm-url" placeholder="URL del Archivo (MP4, MP3, JPG)" class="admin-input" aria-label="URL del archivo">
+                    </div>
+                    <div id="field-poster-container">
+                        <input type="text" id="adm-thumb" placeholder="URL de la Portada/Poster" class="admin-input" aria-label="URL de la portada">
+                    </div>
+                    <div id="field-date-container" style="display:none;">
+                        <input type="date" id="adm-date" class="admin-input" aria-label="Fecha del evento">
+                    </div>
 
-                <button onclick="window.adminUpload()" class="btn-green-glow" style="background:#ff00ff !important; color:#fff !important; border:none !important; margin-top:20px;">
-                    SUBIR A LA NUBE ☁
-                </button>
+                    <button id="admin-upload-button" onclick="window.adminUpload()" class="btn-green-glow" style="background:#ff00ff !important; color:#fff !important; border:none !important; margin-top:20px;">
+                        SUBIR A LA NUBE ☁
+                    </button>
+                </div>
             </div>
+        </div>
+
+        <!-- VENTANA CHAT (INTEGRADA COMO VENTANA) -->
+        <div id="p-chat" class="app-view">
+            <div class="window-content" style="display:flex; flex-direction:column; padding:0;">
+                <div id="chat-global-msgs" class="chat-body"></div>
+                <div class="chat-input-container">
+                    <input id="chat-input-msg" placeholder="Escribe..." autocomplete="off" aria-label="Mensaje de chat">
+                    <button onclick="window.enviarMensajeChat()">➤</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VENTANA LAUNCHER -->
+        <div id="p-launcher" class="app-view">
+            <div class="window-content">
+                <h2 class="section-label">Launcher</h2>
+                <div class="launcher-grid" id="launcher-grid"></div>
             </div>
         </div>
 
@@ -258,26 +356,27 @@
         <div id="p-terminal" class="app-view">
             <div class="window-content">
                 <div class="terminal-window">
+                    <div class="matrix-pills-container">
+                        <p id="matrix-pills-message">Pastilla azul para entrar, roja para salir.</p>
+                        <div class="pills-wrapper">
+                            <div class="matrix-pill blue" onclick="window.activarModoMatrix()"></div>
+                            <div class="matrix-pill red" onclick="window.desactivarModoMatrix()"></div>
+                        </div>
+                    </div>
+                    <div id="potaxio-container" class="potaxio-container" style="text-align: center; padding: 15px; border-bottom: 1px solid #0f0; margin-bottom: 10px; display: none;">
+                        <p id="potaxio-message" style="color: var(--accent); text-shadow: 0 0 5px var(--accent);">El Potaxio te llama...</p>
+                        <div style="display: flex; justify-content: center; gap: 20px; cursor: pointer;" onclick="window.togglePotaxioMode()">
+                            <img src="assets/avocado.png" style="width: 50px; height: 50px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" alt="Potaxio Avocado">
+                        </div>
+                    </div>
                     <div id="terminal-output"></div>
                     <div class="terminal-prompt">
                         <span class="prompt-user">horus@root:</span><span class="prompt-symbol">~$</span>
-                        <input type="text" id="terminal-input" autocomplete="off" autofocus>
+                        <input type="text" id="terminal-input" autocomplete="off" autofocus aria-label="Terminal input">
                     </div>
                 </div>
             </div>
         </div>
-
-    <!-- VENTANA CHAT (INTEGRADA COMO VENTANA) -->
-    <div id="p-chat" class="app-view">
-        <div class="window-content" style="display:flex; flex-direction:column; padding:0;">
-        <div id="chat-global-msgs" class="chat-body"></div>
-        <div class="chat-input-container">
-            <input id="chat-input-msg" placeholder="Escribe..." autocomplete="off">
-            <button onclick="window.enviarMensajeChat()">➤</button>
-        </div>
-        </div>
-    </div>
-
     
     </main>
 
@@ -324,8 +423,8 @@
                 </div>
                 <div id="pv-comments-list" class="pv-comments-list"></div>
                 <div class="pv-input-area">
-                    <input id="pv-comment-input" placeholder="Comenta esta foto...">
-                    <button onclick="window.publicarComentarioFoto()" class="btn-code" style="padding: 0 15px;">➤</button>
+                    <input id="pv-comment-input" placeholder="Comenta esta foto..." aria-label="Comentario de foto">
+                    <button id="photo-comment-send-button" onclick="window.publicarComentarioFoto()" class="btn-code" style="padding: 0 15px;">➤</button>
                 </div>
             </div>
         </div>
@@ -334,22 +433,28 @@
     <!-- MAC DOCK UNIFICADO -->
     <div class="mac-dock-container">
         <div class="mac-dock">
-            <div class="dock-item" onclick="window.navigate('p-videos')">📺<span class="dock-label">Videos</span></div>
-            <div class="dock-item" onclick="window.navigate('p-musica')">🎵<span class="dock-label">Música</span></div>
-            <div class="dock-item" onclick="window.navigate('p-photos')">📸<span class="dock-label">Fotos</span></div>
-            <div class="dock-item" onclick="window.navigate('p-events')">📅<span class="dock-label">Eventos</span></div>
-            <div class="dock-item" onclick="window.navigate('p-profile')">⚙️<span class="dock-label">Perfil</span></div>
-            <div class="dock-item" onclick="window.navigate('p-terminal')">>_<span class="dock-label">Terminal</span></div>
-            
-            <div class="dock-separator"></div>
-            <div class="dock-item" onclick="window.navigate('p-chat')">💬<span class="dock-label">Chat</span></div>
+            <div class="dock-item" onclick="window.navigate('p-videos')">📺<span id="dock-label-videos" class="dock-label">Videos</span></div>
+            <div class="dock-item" onclick="window.navigate('p-musica')">🎵<span id="dock-label-musica" class="dock-label">Música</span></div>
+            <div class="dock-item" onclick="window.navigate('p-photos')">📸<span id="dock-label-photos" class="dock-label">Fotos</span></div>
+            <div class="dock-item" onclick="window.navigate('p-events')">📅<span id="dock-label-events" class="dock-label">Eventos</span></div>
+            <div class="dock-item" onclick="window.navigate('p-chat')">💬<span id="dock-label-chat" class="dock-label">Chat</span></div>
+            <div class="dock-item" onclick="window.navigate('p-terminal')">>_<span id="dock-label-terminal" class="dock-label">Terminal</span></div>
+            <div class="dock-item" onclick="window.navigate('p-launcher')">🚀<span class="dock-label">Launcher</span></div>
+            <div class="dock-item" onclick="window.navigate('p-profile')">⚙️<span id="dock-label-ajustes" class="dock-label">Ajustes</span></div>
             <div id="dock-admin" class="dock-item" onclick="window.navigate('p-admin')" style="display:none;">👑<span class="dock-label">Admin</span></div>
+            <div class="dock-separator"></div>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'es'}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script src="app.js"></script>
 </body>
 </html>

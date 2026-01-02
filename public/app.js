@@ -1,30 +1,41 @@
 console.log(
-  "%c ¡ALTO AHÍ, VIAJERO! 🛑",
-  "color: #ff0033; font-size: 24px; font-weight: bold; text-shadow: 2px 2px #000;"
+    "%c ¡ALTO AHÍ, VIAJERO! 🛑",
+    "color: #ff0033; font-size: 24px; font-weight: bold; text-shadow: 2px 2px #000;"
 );
 
 console.log(
-  "%c ¿Te gustó el código? Esta página fue construida con sudor, lágrimas y mucho café por el Dr. Abraham Horus. 🧬💻",
-  "color: #00d9ff; font-size: 14px; font-weight: bold;"
+    "%c ¿Te gustó el código? Esta página fue construida con sudor, lágrimas y mucho café por el Dr. Abraham Horus. 🧬💻",
+    "color: #00d9ff; font-size: 14px; font-weight: bold;"
 );
 
 console.log(
-  "%c Si eres reclutador de Google (o traes buen presupuesto): ¡Hablemos! 📩 contacto@abrahamhorus.com",
-  "background: #222; color: #bada55; padding: 10px; border-radius: 5px; font-size: 12px;"
+    "%c Si eres reclutador de Google (o traes buen presupuesto): ¡Hablemos! 📩 contacto@abrahamhorus.com",
+    "background: #222; color: #bada55; padding: 10px; border-radius: 5px; font-size: 12px;"
 );
 
-const firebaseConfig = { apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA", 
-    authDomain: "abrahamhorus1996.firebaseapp.com", 
-    databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com", 
-    projectId: "abrahamhorus1996", storageBucket: "abrahamhorus1996.firebasestorage.app", 
-    messagingSenderId: "1002882996128", 
-    appId: "1:1002882996128:web:231c5eb841f3bec4a336c5" };
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const db = firebase.database(), auth = firebase.auth();
+const firebaseConfig = {
+    apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA",
+    authDomain: "abrahamhorus1996.firebaseapp.com",
+    databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com",
+    projectId: "abrahamhorus1996",
+    storageBucket: "abrahamhorus1996.firebasestorage.app",
+    messagingSenderId: "1002882996128",
+    appId: "1:1002882996128:web:231c5eb841f3bec4a336c5"
+};
+
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
+const auth = firebase.auth();
 const ADMIN_EMAIL = "abrahorus@gmail.com";
 
+const audioPotaxioIn = new Audio('/assets/potaxio-in.mp3');
+const audioPotaxioOut = new Audio('/assets/potaxio-out.mp3');
+
 // === ESTADO GLOBAL ===
-let currentVideoId = "default", currentUser = null;
+let currentVideoId = "default";
+let currentUser = null;
 let audioGlobal = new Audio(); // Audio limpio
 let playlist = []; // Array de canciones
 let currentTrackIndex = -1; // Índice actual
@@ -35,6 +46,8 @@ let currentCommentRefs = []; // Referencias de comentarios para limpieza indepen
 let photoList = []; // Lista de fotos para el carrusel
 let currentPhotoIndex = -1; // Índice de foto actual
 let currentPhotoCommentsRef = null; // Ref para limpiar listener de comentarios de fotos
+let matrixRainInterval = null; // Intervalo para el efecto Matrix
+let potaxioRainInterval = null; // Intervalo para el efecto Potaxio
 
 // === CONSTANTES DE REACCIONES ===
 const REACTION_ICONS = {
@@ -61,6 +74,20 @@ function initOrResumeAudioContext() {
         audioCtx.resume().then(() => {
             console.log("AudioContext resumed successfully.");
         }).catch(e => console.error("Error resuming AudioContext:", e));
+    }
+
+    // --- For Speech Synthesis API ---
+    // Some browsers require a user gesture to load the voice list and 'wake up' the API.
+    if ('speechSynthesis' in window) {
+        console.log("Initializing Speech Synthesis...");
+        // The getVoices() call is often necessary to populate the voice list.
+        window.speechSynthesis.getVoices();
+        
+        // A silent utterance on a user gesture can kick-start the speech engine,
+        // especially on mobile browsers.
+        const primer = new SpeechSynthesisUtterance('');
+        primer.volume = 0; // Make it silent
+        window.speechSynthesis.speak(primer);
     }
 }
 // Attach this function to common user interaction events, but only once.
@@ -149,16 +176,42 @@ const playSound = (type) => {
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
-    if(type==='hover') { osc.frequency.value=400; gain.gain.value=0.05; osc.start(); osc.stop(audioCtx.currentTime+0.05); }
-    if(type==='click') { osc.frequency.value=600; gain.gain.value=0.1; osc.start(); osc.stop(audioCtx.currentTime+0.1); }
-    if(type==='success') { osc.frequency.setValueAtTime(440, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime+0.3); gain.gain.value=0.1; osc.start(); osc.stop(audioCtx.currentTime+0.3); }
+    if (type === 'hover') {
+        osc.frequency.value = 400;
+        gain.gain.value = 0.05;
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+    }
+    if (type === 'click') {
+        osc.frequency.value = 600;
+        gain.gain.value = 0.1;
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    }
+    if (type === 'success') {
+        osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
+        gain.gain.value = 0.1;
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
 };
+
 window.onload = () => {
     // Carga inicial
     loadVideo({ id: "v_init", title: "Despierto (Video Musical Oficial)", desc: "Primer video oficial del artista Abraham Horus, superación de una crisis, llegando a la muerte y renaciendo con una fuerza de voluntad inquebrantable logrando la iluminación de cuerpo y alma. 👑", url: "https://res.cloudinary.com/dmwxi5gkf/video/upload/v1766804153/video_web_pro_fgjwjs.mp4", poster: "assets/shot 1.jpeg" });
     initApp();
     handleHash(); 
     initializeDock(); 
+
+    // Sonido de click para modo potaxio
+    const audioClickPuto = new Audio('/assets/puto-click.mp3');
+    document.addEventListener('click', () => {
+        if (document.body.classList.contains('potaxio-mode')) {
+            audioClickPuto.currentTime = 0;
+            audioClickPuto.play();
+        }
+    });
 
     // === LÓGICA PARA CONTAR VIEWS AL REPRODUCIR VIDEO ===
     const mainVideo = document.getElementById('main-video');
@@ -187,25 +240,34 @@ window.onload = () => {
 };
 // === NAVEGACIÓN ===
 window.navigate = (pageId) => { 
-    playSound('click'); 
-    window.location.hash = pageId; 
-    updateNavUI(pageId); 
+    playSound('click');
+    localStorage.setItem('last_view', pageId); // Guardamos la ventana actual
+    window.location.hash = pageId;
+    updateNavUI(pageId);
 };
 
 window.addEventListener('hashchange', handleHash);
 
-function handleHash() { const pageId = window.location.hash.substring(1) || 'p-videos'; updateNavUI(pageId); }
+function handleHash() {
+    let pageId = window.location.hash.substring(1);
+    // Si el hash está vacío o es inválido (ej. modificado por Google Translate), recuperamos la última vista
+    if (!pageId || !document.getElementById(pageId)) {
+        const saved = localStorage.getItem('last_view');
+        pageId = (saved && document.getElementById(saved)) ? saved : 'p-videos';
+    }
+    updateNavUI(pageId);
+}
 function updateNavUI(id) {
     // Cerrar todas las ventanas primero (o mantenerlas si quieres multi-ventana, pero por ahora single-focus)
     document.querySelectorAll('.app-view').forEach(p => p.classList.remove('active'));
     
     const el = document.getElementById(id); 
-    if(el) el.classList.add('active');
+    if (el) el.classList.add('active');
     
     // Actualizar Dock
     document.querySelectorAll('.dock-item').forEach(d => {
         d.classList.remove('active');
-        if(d.getAttribute('onclick') && d.getAttribute('onclick').includes(id)) {
+        if (d.getAttribute('onclick') && d.getAttribute('onclick').includes(id)) {
             d.classList.add('active');
         }
     });
@@ -213,27 +275,33 @@ function updateNavUI(id) {
 
 function initApp() {
     // 1. CARGAR VIDEOS
-    db.ref('social/videos').on('value', s => {
-        const g=document.getElementById('videos-grid'); if(g) g.innerHTML="";
-        if(s.val()) Object.entries(s.val()).reverse().forEach(([k,v]) => {
-            const c=document.createElement('div'); c.className="code-card"; c.onclick=()=>loadVideo({id:k,...v});
-            c.innerHTML=`<div class="card-thumb"><img src="${v.poster}" loading="lazy" onerror="this.src='assets/logo192.png'"></div><div class="card-text">${v.title}</div>`;
-            g.appendChild(c);
-        });
+    db.ref('social/videos').on('value', snapshot => {
+        const grid = document.getElementById('videos-grid');
+        if (grid) grid.innerHTML = "";
+        
+        if (snapshot.val()) {
+            Object.entries(snapshot.val()).reverse().forEach(([k, v]) => {
+                const c = document.createElement('div');
+                c.className = "code-card";
+                c.onclick = () => loadVideo({ id: k, ...v });
+                c.innerHTML = `<div class="card-thumb"><img src="${v.poster}" loading="lazy" onerror="this.src='assets/logo192.png'"></div><div class="card-text">${v.title}</div>`;
+                grid.appendChild(c);
+            });
+        }
     });
 
     // 2. CARGAR MÚSICA (SISTEMA PLAYLIST)
-    db.ref('social/musics').on('value', s => {
+    db.ref('social/musics').on('value', snapshot => {
         // Guardar ID de la canción actual para restaurar el índice tras la actualización
         const currentTrackId = (currentTrackIndex >= 0 && playlist[currentTrackIndex]) ? playlist[currentTrackIndex].id : null;
         
         playlist = []; // Limpiar playlist
         const listDiv = document.getElementById('ytm-queue-list');
-        if(listDiv) listDiv.innerHTML = "";
+        if (listDiv) listDiv.innerHTML = "";
         
-        if(s.val()) {
+        if (snapshot.val()) {
             // Convertir DB a Array
-            Object.entries(s.val()).reverse().forEach(([k,m]) => {
+            Object.entries(snapshot.val()).reverse().forEach(([k, m]) => {
                 playlist.push({ id: k, ...m });
             });
             
@@ -248,7 +316,7 @@ function initApp() {
                 const div = document.createElement('div'); 
                 div.className = "queue-item";
                 // Si esta es la canción sonando, marcarla
-                if(index === currentTrackIndex) div.classList.add('active');
+                if (index === currentTrackIndex) div.classList.add('active');
                 
                 div.onclick = () => playTrackIndex(index);
                 div.innerHTML = `
@@ -271,42 +339,59 @@ function initApp() {
     });
 
     // 3. CARGAR FOTOS
-    db.ref('social/photos').on('value', s => {
-        const g = document.getElementById('photos-grid'); if(!g) return;
+    db.ref('social/photos').on('value', snapshot => {
+        const grid = document.getElementById('photos-grid');
+        if (!grid) return;
+        
         photoList = []; // Reiniciar lista
-        g.innerHTML = "";
-        if(s.val()) {
-            Object.entries(s.val()).reverse().forEach(([k,v]) => {
+        grid.innerHTML = "";
+        
+        if (snapshot.val()) {
+            Object.entries(snapshot.val()).reverse().forEach(([k, v]) => {
                 photoList.push({id: k, ...v}); // Guardar en array para carrusel
                 const index = photoList.length - 1;
                 const c = document.createElement('div'); c.className = "code-card";
                 c.onclick = () => window.openPhotoViewer(index); // Abrir carrusel al click
                 c.innerHTML = `<div class="card-thumb"><img src="${v.poster || v.url}" loading="lazy" onerror="this.src='assets/logo192.png'"></div>
                                <div class="card-text">${v.title}</div>`;
-                g.appendChild(c);
+                grid.appendChild(c);
             });
         }
     });
 
     // 4. CARGAR EVENTOS
-    db.ref('social/events').on('value', s => {
-        const g = document.getElementById('events-list'); if(!g) return;
-        g.innerHTML = "";
-        if(s.val()) Object.entries(s.val()).reverse().forEach(([k,v]) => {
-            const c = document.createElement('div'); c.className = "code-card";
-            c.innerHTML = `<div class="card-text"><b style="color:var(--accent)">${v.eventDate || 'Próximamente'}</b><br>${v.title}<br><small style="color:#888">${v.desc || ''}</small></div>`;
-            g.appendChild(c);
-        });
+    db.ref('social/events').on('value', snapshot => {
+        const list = document.getElementById('events-list');
+        if (!list) return;
+        
+        list.innerHTML = "";
+        if (snapshot.val()) {
+            Object.entries(snapshot.val()).reverse().forEach(([k, v]) => {
+                const c = document.createElement('div');
+                c.className = "code-card";
+                c.innerHTML = `<div class="card-text"><b style="color:var(--accent)">${v.eventDate || 'Próximamente'}</b><br>${v.title}<br><small style="color:#888">${v.desc || ''}</small></div>`;
+                list.appendChild(c);
+            });
+        }
     });
 
     // 5. CARGAR CHAT
-    db.ref('chat_global').limitToLast(30).on('child_added', s => {
-        const m = s.val(), box = document.getElementById('chat-global-msgs');
-        if(box) {
+    db.ref('chat_global').limitToLast(30).on('child_added', snapshot => {
+        const m = snapshot.val();
+        const box = document.getElementById('chat-global-msgs');
+        
+        if (box) {
             const div = document.createElement('div');
-            let cssClass = "msg-other"; let icon = "";
-            if(m.email === ADMIN_EMAIL) { cssClass = "msg-artist"; icon = "👑 "; } 
-            else if (currentUser && m.user === currentUser.displayName) { cssClass = "msg-self"; }
+            let cssClass = "msg-other";
+            let icon = "";
+            
+            if (m.email === ADMIN_EMAIL) {
+                cssClass = "msg-artist";
+                icon = "👑 ";
+            } else if (currentUser && m.user === currentUser.displayName) {
+                cssClass = "msg-self";
+            }
+            
             div.className = "msg-bubble " + cssClass;
             // Header del mensaje con botón de responder (se oculta solo si es msg-self gracias al CSS existente)
             div.innerHTML = `<small style="display:flex; justify-content:space-between; align-items:center; width:100%;">
@@ -314,15 +399,16 @@ function initApp() {
                                 <button onclick="window.replyChat('${m.user}')" class="btn-reply-chat">↩</button>
                              </small>
                              ${m.text}`;
-            box.appendChild(div); box.scrollTop = box.scrollHeight;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
         }
     });
 
     // 6. CONTADOR DE SUBS PRO
-    db.ref('stats/global/subs').on('value', s => {
-        const target = s.val() || 0;
+    db.ref('stats/global/subs').on('value', snapshot => {
+        const target = snapshot.val() || 0;
         const el = document.getElementById('global-subs-count');
-        if(el) animateValue("global-subs-count", parseInt(el.innerText) || 0, target, 1500);
+        if (el) animateValue("global-subs-count", parseInt(el.innerText) || 0, target, 1500);
     });
 
     // 7. TERMINAL LOGIC
@@ -355,7 +441,8 @@ function initApp() {
 - <span style="color: var(--accent);">about</span>: Muestra información sobre el creador.
 - <span style="color: var(--accent);">social</span>: Muestra las redes sociales.
 - <span style="color: var(--accent);">subs</span>: Muestra el número de suscriptores.
-- <span style="color: var(--accent);">matrix</span>: Activa el modo Matrix.
+- <span style="color: var(--accent);">matrix</span>: Revela el secreto de la Matrix.
+- <span style="color: var(--accent);">potaxio</span>: Activa el modo Potaxio.
 - <span style="color: var(--accent);">clear</span>: Limpia la terminal.
 `);
                 break;
@@ -366,14 +453,33 @@ function initApp() {
                 terminalOutput.innerHTML = '';
                 break;
             case 'matrix':
-                activarModoMatrix();
-                printToTerminal('Modo Matrix activado.');
+                if (args[1] === 'on') {
+                    activarModoMatrix();
+                    printToTerminal('Modo Matrix activado.');
+                } else if (args[1] === 'off') {
+                    desactivarModoMatrix();
+                    printToTerminal('Modo Matrix desactivado.');
+                } else {
+                    const pillsContainer = document.querySelector('.matrix-pills-container');
+                    if (pillsContainer) {
+                        pillsContainer.style.display = 'block';
+                    }
+                    printToTerminal('Pastilla azul para entrar, roja para salir.');
+                }
+                break;
+            case 'potaxio':
+                togglePotaxioMode();
+                if (document.body.classList.contains('potaxio-mode')) {
+                    printToTerminal('🥑 Modo Potaxio activado.');
+                } else {
+                    printToTerminal('Modo Potaxio desactivado.');
+                }
                 break;
             case 'subs':
                 const subsCount = document.getElementById('global-subs-count').innerText;
                 printToTerminal(`Suscriptores actuales: ${subsCount}`);
                 break;
-            case 'social':
+            case 'launcher':
                 let socialLinks = 'Redes Sociales:\n';
                 appsData.forEach(app => {
                     socialLinks += `- ${app.name}: <a href="${app.url}" target="_blank">${app.url}</a>\n`;
@@ -411,21 +517,21 @@ function initApp() {
 // === LOGICA REPRODUCTOR YOUTUBE MUSIC ===
 
 window.playTrackIndex = (index) => {
-    if(index < 0 || index >= playlist.length) return;
+    if (index < 0 || index >= playlist.length) return;
     
     currentTrackIndex = index;
     const track = playlist[index];
     
     // UI Updates
     const cover = document.getElementById('ytm-cover');
-    if(cover) cover.src = track.poster || 'assets/logo192.png';
+    if (cover) cover.src = track.poster || 'assets/logo192.png';
     document.getElementById('ytm-title').innerText = track.title;
     document.getElementById('ytm-artist').innerText = "Abraham Horus";
     
     // Cargar Likes y Letra
     updateReactionUI('music', track.id); // Usar nueva función de UI
     const lyricsBox = document.getElementById('lyrics-text');
-    if(lyricsBox) lyricsBox.innerText = track.desc || "No hay letra disponible.";
+    if (lyricsBox) lyricsBox.innerText = track.desc || "No hay letra disponible.";
     
     // Resaltar en cola
     document.querySelectorAll('.queue-item').forEach((el, i) => {
@@ -459,10 +565,13 @@ function playAudioFile(url) {
 }
 
 window.togglePlay = () => {
-    if(playlist.length === 0) return;
-    if(currentTrackIndex === -1) { playTrackIndex(0); return; }
+    if (playlist.length === 0) return;
+    if (currentTrackIndex === -1) {
+        playTrackIndex(0);
+        return;
+    }
 
-    if(audioGlobal.paused) {
+    if (audioGlobal.paused) {
         audioGlobal.play();
         document.getElementById('ytm-play-btn').innerText = "⏸";
         document.getElementById('ytm-card').classList.add('playing');
@@ -475,13 +584,13 @@ window.togglePlay = () => {
 
 window.nextTrack = () => {
     let next = currentTrackIndex + 1;
-    if(next >= playlist.length) next = 0;
+    if (next >= playlist.length) next = 0;
     playTrackIndex(next);
 };
 
 window.prevTrack = () => {
     let prev = currentTrackIndex - 1;
-    if(prev < 0) prev = playlist.length - 1;
+    if (prev < 0) prev = playlist.length - 1;
     playTrackIndex(prev);
 };
 
@@ -491,13 +600,13 @@ window.prevTrack = () => {
 function startProgressLoop() {
     clearInterval(progressInterval);
     progressInterval = setInterval(() => {
-        if(audioGlobal.duration) {
+        if (audioGlobal.duration) {
             const pct = (audioGlobal.currentTime / audioGlobal.duration) * 100;
-            document.getElementById('ytm-progress').style.width = pct + "%";
+            document.getElementById('ytm-progress').style.width = pct + "%" ;
             document.getElementById('ytm-curr-time').innerText = fmtTime(audioGlobal.currentTime);
             document.getElementById('ytm-dur-time').innerText = fmtTime(audioGlobal.duration);
             
-            if(audioGlobal.ended) window.nextTrack();
+            if (audioGlobal.ended) window.nextTrack();
         }
     }, 500);
 }
@@ -509,7 +618,7 @@ function fmtTime(s) {
 }
 
 window.seekAudio = (e) => {
-    if(!audioGlobal.duration) return;
+    if (!audioGlobal.duration) return;
     const bar = e.currentTarget;
     const pct = e.offsetX / bar.clientWidth;
     audioGlobal.currentTime = pct * audioGlobal.duration;
@@ -517,17 +626,32 @@ window.seekAudio = (e) => {
 
 // === OTRAS FUNCIONES (VIDEO, COMENTARIOS, XP) ===
 
-window.toggleLiveChat=()=>{ window.navigate('p-chat'); };
-window.toggleComments=()=>{const c=document.getElementById('comments-wrapper'); c.style.display=(c.style.display==='none')?'block':'none'; playSound('click');};
-window.enviarMensajeChat=()=>{
-    const i=document.getElementById('chat-input-msg'); if(!i.value) return;
+window.toggleLiveChat = () => {
+    window.navigate('p-chat');
+};
+
+window.toggleComments = () => {
+    const container = document.getElementById('comments-wrapper');
+    if (container) {
+        container.style.display = (container.style.display === 'none') ? 'block' : 'none';
+        playSound('click');
+    }
+};
+
+window.enviarMensajeChat = () => {
+    const input = document.getElementById('chat-input-msg');
+    if (!input || !input.value) return;
+    
     const email = currentUser ? currentUser.email : "anon";
-    db.ref('chat_global').push({user:currentUser?currentUser.displayName:"Anon", email:email, text:i.value, timestamp:Date.now()}); i.value="";
+    const user = currentUser ? currentUser.displayName : "Anon";
+    
+    db.ref('chat_global').push({ user: user, email: email, text: input.value, timestamp: Date.now() });
+    input.value = "";
 };
 
 window.replyChat = (user) => {
     const input = document.getElementById('chat-input-msg');
-    if(input) {
+    if (input) {
         input.value = `@${user} ` + input.value;
         input.focus();
     }
@@ -541,13 +665,21 @@ window.showToast = (msg) => {
 };
 
 // === AUTH & ADMIN ===
-window.loginGoogle=()=>auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-window.cerrarSesion=()=>auth.signOut().then(()=>location.reload());
+window.loginGoogle = () => {
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+};
+
+window.cerrarSesion = () => {
+    auth.signOut().then(() => {
+        location.reload();
+    });
+};
 
 auth.onAuthStateChanged(u => {
-    currentUser=u; document.body.classList.toggle('is-vip', !!u);
+    currentUser = u;
+    document.body.classList.toggle('is-vip', !!u);
     const adminDock = document.getElementById('dock-admin');
-    if(adminDock) adminDock.style.display = 'none';
+    if (adminDock) adminDock.style.display = 'none';
 
     // Actualizar estados de reacciones al loguearse/desloguearse
     if (currentVideoId && currentVideoId !== "default") updateReactionUI('video', currentVideoId);
@@ -562,34 +694,43 @@ auth.onAuthStateChanged(u => {
             const label = document.getElementById('subs-label');
             if (btn && label && s.val()) {
                 btn.classList.add('subscribed');
-                label.innerText = "SUSCRITO";
             }
         });
+    } else {
+        const btn = document.getElementById('btn-subscribe');
+        if (btn) btn.classList.remove('subscribed');
     }
 
-    if(u) { 
-        document.getElementById('display-name').innerText=u.displayName; 
-        document.getElementById('profile-preview').src=u.photoURL||"assets/logo192.png"; 
-        document.getElementById('btn-login-profile').style.display='none'; 
-        document.getElementById('btn-logout-profile').style.display='block'; 
-        document.getElementById('profile-editor').style.display='block';
-        document.getElementById('xp-container').style.display='block';
+    if (u) {
+        document.getElementById('display-name').innerText = u.displayName;
+        document.getElementById('profile-preview').src = u.photoURL || "assets/logo192.png";
+        document.getElementById('btn-login-profile').style.display = 'none';
+        document.getElementById('btn-logout-profile').style.display = 'block';
+        document.getElementById('profile-editor').style.display = 'block';
+        document.getElementById('xp-container').style.display = 'block';
         
         db.ref(`users/${u.uid}`).on('value', s => {
             const d = s.val() || {}; const xp = d.xp || 0; const lvl = Math.floor(xp/100) + 1;
             document.getElementById('user-level').innerText = lvl;
-            document.getElementById('user-xp-text').innerText = `${xp} XP`;
-            document.getElementById('xp-bar-fill').style.width = `${xp % 100}%`;
+            document.getElementById('user-xp-text').innerText = `${xp}`;
         });
         showToast(`Bienvenido, ${u.displayName}`);
 
-        if(u.email === ADMIN_EMAIL) {
-            if(adminDock) adminDock.style.display = 'flex';
+        if (u.email === ADMIN_EMAIL) {
+            if (adminDock) adminDock.style.display = 'flex';
             showToast("👑 Modo Admin Activo");
         }
         
         // Recargar comentarios para actualizar permisos de borrado y likes
-        if(currentVideoId && currentVideoId !== "default") loadComments(currentVideoId);
+        if (currentVideoId && currentVideoId !== "default") loadComments(currentVideoId);
+    } else {
+        // Clear user-specific UI when logged out
+        document.getElementById('display-name').innerText = "INVITADO";
+        document.getElementById('profile-preview').src="assets/logo192.png";
+        document.getElementById('btn-login-profile').style.display='block';
+        document.getElementById('btn-logout-profile').style.display='none';
+        document.getElementById('profile-editor').style.display='none';
+        document.getElementById('xp-container').style.display='none';
     }
 });
 
@@ -618,7 +759,6 @@ window.toggleSub = () => {
             ]).then(() => {
                 if (btn) {
                     btn.classList.remove('subscribed');
-                    if(label) label.innerText = "SUSCRIBIRSE";
                 }
                 showToast("Suscripción cancelada");
             }).catch(err => console.error("Error al desuscribir:", err));
@@ -634,7 +774,6 @@ window.toggleSub = () => {
             ]).then(() => {
                 if (btn) {
                     btn.classList.add('subscribed');
-                    if(label) label.innerText = "SUSCRITO";
                 }
                 // EFECTO CONFETI Y XP
                 spawnConfetti();
@@ -657,16 +796,16 @@ window.updateAdminForm = () => {
     const type = document.getElementById('adm-type').value;
     const dateField = document.getElementById('field-date-container');
     const urlField = document.getElementById('adm-url');
-    if(dateField) dateField.style.display = (type === 'event') ? 'block' : 'none';
-    if(urlField) {
-        if(type === 'video') urlField.placeholder = "URL del Video (MP4 / Cloudinary)";
-        if(type === 'music') urlField.placeholder = "URL del Audio (MP3)";
-        if(type === 'photo') urlField.placeholder = "URL de la Imagen";
+    if (dateField) dateField.style.display = (type === 'event') ? 'block' : 'none';
+    if (urlField) {
+        if (type === 'video') urlField.placeholder = "URL del Video (MP4 / Cloudinary)";
+        if (type === 'music') urlField.placeholder = "URL del Audio (MP3)";
+        if (type === 'photo') urlField.placeholder = "URL de la Imagen";
     }
 };
 
 window.adminUpload = () => {
-    if(!currentUser || currentUser.email !== ADMIN_EMAIL) return showToast("⛔ Acceso denegado");
+    if (!currentUser || currentUser.email !== ADMIN_EMAIL) return showToast("⛔ Acceso denegado");
     const type = document.getElementById('adm-type').value;
     const title = document.getElementById('adm-title').value;
     const desc = document.getElementById('adm-desc').value;
@@ -674,11 +813,11 @@ window.adminUpload = () => {
     const poster = document.getElementById('adm-thumb').value;
     const dateVal = document.getElementById('adm-date') ? document.getElementById('adm-date').value : "";
 
-    if(!title) return showToast("Falta el título");
+    if (!title) return showToast("Falta el título");
     
     const data = { title: title, desc: desc, url: url, poster: poster, timestamp: Date.now() };
-    if(type === 'event') {
-        if(!dateVal) return showToast("Falta la fecha");
+    if (type === 'event') {
+        if (!dateVal) return showToast("Falta la fecha");
         data.eventDate = dateVal;
     }
 
@@ -687,28 +826,281 @@ window.adminUpload = () => {
             showToast(`✅ ${type.toUpperCase()} PUBLICADO`);
             playSound('success');
             document.querySelectorAll('.admin-input').forEach(i => i.value = "");
-            if(type === 'music') window.navigate('p-musica');
+            if (type === 'music') window.navigate('p-musica');
             else window.navigate('p-' + type + 's');
         })
         .catch(error => showToast("Error: " + error.message));
 };
 
 window.guardarPerfil = () => {
-    const n=document.getElementById('edit-name').value, p=document.getElementById('edit-photo').value;
-    if(currentUser) currentUser.updateProfile({displayName:n||currentUser.displayName, photoURL:p||currentUser.photoURL}).then(()=>location.reload());
+    const newName = document.getElementById('edit-name').value;
+    const newPhoto = document.getElementById('edit-photo').value;
+    
+    if (currentUser) {
+        currentUser.updateProfile({
+            displayName: newName || currentUser.displayName,
+            photoURL: newPhoto || currentUser.photoURL
+        }).then(() => location.reload());
+    }
 };
 
+// === MATRIX RAIN EFFECT ===
+function startMatrixRain() {
+    if (matrixRainInterval) clearInterval(matrixRainInterval); // Evita duplicados
+
+    const canvas = document.getElementById('matrix-canvas');
+    if (!canvas) {
+        console.error("Matrix Rain: El canvas con id 'matrix-canvas' no fue encontrado.");
+        return;
+    }
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Caracteres a usar (Katakana para el look clásico)
+    const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+    const binary = '01';
+    const characters = katakana + binary;
+    const fontSize = 16;
+    const columns = Math.floor(canvas.width / fontSize);
+
+    // Array para guardar la posición 'y' de cada gota en cada columna
+    const drops = [];
+    for (let x = 0; x < columns; x++) {
+        drops[x] = 1;
+    }
+
+    function draw() {
+        // Fondo semi-transparente para el efecto de estela
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff41'; // Color verde "hacker"
+        ctx.font = fontSize + 'px monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters.charAt(Math.floor(Math.random() * characters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            // Si la gota llega al fondo, la resetea al inicio con una probabilidad aleatoria
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+
+            drops[i]++;
+        }
+    }
+
+    matrixRainInterval = setInterval(draw, 33);
+
+    // Reajustar si la ventana cambia de tamaño
+    window.addEventListener('resize', () => {
+        if (!matrixRainInterval) return; // No hacer nada si el efecto no está activo
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const newColumns = Math.floor(canvas.width / fontSize);
+        // Reiniciar gotas para el nuevo tamaño
+        while(drops.length > newColumns) drops.pop();
+        while(drops.length < newColumns) drops.push(1);
+        for (let x = 0; x < drops.length; x++) {
+            drops[x] = 1;
+        }
+    });
+}
+
+function stopMatrixRain() {
+    if (matrixRainInterval) {
+        clearInterval(matrixRainInterval);
+        matrixRainInterval = null;
+    }
+    const canvas = document.getElementById('matrix-canvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        // Asegurarse que el canvas tenga dimensiones antes de limpiar
+        if (canvas.width > 0 && canvas.height > 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+}
+
+// === POTAXIO RAIN EFFECT ===
+function startPotaxioRain() {
+    if (potaxioRainInterval) clearInterval(potaxioRainInterval);
+
+    const canvas = document.getElementById('matrix-canvas');
+    if (!canvas) {
+        console.error("Potaxio Rain: Canvas 'matrix-canvas' not found.");
+        return;
+    }
+    const ctx = canvas.getContext('2d');
+    const avocadoImg = new Image();
+    avocadoImg.src = '/assets/avocado.png';
+
+    avocadoImg.onload = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const avocadoSize = 40;
+        const columns = Math.floor(canvas.width / avocadoSize);
+        const drops = [];
+
+        for (let i = 0; i < columns; i++) {
+            // Posición inicial aleatoria para que no empiecen todos alineados
+            drops[i] = 1 + Math.floor(Math.random() * 20);
+        }
+
+        function draw() {
+            // Fondo claro semi-transparente para el efecto de estela
+            ctx.fillStyle = 'rgba(247, 242, 228, 0.25)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < drops.length; i++) {
+                const x = i * avocadoSize;
+                const y = drops[i] * avocadoSize;
+                ctx.drawImage(avocadoImg, x, y, avocadoSize, avocadoSize);
+                
+                // Si el aguacate sale de la pantalla, lo resetea arriba con cierta probabilidad
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        potaxioRainInterval = setInterval(draw, 50);
+    };
+
+    avocadoImg.onerror = () => {
+        console.error("Potaxio Rain: No se pudo cargar la imagen /assets/avocado.png");
+    };
+}
+
+function stopPotaxioRain() {
+    if (potaxioRainInterval) {
+        clearInterval(potaxioRainInterval);
+        potaxioRainInterval = null;
+    }
+    const canvas = document.getElementById('matrix-canvas');
+    if (canvas && canvas.getContext) {
+        const ctx = canvas.getContext('2d');
+        if (canvas.width > 0 && canvas.height > 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+}
+
 // === HACKER MODE ===
-let secretCode = ['m','a','t','r','i','x'], secretPosition = 0;
+let keyBuffer = '';
+const secretCodes = {
+};
+
 document.addEventListener('keydown', (e) => {
-    if(e.key.toLowerCase() === secretCode[secretPosition]) { secretPosition++; if(secretPosition === secretCode.length) { activarModoMatrix(); secretPosition = 0; } } else { secretPosition = 0; }
+    keyBuffer += e.key.toLowerCase();
+    
+    for (const code in secretCodes) {
+        if (keyBuffer.endsWith(code)) {
+            secretCodes[code]();
+            keyBuffer = '';
+            return;
+        }
+    }
+
+    // Limit buffer size to avoid it growing indefinitely
+    if (keyBuffer.length > 10) {
+        keyBuffer = keyBuffer.slice(-10);
+    }
 });
+
 function activarModoMatrix() {
-    playSound('success'); showToast("⚠️ MATRIX MODE ACTIVATED");
-    document.documentElement.style.setProperty('--bg-main', '#000');
-    document.documentElement.style.setProperty('--text-main', '#00d9ff');
-    document.documentElement.style.setProperty('--accent', '#00d9ff');
-    document.body.style.fontFamily = "'Courier New', monospace";
+    playSound('success'); 
+    showToast("⚠️ MATRIX MODE ACTIVATED");
+    document.body.classList.add('matrix-mode');
+    startMatrixRain();
+    const pillsContainer = document.querySelector('.matrix-pills-container');
+    if (pillsContainer) {
+        pillsContainer.style.display = 'none';
+    }
+}
+
+function desactivarModoMatrix() {
+    playSound('click');
+    showToast("Matrix mode deactivated.");
+    document.body.classList.remove('matrix-mode');
+    stopMatrixRain();
+    const pillsContainer = document.querySelector('.matrix-pills-container');
+    if (pillsContainer) {
+        pillsContainer.style.display = 'none';
+    }
+}
+
+function toggleMatrixMode() {
+    // Cancel any ongoing or queued speech to prevent overlaps
+    window.speechSynthesis.cancel(); 
+
+    if (document.body.classList.contains('matrix-mode')) {
+        desactivarModoMatrix();
+
+        setTimeout(() => {
+            console.log("Attempting to speak: Restoring user session.");
+            const exitMessage = new SpeechSynthesisUtterance("Restoring user session.");
+            exitMessage.lang = 'en-US';
+            exitMessage.onerror = (event) => {
+                console.error('SpeechSynthesisUtterance.onerror', event);
+            };
+            window.speechSynthesis.speak(exitMessage);
+        }, 100); // Short delay
+    } else {
+        activarModoMatrix();
+
+        setTimeout(() => {
+            console.log("Attempting to speak: Wake up, Neo...");
+            const enterMessage = new SpeechSynthesisUtterance("Wake up, Neo...");
+            enterMessage.lang = 'en-US';
+            enterMessage.pitch = 0.8;
+            enterMessage.rate = 0.9;
+            enterMessage.onerror = (event) => {
+                console.error('SpeechSynthesisUtterance.onerror', event);
+            };
+            window.speechSynthesis.speak(enterMessage);
+        }, 100); // Short delay
+    }
+}
+
+window.activarModoMatrix = activarModoMatrix;
+window.desactivarModoMatrix = desactivarModoMatrix;
+
+function togglePotaxioMode() {
+    const isPotaxioActive = document.body.classList.toggle('potaxio-mode');
+    const potaxioContainer = document.getElementById('potaxio-container');
+
+    if (isPotaxioActive) {
+        if (document.body.classList.contains('matrix-mode')) {
+            document.body.classList.remove('matrix-mode');
+            stopMatrixRain();
+        }
+        startPotaxioRain();
+        audioPotaxioIn.play();
+        showToast("🥑✨ MODO POTAXIO ACTIVADO ✨🥑");
+        if (potaxioContainer) {
+            potaxioContainer.style.display = 'block';
+        }
+    } else {
+        stopPotaxioRain();
+        audioPotaxioOut.play();
+        showToast("🥑✨ MODO POTAXIO DESACTIVADO ✨🥑");
+        if (potaxioContainer) {
+            potaxioContainer.style.display = 'none';
+        }
+    }
+}
+
+function desactivarModoPotaxio() {
+    // Styles are now handled by the CSS class
+}
+
+function activarModoPotaxio() {
+    // Styles are now handled by the CSS class
 }
 
 // === FUNCIONES DE UTILIDAD Y LÓGICA PRINCIPAL ===
@@ -727,10 +1119,14 @@ function animateValue(id, start, end, duration) {
 }
 
 function addXP(amount) {
-    if(!currentUser) return;
+    if (!currentUser) return;
     const ref = db.ref(`users/${currentUser.uid}/xp`);
     ref.transaction(c => (c||0) + amount);
-    ref.once('value', s => { const xp = s.val() || 0; const level = Math.floor(xp/100) + 1; db.ref(`users/${currentUser.uid}/level`).set(level); });
+    ref.once('value', s => {
+        const xp = s.val() || 0;
+        const level = Math.floor(xp/100) + 1;
+        db.ref(`users/${currentUser.uid}/level`).set(level);
+    });
 }
 
 window.loadVideo = (v) => {
@@ -742,23 +1138,31 @@ window.loadVideo = (v) => {
         currentVideoRefs = [];
     }
 
-    currentVideoId=v.id||"default";
+    currentVideoId = v.id || "default";
     const mainVideoElement = document.getElementById('main-video');
     const videoSourceElement = document.getElementById('video-source');
 
-    if (videoSourceElement) videoSourceElement.src = v.url;
+    if (videoSourceElement) {
+        videoSourceElement.src = v.url;
+    }
     const titleEl = document.getElementById('current-title');
-    if(titleEl) titleEl.innerText=v.title;
+    if (titleEl) {
+        titleEl.innerText = v.title;
+    }
     const descEl = document.getElementById('video-description');
-    if(descEl) descEl.innerText=v.desc||"";
+    if (descEl) {
+        descEl.innerText = v.desc || "";
+    }
     
-    if (mainVideoElement) mainVideoElement.load(); // Carga la nueva fuente del video
+    if (mainVideoElement) {
+        mainVideoElement.load(); // Carga la nueva fuente del video
+    }
 
     // Cargar Reacciones y Vistas
     updateReactionUI('video', currentVideoId);
 
     const viewsRef = db.ref(`stats/${currentVideoId}/views`);
-    viewsRef.on('value', s => { const el = document.getElementById('total-views'); if(el) el.innerText = s.val() || 0; });
+    viewsRef.on('value', s => { const el = document.getElementById('total-views'); if (el) el.innerText = s.val() || 0; });
     currentVideoRefs.push(viewsRef);
 
     loadComments(currentVideoId);
@@ -767,9 +1171,9 @@ window.loadVideo = (v) => {
 
 // === PUBLICAR COMENTARIO PRINCIPAL ===
 window.publicarComentario = () => {
-    if(!currentUser) return showToast("Inicia sesión para comentar");
+    if (!currentUser) return showToast("Inicia sesión para comentar");
     const input = document.getElementById('comment-input-main');
-    if(!input || !input.value.trim()) return showToast("Escribe algo...");
+    if (!input || !input.value.trim()) return showToast("Escribe algo...");
 
     const commentData = {
         user: currentUser.displayName || "Anon",
@@ -819,17 +1223,17 @@ function loadComments(videoId) {
     let commentsData = {};
     const renderComments = () => {
         const listContainer = document.getElementById('comments-list');
-        if(listContainer) listContainer.innerHTML = "";
+        if (listContainer) listContainer.innerHTML = "";
         
         // Actualizar contador de comentarios (Principales + Respuestas)
         let totalCount = 0;
         if (commentsData && listContainer) {
             Object.values(commentsData).forEach(c => {
                 totalCount++;
-                if(c.replies) totalCount += Object.keys(c.replies).length;
+                if (c.replies) totalCount += Object.keys(c.replies).length;
             });
             const countBtn = document.getElementById('comments-count-btn');
-            if(countBtn) countBtn.innerText = totalCount;
+            if (countBtn) countBtn.innerText = totalCount;
 
             Object.entries(commentsData).reverse().forEach(([key, comment]) => {
                 const div = document.createElement('div');
@@ -936,7 +1340,7 @@ function loadComments(videoId) {
             });
         } else if (listContainer) {
             const countBtn = document.getElementById('comments-count-btn');
-            if(countBtn) countBtn.innerText = "0";
+            if (countBtn) countBtn.innerText = "0";
             listContainer.innerHTML = "<div style='padding:20px; text-align:center; color:#666'>Sé el primero en comentar.</div>";
         }
     };
@@ -948,9 +1352,9 @@ function loadComments(videoId) {
 }
 
 window.enviarReply = (parentKey) => {
-    if(!currentUser) return showToast("Inicia sesión para responder");
+    if (!currentUser) return showToast("Inicia sesión para responder");
     const input = document.getElementById(`input-${parentKey}`);
-    if(!input || !input.value) return;
+    if (!input || !input.value) return;
     
     const replyData = {
         user: currentUser.displayName || "Anon",
@@ -968,14 +1372,14 @@ window.enviarReply = (parentKey) => {
 window.mostrarReply = (key) => { const b = document.getElementById(`reply-box-${key}`); b.style.display = (b.style.display === 'flex') ? 'none' : 'flex'; };
 
 window.deleteComment = (key) => {
-    if(!confirm("¿Eliminar este comentario permanentemente?")) return;
+    if (!confirm("¿Eliminar este comentario permanentemente?")) return;
     db.ref(`comments/${currentVideoId}/${key}`).remove()
         .then(() => showToast("Comentario eliminado"))
         .catch(e => showToast("Error: " + e.message));
 };
 
 window.deleteReply = (parentKey, replyKey) => {
-    if(!confirm("¿Eliminar respuesta?")) return;
+    if (!confirm("¿Eliminar respuesta?")) return;
     db.ref(`comments/${currentVideoId}/${parentKey}/replies/${replyKey}`).remove()
         .then(() => showToast("Respuesta eliminada"));
 };
@@ -983,7 +1387,7 @@ window.deleteReply = (parentKey, replyKey) => {
 window.prepararRespuesta = (commentKey, userName) => {
     const box = document.getElementById(`reply-box-${commentKey}`);
     const input = document.getElementById(`input-${commentKey}`);
-    if(box && input) {
+    if (box && input) {
         box.style.display = 'flex';
         input.value = `@${userName} `;
         input.focus();
@@ -992,20 +1396,51 @@ window.prepararRespuesta = (commentKey, userName) => {
 
 // === SISTEMA UNIFICADO DE REACCIONES ===
 
+// Helper para obtener rutas y configuración de UI (DRY)
+function getReactionConfig(context, id, parentId) {
+    const uid = currentUser ? currentUser.uid : null;
+    let statsPath, userPath, uiIds = {};
+
+    switch (context) {
+        case 'video':
+            statsPath = `stats/${id}/likes`;
+            userPath = uid ? `userLikes/${uid}/${id}` : null;
+            uiIds = { btn: 'video-like-btn', icon: 'video-reaction-icon', count: 'likes-count' };
+            break;
+        case 'music':
+            statsPath = `social/musics/${id}/likes`;
+            userPath = uid ? `userLikes/${uid}/${id}` : null;
+            uiIds = { btn: 'music-like-btn', icon: 'music-reaction-icon', count: 'ytm-like-count' };
+            break;
+        case 'photo':
+            statsPath = `social/photos/${id}/likes`;
+            userPath = uid ? `userLikes/${uid}/${id}` : null;
+            uiIds = { btn: 'pv-like-btn', icon: 'photo-reaction-icon', count: 'pv-likes-count' };
+            break;
+        case 'comment':
+            statsPath = `comments/${currentVideoId}/${id}/likes`;
+            userPath = uid ? `userLikes/${uid}/comment_likes/${id}` : null;
+            break;
+        case 'reply':
+            statsPath = `comments/${currentVideoId}/${parentId}/replies/${id}/likes`;
+            userPath = uid ? `userLikes/${uid}/reply_likes/${id}` : null;
+            break;
+    }
+    return { statsPath, userPath, uiIds };
+}
+
 window.toggleReaction = (context, id, parentId) => {
     // Si no se pasa ID (ej. video/musica principal), usar variables globales
-    if(context === 'video' && !id) id = currentVideoId;
-    if(context === 'music' && !id) id = playlist[currentTrackIndex]?.id;
-    if(context === 'photo' && !id) id = photoList[currentPhotoIndex]?.id;
+    if (context === 'video' && !id) id = currentVideoId;
+    if (context === 'music' && !id) id = playlist[currentTrackIndex]?.id;
+    if (context === 'photo' && !id) id = photoList[currentPhotoIndex]?.id;
     
-    if(!id || id === 'default') return showToast("Contenido no válido");
-    if(!currentUser) return showToast("Inicia sesión para reaccionar");
+    if (!id || id === 'default') return showToast("Contenido no válido");
+    if (!currentUser) return showToast("Inicia sesión para reaccionar");
 
-    // Determinar ruta de usuario
-    let userPath = `userLikes/${currentUser.uid}/${id}`;
-    if(context === 'comment') userPath = `userLikes/${currentUser.uid}/comment_likes/${id}`;
-    if(context === 'reply') userPath = `userLikes/${currentUser.uid}/reply_likes/${id}`;
-
+    const { userPath } = getReactionConfig(context, id, parentId);
+    if (!userPath) return;
+    
     db.ref(userPath).once('value', s => {
         if(s.val()) {
             // Si ya tiene reacción, quitarla (toggle off)
@@ -1019,22 +1454,15 @@ window.toggleReaction = (context, id, parentId) => {
 
 window.setReaction = (context, type, id, parentId) => {
     // Normalizar ID si viene de onclick directo
-    if(context === 'video' && !id) id = currentVideoId;
-    if(context === 'music' && !id) id = playlist[currentTrackIndex]?.id;
-    if(context === 'photo' && !id) id = photoList[currentPhotoIndex]?.id;
+    if (context === 'video' && !id) id = currentVideoId;
+    if (context === 'music' && !id) id = playlist[currentTrackIndex]?.id;
+    if (context === 'photo' && !id) id = photoList[currentPhotoIndex]?.id;
 
-    if(!id || id === 'default') return;
-    if(!currentUser) return showToast("Inicia sesión");
+    if (!id || id === 'default') return;
+    if (!currentUser) return showToast("Inicia sesión");
 
-    // Rutas DB
-    let statsPath = "";
-    let userPath = "";
-    
-    if(context === 'video') { statsPath = `stats/${id}/likes`; userPath = `userLikes/${currentUser.uid}/${id}`; }
-    else if(context === 'music') { statsPath = `social/musics/${id}/likes`; userPath = `userLikes/${currentUser.uid}/${id}`; }
-    else if(context === 'photo') { statsPath = `social/photos/${id}/likes`; userPath = `userLikes/${currentUser.uid}/${id}`; }
-    else if(context === 'comment') { statsPath = `comments/${currentVideoId}/${id}/likes`; userPath = `userLikes/${currentUser.uid}/comment_likes/${id}`; }
-    else if(context === 'reply') { statsPath = `comments/${currentVideoId}/${parentId}/replies/${id}/likes`; userPath = `userLikes/${currentUser.uid}/reply_likes/${id}`; }
+    const { statsPath, userPath } = getReactionConfig(context, id, parentId);
+    if (!statsPath || !userPath) return;
 
     const userLikeRef = db.ref(userPath);
     const statsRef = db.ref(statsPath);
@@ -1051,7 +1479,7 @@ window.setReaction = (context, type, id, parentId) => {
                 statsRef.transaction(c => (c || 0) - 1);
                 reactionsRef.child(currentReaction).transaction(c => (c || 0) - 1); // Restar al específico
                 addXP(-2);
-                if(context !== 'comment' && context !== 'reply') updateReactionUI(context, id);
+                if (!['comment', 'reply'].includes(context)) updateReactionUI(context, id);
             }).catch(err => {
                 console.error("Error removing reaction:", err);
                 showToast("Error al quitar la reacción.");
@@ -1070,7 +1498,7 @@ window.setReaction = (context, type, id, parentId) => {
                     reactionsRef.child(currentReaction).transaction(c => (c || 0) - 1); // Restar al viejo
                     reactionsRef.child(type).transaction(c => (c || 0) + 1); // Sumar al nuevo
                 }
-                if(context !== 'comment' && context !== 'reply') updateReactionUI(context, id);
+                if (!['comment', 'reply'].includes(context)) updateReactionUI(context, id);
             }).catch(err => {
                 console.error("Error setting reaction:", err);
                 showToast("Error al guardar la reacción.");
@@ -1080,29 +1508,23 @@ window.setReaction = (context, type, id, parentId) => {
 };
 
 function updateReactionUI(context, id) {
-    let btnId = "";
-    let iconId = "";
-    let countId = "";
-    let statsPath = "";
+    const { statsPath, uiIds } = getReactionConfig(context, id);
+    if (!uiIds || !uiIds.btn) return;
 
-    if(context === 'video') { btnId = 'video-like-btn'; iconId = 'video-reaction-icon'; countId = 'likes-count'; statsPath = `stats/${id}/likes`; }
-    else if(context === 'music') { btnId = 'music-like-btn'; iconId = 'music-reaction-icon'; countId = 'ytm-like-count'; statsPath = `social/musics/${id}/likes`; }
-    else if(context === 'photo') { btnId = 'pv-like-btn'; iconId = 'photo-reaction-icon'; countId = 'pv-likes-count'; statsPath = `social/photos/${id}/likes`; }
-
-    const btn = document.getElementById(btnId);
-    const icon = document.getElementById(iconId);
-    const count = document.getElementById(countId);
-    if(!btn) return;
+    const btn = document.getElementById(uiIds.btn);
+    const icon = document.getElementById(uiIds.icon);
+    const count = document.getElementById(uiIds.count);
+    if (!btn) return;
 
     const statsRef = db.ref(statsPath);
-    statsRef.on('value', s => { if(count) count.innerText = s.val() || 0; });
+    statsRef.on('value', s => { if (count) count.innerText = s.val() || 0; });
 
     const reactionsRef = db.ref(statsPath.replace('/likes', '/reactions'));
     reactionsRef.on('value', s => {
         const data = s.val() || {};
         const setTxt = (type) => {
             const el = document.getElementById(`rc-${context}-${type}`);
-            if(el) el.innerText = data[type] || 0;
+            if (el) el.innerText = data[type] || 0;
         };
         ['love', 'haha', 'wow', 'angry'].forEach(setTxt);
     });
@@ -1116,11 +1538,11 @@ function updateReactionUI(context, id) {
             // Limpiar clases previas
             btn.classList.remove('btn-reacted-love', 'btn-reacted-haha', 'btn-reacted-wow', 'btn-reacted-angry');
             
-            if(type && REACTION_ICONS[type]) {
-                if(icon) icon.innerText = REACTION_ICONS[type];
+            if (type && REACTION_ICONS[type]) {
+                if (icon) icon.innerText = REACTION_ICONS[type];
                 btn.classList.add(`btn-reacted-${type}`);
             } else {
-                if(icon) icon.innerText = '❤️';
+                if (icon) icon.innerText = '❤️';
             }
         });
     } else {
@@ -1143,7 +1565,7 @@ window.toggleLyrics = () => {
 };
 
 window.shareCurrentTrack = () => {
-    if(currentTrackIndex === -1) return;
+    if (currentTrackIndex === -1) return;
     const track = playlist[currentTrackIndex];
     const textToShare = `Escucha "${track.title}" de Abraham Horus 🎵\nEn: https://abrahamhorus1996.web.app/#p-musica`;
 
@@ -1153,6 +1575,7 @@ window.shareCurrentTrack = () => {
         navigator.clipboard.writeText(textToShare).then(() => showToast("📋 Link copiado"));
     }
 }
+
 
 /* galaxy*/
 document.addEventListener("DOMContentLoaded", function() {
@@ -1255,7 +1678,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // === LÓGICA DE CARRUSEL DE FOTOS Y COMENTARIOS ===
 
 window.openPhotoViewer = (index) => {
-    if(index < 0 || index >= photoList.length) return;
+    if (index < 0 || index >= photoList.length) return;
     currentPhotoIndex = index;
     const modal = document.getElementById('photo-viewer-modal');
     modal.classList.add('active');
@@ -1264,18 +1687,18 @@ window.openPhotoViewer = (index) => {
 
 window.closePhotoViewer = () => {
     document.getElementById('photo-viewer-modal').classList.remove('active');
-    if(currentPhotoCommentsRef) currentPhotoCommentsRef.off(); // Dejar de escuchar comentarios
+    if (currentPhotoCommentsRef) currentPhotoCommentsRef.off(); // Dejar de escuchar comentarios
 };
 
 window.nextPhoto = () => {
     let next = currentPhotoIndex + 1;
-    if(next >= photoList.length) next = 0;
+    if (next >= photoList.length) next = 0;
     loadPhotoDetails(next);
 };
 
 window.prevPhoto = () => {
     let prev = currentPhotoIndex - 1;
-    if(prev < 0) prev = photoList.length - 1;
+    if (prev < 0) prev = photoList.length - 1;
     loadPhotoDetails(prev);
 };
 
@@ -1296,13 +1719,13 @@ function loadPhotoComments(photoId) {
     const list = document.getElementById('pv-comments-list');
     list.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">Cargando...</div>';
     
-    if(currentPhotoCommentsRef) currentPhotoCommentsRef.off();
+    if (currentPhotoCommentsRef) currentPhotoCommentsRef.off();
     
     currentPhotoCommentsRef = db.ref(`comments/${photoId}`);
     currentPhotoCommentsRef.on('value', s => {
         list.innerHTML = "";
         const data = s.val();
-        if(!data) {
+        if (!data) {
             list.innerHTML = '<div style="text-align:center; color:#666; padding:20px;">Sé el primero en comentar.</div>';
             return;
         }
@@ -1328,9 +1751,9 @@ function loadPhotoComments(photoId) {
 }
 
 window.publicarComentarioFoto = () => {
-    if(!currentUser) return showToast("Inicia sesión para comentar");
+    if (!currentUser) return showToast("Inicia sesión para comentar");
     const input = document.getElementById('pv-comment-input');
-    if(!input.value.trim()) return;
+    if (!input.value.trim()) return;
     const photo = photoList[currentPhotoIndex];
     
     db.ref(`comments/${photo.id}`).push({
@@ -1340,35 +1763,33 @@ window.publicarComentarioFoto = () => {
 };
 
 window.deletePhotoComment = (photoId, key) => {
-    if(confirm("¿Borrar comentario?")) db.ref(`comments/${photoId}/${key}`).remove();
+    if (confirm("¿Borrar comentario?")) db.ref(`comments/${photoId}/${key}`).remove();
 };
 
 // === HORUS APPS ===
 const appsData = [
-    { id: 'facebook', name: 'Facebook', icon: '📘', type: 'link', url: 'https://www.facebook.com/TU_PERFIL' },
-    { id: 'instagram', name: 'Instagram', icon: '📸', type: 'link', url: 'https://www.instagram.com/TU_PERFIL' },
-    { id: 'tiktok', name: 'TikTok', icon: '🎵', type: 'link', url: 'https://www.tiktok.com/@TU_PERFIL' }
+    { id: 'facebook', name: 'Facebook', icon: 'assets/facebook.png',     type: 'link', url: 'https://www.facebook.com/abramhorus/' },
+    { id: 'instagram', name: 'Instagram', icon: 'assets/instagram_icon.png', type: 'link', url: 'https://www.instagram.com/abraham_horus/' },
+    { id: 'tiktok', name: 'TikTok', icon: 'assets/tiktok_icon.png', type: 'link', url: 'https://www.tiktok.com/@abrahamhorus' }
 ];
 
 function initializeDock() {
-    const dock = document.querySelector('.mac-dock');
-    if (!dock) return;
-    const separator = dock.querySelector('.dock-separator');
-    
+    const grid = document.getElementById('launcher-grid');
+    if (!grid) return;
+
+    // Llenar la cuadrícula con las redes sociales
+    grid.innerHTML = ""; // Limpiar antes de llenar
     appsData.forEach(app => {
-        const dockIcon = document.createElement('div');
-        dockIcon.className = 'dock-item';
-        dockIcon.id = `dock-item-${app.id}`;
-        dockIcon.setAttribute('onclick', `openApp('${app.id}')`);
-        dockIcon.innerHTML = `
-            <span class="dock-icon">${app.icon}</span>
-            <span class="dock-label">${app.name}</span>
+        const item = document.createElement('div');
+        item.className = 'launcher-menu-item';
+        item.onclick = () => {
+            openApp(app.id);
+        };
+        item.innerHTML = `
+            <img src="${app.icon}" alt="${app.name}">
+            <span>${app.name}</span>
         `;
-        if (separator) {
-            dock.insertBefore(dockIcon, separator);
-        } else {
-            dock.appendChild(dockIcon);
-        }
+        grid.appendChild(item);
     });
 }
 
