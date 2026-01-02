@@ -111,9 +111,12 @@
                 </div>
                 <div class="integrated-player-box">
                     <div class="video-frame">
-                        <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
-                            <source id="video-source" src="" type="video/mp4">
-                        </video>
+                        <div class="ambilight-wrapper">
+                            <canvas id="ambilight-canvas"></canvas>
+                            <video id="main-video" controls playsinline poster="assets/shot 1.jpeg">
+                                <source id="video-source" src="" type="video/mp4">
+                            </video>
+                        </div>
                     </div>
                     <div class="video-controls-bar">
                         <div class="info-block">

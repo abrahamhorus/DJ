@@ -215,8 +215,29 @@ window.onload = () => {
 
     // === LÓGICA PARA CONTAR VIEWS AL REPRODUCIR VIDEO ===
     const mainVideo = document.getElementById('main-video');
-    if (mainVideo) {
+    const ambilightCanvas = document.getElementById('ambilight-canvas');
+
+    if (mainVideo && ambilightCanvas) {
+        const ambilightCtx = ambilightCanvas.getContext('2d', { willReadFrequently: true });
+        
+        // Optimización: resolución interna minúscula para el desenfoque
+        ambilightCanvas.width = 30;
+        ambilightCanvas.height = 30;
+
+        let lastFrameTime = 0;
+        const renderAmbilight = (now) => {
+            if (mainVideo.paused || mainVideo.ended) return;
+            
+            if (now - lastFrameTime > 33) { // Limitar a ~30 FPS para rendimiento
+                ambilightCtx.drawImage(mainVideo, 0, 0, 30, 30);
+                lastFrameTime = now;
+            }
+            requestAnimationFrame(renderAmbilight);
+        };
+
+
         mainVideo.addEventListener('play', () => {
+            renderAmbilight();
             console.log("Evento 'play' detectado en el video principal."); // Para confirmar que el evento se dispara
             console.log("currentVideoId al intentar incrementar:", currentVideoId); // Para ver el ID del video
             if (currentVideoId && currentVideoId !== "default") {
@@ -1585,7 +1606,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let width, height;
     let stars = [];
     // CONFIGURACIÓN: ¡Muévele aquí si quieres más o menos acción!
-    const numStars = 300; // Cantidad de estrellas (cuidado si pones mil, se alenta el cel)
+    const numStars = 600; // Cantidad de estrellas (cuidado si pones mil, se alenta el cel)
     const speed = 1;    // Velocidad de giro (más bajo = más lento y elegante)
 
     // Ajusta el tamaño del canvas a la pantalla
