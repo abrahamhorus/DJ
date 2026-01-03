@@ -498,9 +498,8 @@ button {
 .btn-reply-chat:hover { color: var(--accent) !important; transform: scale(1.2); }
 
 /* EXTRAS */
-.protected-content { display: none; }
-body.is-vip .protected-content { display: block; }
-body.is-vip .code-block-lock { display: none; }
+.protected-content { display: block; }
+.code-block-lock { display: none !important; }
 .code-block-lock { padding: 50px; text-align: center; border: 2px dashed #333; margin: 20px 0; background: #0d0d0d; border-radius: 12px; }
 .btn-green-glow { background: transparent !important; border: 1px solid var(--accent) !important; color: var(--accent) !important; padding: 10px; width: 100%; font-weight: bold; margin-top: 10px; border-radius: 20px; transition: 0.3s; }
 .btn-green-glow:hover { background: var(--accent) !important; color: #000 !important; }
@@ -1351,23 +1350,37 @@ body.potaxio-mode, body.potaxio-mode * {
     cursor: url('/assets/cursor-puto.png'), auto !important;
 }
 
-#google_translate_element .goog-te-gadget-simple {
-    background-color: transparent !important;
-    border: none !important;
+/* === HORUS NATIVE TRANSLATOR UI === */
+.translator-loader {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s;
 }
 
-#google_translate_element .goog-te-gadget-icon,
-body > .skiptranslate {
-    display: none !important;
+.translator-loader.active {
+    display: flex;
 }
 
-body > .skiptranslate {
-    display: none !important;
-    visibility: hidden;
+.loader-content {
+    text-align: center;
+    color: var(--accent);
+    font-family: var(--font-code);
 }
 
-#google_translate_element select {
-    background-color: #000 !important;
-    color: #fff !important;
-    border: 1px solid #333 !important;
+.loader-icon {
+    font-size: 3rem;
+    display: block;
+    animation: pulse-live 1s infinite;
+    margin-bottom: 15px;
+}
+
+#horus-language-selector {
+    cursor: pointer;
+    border-radius: 20px !important;
 }

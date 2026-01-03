@@ -4,7 +4,7 @@ console.log(
 );
 
 console.log(
-    "%c ¿Te gustó el código? Esta página fue construida con sudor, lágrimas y mucho café por el Dr. Abraham Horus. 🧬💻",
+    "%c ¿Te gustó el código? Esta página fue construida con sudor, lágrimas y mucho café por el precioso de Abraham Horus. 🧬💻",
     "color: #00d9ff; font-size: 14px; font-weight: bold;"
 );
 
@@ -203,6 +203,7 @@ window.onload = () => {
     initApp();
     handleHash(); 
     initializeDock(); 
+    initLanguageSelector(); // Inicializar sistema de idiomas
 
     // Sonido de click para modo potaxio
     const audioClickPuto = new Audio('/assets/puto-click.mp3');
@@ -397,11 +398,26 @@ function initApp() {
     });
 
     // 5. CARGAR CHAT
+    const chatBox = document.getElementById('chat-global-msgs');
+    let isUserAtBottom = true;
+    let chatSentinel = null;
+
+    if (chatBox) {
+        // Intersection Observer para el Chat (Optimización UX)
+        chatSentinel = document.createElement('div');
+        chatSentinel.id = 'chat-sentinel';
+        chatBox.appendChild(chatSentinel);
+
+        const observer = new IntersectionObserver((entries) => {
+            isUserAtBottom = entries[0].isIntersecting;
+        }, { threshold: 0.1 });
+        observer.observe(chatSentinel);
+    }
+
     db.ref('chat_global').limitToLast(30).on('child_added', snapshot => {
         const m = snapshot.val();
-        const box = document.getElementById('chat-global-msgs');
         
-        if (box) {
+        if (chatBox) {
             const div = document.createElement('div');
             let cssClass = "msg-other";
             let icon = "";
@@ -420,8 +436,16 @@ function initApp() {
                                 <button onclick="window.replyChat('${m.user}')" class="btn-reply-chat">↩</button>
                              </small>
                              ${m.text}`;
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+            
+            if (chatSentinel) {
+                chatBox.insertBefore(div, chatSentinel);
+                if (isUserAtBottom) {
+                    chatSentinel.scrollIntoView({ behavior: 'smooth' });
+                }
+            } else {
+                chatBox.appendChild(div);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
         }
     });
 
@@ -552,7 +576,16 @@ window.playTrackIndex = (index) => {
     // Cargar Likes y Letra
     updateReactionUI('music', track.id); // Usar nueva función de UI
     const lyricsBox = document.getElementById('lyrics-text');
-    if (lyricsBox) lyricsBox.innerText = track.desc || "No hay letra disponible.";
+    if (lyricsBox) {
+        lyricsBox.innerHTML = "";
+        lyricsBox.scrollTop = 0; // Reset scroll al cambiar canción
+        const lyricsContent = track.desc || "No hay letra disponible.";
+        lyricsContent.split('\n').forEach(line => {
+            const div = document.createElement('div');
+            div.textContent = line;
+            lyricsBox.appendChild(div);
+        });
+    }
     
     // Resaltar en cola
     document.querySelectorAll('.queue-item').forEach((el, i) => {
@@ -760,7 +793,8 @@ window.toggleSub = () => {
     console.log("Intentando toggle de suscripción...");
     if (!currentUser) {
         console.warn("No hay usuario detectado para suscribirse.");
-        return showToast("Inicia sesión para suscribirte, mi amor");
+        showToast("Inicia sesión para suscribirte, mi amor");
+        return window.loginGoogle();
     }
 
     const subRef = db.ref(`users/${currentUser.uid}/isSubscribed`);
@@ -1192,7 +1226,10 @@ window.loadVideo = (v) => {
 
 // === PUBLICAR COMENTARIO PRINCIPAL ===
 window.publicarComentario = () => {
-    if (!currentUser) return showToast("Inicia sesión para comentar");
+    if (!currentUser) {
+        showToast("Inicia sesión para comentar");
+        return window.loginGoogle();
+    }
     const input = document.getElementById('comment-input-main');
     if (!input || !input.value.trim()) return showToast("Escribe algo...");
 
@@ -1373,7 +1410,10 @@ function loadComments(videoId) {
 }
 
 window.enviarReply = (parentKey) => {
-    if (!currentUser) return showToast("Inicia sesión para responder");
+    if (!currentUser) {
+        showToast("Inicia sesión para responder");
+        return window.loginGoogle();
+    }
     const input = document.getElementById(`input-${parentKey}`);
     if (!input || !input.value) return;
     
@@ -1772,7 +1812,10 @@ function loadPhotoComments(photoId) {
 }
 
 window.publicarComentarioFoto = () => {
-    if (!currentUser) return showToast("Inicia sesión para comentar");
+    if (!currentUser) {
+        showToast("Inicia sesión para comentar");
+        return window.loginGoogle();
+    }
     const input = document.getElementById('pv-comment-input');
     if (!input.value.trim()) return;
     const photo = photoList[currentPhotoIndex];
@@ -1820,4 +1863,367 @@ function openApp(appId) {
 
     showToast(`🚀 Viajando a ${app.name}...`);
     window.open(app.url, '_blank');
+}
+
+// === HORUS AI TRANSLATOR (VIA CLOUD FUNCTION) ===
+
+let isTranslating = false;
+let originalTexts = new Map(); // Cache para guardar textos originales y poder revertir a español.
+const traduccionesCache = new Map(); // MEMORIA: Cache persistente de traducciones
+let translationObserver = null; // OBSERVADOR: Para contenido dinámico
+
+const ALL_LANGUAGES = [
+    { name: 'Español', code: 'es', flag: '🇪🇸' },
+    { name: 'English', code: 'en', flag: '🇺🇸' },
+    { name: 'Français', code: 'fr', flag: '🇫🇷' },
+    { name: 'Deutsch', code: 'de', flag: '🇩🇪' },
+    { name: 'Português', code: 'pt', flag: '🇧🇷' },
+    { name: '日本語', code: 'ja', flag: '🇯🇵' },
+    { name: 'Русский', code: 'ru', flag: '🇷🇺' },
+    { name: '中文', code: 'zh', flag: '🇨🇳' },
+    { name: 'Potaxio', code: 'po', flag: '🥑' },
+];
+
+// UX: Debounce para entradas de texto vivo
+const debounce = (fn, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn(...args), delay);
+    };
+};
+
+// UX: Typing Effect (Palabra por palabra)
+function typeTextEffect(node, text) {
+    if (!text) return;
+    // OPTIMIZACIÓN: Renderizar de golpe si es largo o para evitar lag en letras rápidas
+    if (text.length > 50) {
+        node.nodeValue = text;
+        return;
+    }
+    const words = text.split(' ');
+    let current = "";
+    let i = 0;
+    const interval = setInterval(() => {
+        if (i >= words.length) { clearInterval(interval); return; }
+        current += (i > 0 ? " " : "") + words[i];
+        node.nodeValue = current;
+        i++;
+    }, 5); // Acelerado de 30ms a 5ms para mayor fluidez
+}
+
+/**
+ * Llama a la Cloud Function para traducir un array de textos.
+ * @param {string[]} textos - Array con los textos a traducir.
+ * @param {string} idiomaDestino - Código del idioma destino (ej. "en").
+ * @returns {Promise<string[]>} - Promesa que resuelve a un array con los textos traducidos.
+ */
+async function traducirConHorus(textos, idiomaDestino) {
+    const url = "https://us-central1-abrahamhorus1996.cloudfunctions.net/traducirHorus";
+    const lyricsRegex = /^(\[\d{2}:\d{2}(?:[:.]\d{2,3})?\])\s*(.*)/; // REPRODUCTOR: Regex más flexible (soporta .000 o :00)
+    
+    // 1. MEMORIA: Verificar caché y preparar Batch
+    const toFetch = [];
+    const mapping = []; // Mantiene el orden y tipo de origen
+
+    textos.forEach((texto, index) => {
+        const cacheKey = `${idiomaDestino}_${texto}`;
+        if (traduccionesCache.has(cacheKey)) {
+            mapping[index] = { type: 'cache', value: traduccionesCache.get(cacheKey) };
+        } else {
+            // Procesar letras de canciones
+            const match = texto.match(lyricsRegex);
+            let payload = texto;
+            let prefix = "";
+            
+            if (match) {
+                prefix = match[1] + " "; // Guardar timestamp [00:00.00]
+                payload = match[2]; // Texto a traducir
+            }
+
+            if (!payload.trim()) {
+                mapping[index] = { type: 'immediate', value: texto };
+            } else {
+                mapping[index] = { type: 'fetch', original: texto, prefix, payload };
+                toFetch.push(payload);
+            }
+        }
+    });
+
+    if (toFetch.length === 0) return mapping.map(m => m.value);
+
+    // Filtrar duplicados para ahorrar tokens
+    const uniqueToFetch = [...new Set(toFetch)];
+    let translatedMap = {};
+
+    // 2. Procesar Traducción (Local o API)
+    if (idiomaDestino === 'po') {
+        const terminaciones = ['e', 'i', 'o', 'u'];
+        uniqueToFetch.forEach(txt => {
+            translatedMap[txt] = txt.split(' ').map(palabra => {
+                // Reemplaza la última vocal de la palabra por 'e' si cumple las condiciones
+                let ultimaVocalIndex = -1;
+                for (let i = palabra.length - 1; i >= 0; i--) {
+                    if (terminaciones.includes(palabra[i].toLowerCase())) {
+                        ultimaVocalIndex = i;
+                        break;
+                    }
+                }
+                if (ultimaVocalIndex !== -1) {
+                    return palabra.substring(0, ultimaVocalIndex) + 'e' + palabra.substring(ultimaVocalIndex + 1);
+                }
+                return palabra;
+            }).join(' ');
+        });
+    } else {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ textos: uniqueToFetch, targetLang: idiomaDestino })
+            });
+
+            if (!response.ok) throw new Error("API Error");
+            
+            const data = await response.json();
+            if (data.traducciones) {
+                uniqueToFetch.forEach((t, i) => translatedMap[t] = data.traducciones[i] || t);
+            }
+        } catch (error) {
+            console.error('Error al llamar a la Cloud Function:', error);
+            showToast("🥑 Error de red.");
+            return textos; // Fallback
+        }
+    }
+
+    // 3. Reconstruir y Actualizar Caché
+    return mapping.map(m => {
+        if (m.type === 'cache' || m.type === 'immediate') return m.value;
+        
+        const translatedText = translatedMap[m.payload] || m.payload;
+        const finalResult = m.prefix + translatedText; // Re-adjuntar timestamp
+        
+        traduccionesCache.set(`${idiomaDestino}_${m.original}`, finalResult);
+        return finalResult;
+    });
+}
+
+// INFILTRACIÓN SHADOW DOM: Función recursiva
+function getAllTextNodes(root) {
+    let nodes = [];
+    
+    // 1. Escanear Light DOM actual
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(node) {
+            const parentTag = node.parentElement ? node.parentElement.tagName.toLowerCase() : '';
+            if (['script', 'style', 'pre', 'code', 'textarea'].includes(parentTag) || 
+                (node.parentElement && node.parentElement.isContentEditable)) {
+                return NodeFilter.FILTER_REJECT;
+            }
+            if (!node.nodeValue || node.nodeValue.trim().length <= 1) return NodeFilter.FILTER_REJECT;
+            return NodeFilter.FILTER_ACCEPT;
+        }
+    }, false);
+
+    let node;
+    while (node = walker.nextNode()) nodes.push(node);
+
+    // 2. Infiltrar Shadow Roots (Recursión)
+    const elements = root.querySelectorAll ? root.querySelectorAll('*') : [];
+    elements.forEach(el => {
+        if (el.shadowRoot) {
+            nodes = nodes.concat(getAllTextNodes(el.shadowRoot));
+        }
+    });
+
+    return nodes;
+}
+
+/**
+ * Recorre el DOM, recolecta textos, los traduce y actualiza la UI.
+ * @param {string} targetLang - Código del idioma al que se va a traducir.
+ */
+async function cambiarIdiomaHorus(targetLang) {
+    if (isTranslating) {
+        showToast("Traducción en progreso, espere un momento...");
+        return;
+    }
+    isTranslating = true;
+    const langData = ALL_LANGUAGES.find(l => l.code === targetLang);
+    showToast(`Traduciendo a ${langData.name} ${langData.flag}...`);
+
+    try {
+        // --- Lógica para restaurar a Español ---
+        if (targetLang === 'es') {
+            if (originalTexts.size > 0) {
+                for (const [node, originalText] of originalTexts.entries()) {
+                    node.nodeValue = originalText;
+                }
+                originalTexts.clear(); // Limpiar el cache después de restaurar
+                showToast("Idioma restaurado a Español.");
+            }
+            isTranslating = false;
+            return;
+        }
+
+        // --- Lógica para traducir a otro idioma ---
+        // Usar la nueva función de infiltración Shadow DOM
+        const textNodes = getAllTextNodes(document.body);
+
+        const aTraducir = textNodes.map(node => {
+            // Guardar el original solo si no está ya en el cache (primera traducción desde 'es')
+            if (!originalTexts.has(node)) {
+                originalTexts.set(node, node.nodeValue);
+            }
+            // Devolvemos el texto original para la traducción
+            return originalTexts.get(node);
+        });
+
+        if (aTraducir.length === 0) {
+            isTranslating = false;
+            return;
+        }
+
+        // Llamar a la función de la nube
+        const textosTraducidos = await traducirConHorus(aTraducir, targetLang);
+
+        if (textosTraducidos && textosTraducidos.length === textNodes.length) {
+            textNodes.forEach((node, index) => {
+                // UX: Typing Effect
+                typeTextEffect(node, textosTraducidos[index]);
+            });
+            showToast("Traducción completada.");
+        } else {
+            showToast("Error durante la traducción, no se recibieron todos los textos.");
+            // Restaurar por seguridad
+            for (const [node, originalText] of originalTexts.entries()) {
+                if (textNodes.includes(node)) {
+                    node.nodeValue = originalText;
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Error en el proceso de cambio de idioma:", error);
+        showToast("Ocurrió un error general al traducir.");
+    } finally {
+        isTranslating = false;
+        
+        // ACTIVAR OBSERVADOR PARA TEXTO NUEVO (Chat, Comentarios, etc.)
+        if (translationObserver) translationObserver.disconnect();
+        
+        if (targetLang !== 'es') {
+            // ACUMULADOR DE NODOS: Evita perder texto si el debounce descarta argumentos
+            let pendingAddedNodes = [];
+
+            const processTranslationQueue = debounce(async () => {
+                if (pendingAddedNodes.length === 0) return;
+                
+                // Copiar y limpiar cola
+                const nodesSnapshot = [...pendingAddedNodes];
+                pendingAddedNodes = [];
+
+                let textNodesToTranslate = [];
+                nodesSnapshot.forEach(root => {
+                    if (root.nodeType === Node.ELEMENT_NODE) textNodesToTranslate = textNodesToTranslate.concat(getAllTextNodes(root));
+                    else if (root.nodeType === Node.TEXT_NODE && root.nodeValue.trim().length > 1) textNodesToTranslate.push(root);
+                });
+                
+                // Filtrar duplicados
+                textNodesToTranslate = [...new Set(textNodesToTranslate)];
+
+                if (textNodesToTranslate.length === 0) return;
+
+                // Guardar originales de lo nuevo
+                textNodesToTranslate.forEach(n => { if (!originalTexts.has(n)) originalTexts.set(n, n.nodeValue); });
+
+                const texts = textNodesToTranslate.map(n => n.nodeValue);
+                const translated = await traducirConHorus(texts, targetLang);
+                
+                textNodesToTranslate.forEach((node, i) => {
+                    if (translated[i] !== texts[i]) typeTextEffect(node, translated[i]);
+                });
+            }, 200);
+
+            translationObserver = new MutationObserver((mutations) => {
+                let hasUpdates = false;
+                mutations.forEach(m => {
+                    m.addedNodes.forEach(n => { pendingAddedNodes.push(n); hasUpdates = true; });
+                });
+                if (hasUpdates) processTranslationQueue();
+            });
+            
+            translationObserver.observe(document.body, { childList: true, subtree: true });
+        }
+    }
+}
+
+
+function initLanguageSelector() {
+    const datalist = document.getElementById('idiomas-lista');
+    const input = document.getElementById('idioma-input');
+    
+    if (!datalist || !input) return;
+
+    // 1. Llenar Datalist
+    datalist.innerHTML = '';
+    ALL_LANGUAGES.forEach(lang => {
+        const option = document.createElement('option');
+        option.value = lang.name;
+        option.setAttribute('data-code', lang.code);
+        datalist.appendChild(option);
+    });
+
+    // 2. Lógica de Inicialización de Idioma
+    let finalLangCode = 'es';
+    const savedLangCode = localStorage.getItem('horus_user_pref_lang');
+    
+    if (savedLangCode && ALL_LANGUAGES.some(l => l.code === savedLangCode)) {
+        finalLangCode = savedLangCode;
+    } else {
+        const browserLang = (navigator.language || 'es').substring(0, 2);
+        if (ALL_LANGUAGES.some(l => l.code === browserLang)) {
+            finalLangCode = browserLang;
+        }
+    }
+
+    const langData = ALL_LANGUAGES.find(l => l.code === finalLangCode);
+    if (langData) {
+        input.value = langData.name;
+    }
+
+    // Traducir al cargar la página si el idioma guardado no es español
+    if (finalLangCode !== 'es') {
+        // Esperar a que el contenido principal se cargue un poco
+        setTimeout(() => {
+            console.log(`Iniciando traducción automática a: ${finalLangCode}`);
+            cambiarIdiomaHorus(finalLangCode);
+        }, 1500); 
+    }
+
+    // 3. Manejar selección del usuario
+    input.addEventListener('change', debounce((e) => { // UX: Debounce 500ms
+        const selectedName = e.target.value;
+        const selectedLang = ALL_LANGUAGES.find(l => l.name.toLowerCase() === selectedName.toLowerCase());
+        
+        if (selectedLang) {
+            if (selectedLang.code !== localStorage.getItem('horus_user_pref_lang')) {
+                localStorage.setItem('horus_user_pref_lang', selectedLang.code);
+                cambiarIdiomaHorus(selectedLang.code);
+            }
+        }
+    }, 500));
+
+    // UX Mejorada
+    input.addEventListener('focus', () => {
+        input.value = '';
+        input.placeholder = 'Busca un idioma...';
+    });
+    input.addEventListener('blur', () => {
+        const currentLangCode = localStorage.getItem('horus_user_pref_lang') || 'es';
+        const currentLangData = ALL_LANGUAGES.find(l => l.code === currentLangCode);
+        if (currentLangData) {
+            input.value = currentLangData.name;
+        }
+        input.placeholder = 'Selecciona Idioma';
+    });
 }

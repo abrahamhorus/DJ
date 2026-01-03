@@ -11,6 +11,14 @@
     <meta property="og:description" content="Plataforma interactiva, música exclusiva y comunidad VIP.">
     <meta property="og:image" content="assets/shot 1.jpeg">
     
+    <!-- Loader de Traducción Horus -->
+    <div id="horus-translator-loader" class="translator-loader">
+        <div class="loader-content">
+            <span class="loader-icon">🧬</span>
+            <p id="loader-text">Horus está traduciendo...</p>
+        </div>
+    </div>
+
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
@@ -277,7 +285,9 @@
                     <h3 id="display-name">INVITADO</h3>
 
                     <div style="margin: 20px 0; position: relative; z-index: 1000;">
-                        <div id="google_translate_element"></div>
+                        <label for="idioma-input" style="display:block; font-size:0.7rem; color:var(--accent); margin-bottom:5px;">IDIOMA DEL SISTEMA</label>
+                        <input id="idioma-input" list="idiomas-lista" class="admin-input no-translate" placeholder="Busca un idioma...">
+                        <datalist id="idiomas-lista"></datalist>
                     </div>
                     
                     <div id="xp-container" style="display:none; margin: 15px 0;">
@@ -452,12 +462,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({pageLanguage: 'es'}, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <script src="app.js"></script>
 </body>
 </html>
