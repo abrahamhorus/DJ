@@ -14,7 +14,7 @@ console.log(
 );
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBiDImq0GMse8SOePAH-3amtmopBRO8wGA",
+    apiKey: "",
     authDomain: "abrahamhorus1996.firebaseapp.com",
     databaseURL: "https://abrahamhorus1996-default-rtdb.firebaseio.com",
     projectId: "abrahamhorus1996",
